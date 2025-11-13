@@ -29,6 +29,15 @@
   padding: 120px 60px;
 }
 
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+
 .intro {
   display: flex;
   flex-direction: column;
