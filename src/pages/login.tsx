@@ -13,8 +13,8 @@ const LoginPage = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
-        // Redirect to home page after sign in
-        router.push('/')
+        const redirectPath = router.query.redirect || '/';
+        router.push(redirectPath as string);
       }
     })
 

@@ -5,13 +5,33 @@ import Header from '@/components/Header'
 import { useCart } from '@/context/CartContext'
 import { urlFor } from '@/sanity/lib/image'
 import styles from '@/styles/Panier.module.css'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
+import { createClient } from '@/lib/supabase/client'
 
 export default function PanierPage() {
   const { cartItems, removeFromCart, updateItemQuantity, cartTotal, itemCount } = useCart();
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const supabase = createClient();
+  const router = useRouter();
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+  }, [supabase]);
 
   const handleCheckout = async () => {
+    if (!user) {
+      // If user is not logged in, redirect to login page
+      // We add a redirect query param to come back to the cart after login
+      router.push('/login?redirect=/panier');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -41,7 +61,6 @@ export default function PanierPage() {
       alert(`Une erreur est survenue: ${error.message}`);
       setLoading(false); // Reset loading state on error
     }
-    // No 'finally' block to reset loading, as a successful redirect will navigate away.
   };
 
   return (
