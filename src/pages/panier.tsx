@@ -5,9 +5,44 @@ import Header from '@/components/Header'
 import { useCart } from '@/context/CartContext'
 import { urlFor } from '@/sanity/lib/image'
 import styles from '@/styles/Panier.module.css'
+import { useState } from 'react'
 
 export default function PanierPage() {
   const { cartItems, removeFromCart, updateItemQuantity, cartTotal, itemCount } = useCart();
+  const [loading, setLoading] = useState(false);
+
+  const handleCheckout = async () => {
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/checkout_sessions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cartItems }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json();
+        throw new Error(errorBody.error.message || 'Failed to create checkout session');
+      }
+
+      const { url } = await response.json();
+
+      if (url) {
+        window.location.href = url;
+      } else {
+        throw new Error('URL de paiement non trouvée.');
+      }
+
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      alert(`Une erreur est survenue: ${error.message}`);
+      setLoading(false); // Reset loading state on error
+    }
+    // No 'finally' block to reset loading, as a successful redirect will navigate away.
+  };
 
   return (
     <>
@@ -62,8 +97,13 @@ export default function PanierPage() {
                 <span>Total</span>
                 <span>{cartTotal.toFixed(2)} €</span>
               </div>
-              <button className="btn btn-primary" style={{width: '100%', marginTop: '1rem'}}>
-                Passer la commande
+              <button 
+                className="btn btn-primary" 
+                style={{width: '100%', marginTop: '1rem'}}
+                onClick={handleCheckout}
+                disabled={loading}
+              >
+                {loading ? 'Chargement...' : 'Passer la commande'}
               </button>
             </div>
           </div>

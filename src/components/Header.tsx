@@ -1,11 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Logo from './Logo';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useCart } from '@/context/CartContext';
 import CartIcon from './CartIcon';
+import { createClient } from '@/lib/supabase/client'; // Import Supabase client
 
 const Header: React.FC = () => {
   const { itemCount } = useCart();
+  const supabase = createClient();
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null); // State to hold user info
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+
+    getUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/login'); // Redirect to login page after logout
+  };
 
   return (
     <header style={{
@@ -29,6 +54,14 @@ const Header: React.FC = () => {
             <li><Link href="/produits" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Produits</Link></li>
             <li><Link href="/a-propos" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Mon Histoire</Link></li>
             <li><Link href="/contact" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Contact</Link></li>
+            {user ? (
+              <>
+                <li><Link href="/mon-compte" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Mon Compte</Link></li>
+                <li><button onClick={handleLogout} style={{ background: 'none', border: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem' }}>Déconnexion</button></li>
+              </>
+            ) : (
+              <li><Link href="/login" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Connexion</Link></li>
+            )}
             <li>
               <Link href="/panier" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <CartIcon />
@@ -61,4 +94,5 @@ const Header: React.FC = () => {
 };
 
 export default Header;
+
 
