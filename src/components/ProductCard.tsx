@@ -10,6 +10,7 @@ interface Product {
   name: string;
   mainImage: any;
   slug: { current: string };
+  price?: number;
 }
 
 interface ProductCardProps {
@@ -37,6 +38,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
       </div>
       <h3>{product.name}</h3>
+      {product.price && <p className={styles.price}>{product.price.toFixed(2)} €</p>}
     </Link>
   )
 }

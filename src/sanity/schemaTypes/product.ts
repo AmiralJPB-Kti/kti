@@ -95,6 +95,13 @@ export default defineType({
       },
       initialValue: 'unique',
     }),
+    defineField({
+      name: 'isNew',
+      title: 'Nouveauté',
+      type: 'boolean',
+      description: 'Cocher cette case pour faire apparaître le produit sur la page d\'accueil comme une nouveauté.',
+      initialValue: false,
+    }),
   ],
   preview: {
     select: {

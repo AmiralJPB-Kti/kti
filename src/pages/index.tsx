@@ -40,7 +40,7 @@ export default function Home({ products, settings }: HomeProps) {
       <HeroBanner settings={settings} />
       <main className="container" style={{ paddingTop: '4rem' }}>
         <section>
-          <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Nos Produits</h2>
+          <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Nos Nouveautés</h2>
           <div className={styles.productGrid}>
             {products && products.length > 0 ? (
               products.map((product) => (
@@ -59,7 +59,7 @@ export default function Home({ products, settings }: HomeProps) {
 // This function runs at build time to fetch data from Sanity
 export async function getStaticProps() {
   const query = groq`{
-    "products": *[_type == "product"]{
+    "products": *[_type == "product" && isNew == true]{
       _id,
       name,
       slug,

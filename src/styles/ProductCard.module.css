@@ -32,3 +32,10 @@
   color: #777;
   margin-bottom: 0;
 }
+
+.price {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--color-heading);
+  margin-top: 0.5rem;
+}
