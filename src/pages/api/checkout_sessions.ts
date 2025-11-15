@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     try {
-      const { cartItems } = req.body;
+      const { cartItems, user } = req.body;
 
       if (!cartItems || cartItems.length === 0) {
         return res.status(400).json({ error: 'Le panier est vide.' });
@@ -42,6 +42,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         mode: 'payment',
         success_url: success_url,
         cancel_url: cancel_url,
+        customer_email: user?.email,
+        client_reference_id: user?.id,
       });
 
       if (!session.url) {

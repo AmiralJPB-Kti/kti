@@ -40,7 +40,7 @@ export default function PanierPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ cartItems }),
+        body: JSON.stringify({ cartItems, user }),
       });
 
       if (!response.ok) {
