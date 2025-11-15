@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import AddressForm from '@/components/AddressForm';
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
+import Link from 'next/link';
 
 // Define types for our data
 export interface Profile {
@@ -12,6 +13,7 @@ export interface Profile {
   first_name: string | null;
   last_name: string | null;
   phone: string | null;
+  country_code: string | null; // New field
 }
 
 export interface Address {
@@ -49,13 +51,16 @@ const AccountPage = () => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [addresses, setAddresses] = useState<Address[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]); // New state for orders
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   // States for address form
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+
+  // State for order expansion
+  const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -78,15 +83,14 @@ const AccountPage = () => {
       if (addressesError) console.error('Error fetching addresses:', addressesError);
       else setAddresses(addressesData);
 
-      // Fetch orders with their items
+      // Fetch orders with their items, sorted by order ID
       const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
-        .select('*, order_items(*)') // Select order and join order_items
+        .select('*, order_items(*)')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false }); // Newest orders first
-
+        .order('id', { ascending: false }); // Sort by order number
       if (ordersError) console.error('Error fetching orders:', ordersError);
-      else setOrders(ordersData as Order[]); // Cast to Order[]
+      else setOrders(ordersData as Order[]);
 
       setLoading(false);
     };
@@ -106,6 +110,7 @@ const AccountPage = () => {
     const updatedProfile = {
       first_name: formData.get('firstName') as string,
       last_name: formData.get('lastName') as string,
+      country_code: formData.get('countryCode') as string,
       phone: formData.get('phone') as string,
       updated_at: new Date().toISOString(),
     };
@@ -127,14 +132,14 @@ const AccountPage = () => {
 
     if (selectedAddress) { // Update existing address
       const { data, error } = await supabase.from('addresses').update(addressData).eq('id', selectedAddress.id).select().single();
-      if (error) alert('Erreur lors de la mise à jour de l\'adresse.');
+      if (error) alert("Erreur lors de la mise à jour de l'adresse.");
       else {
         setAddresses(addresses.map(a => a.id === data.id ? data : a));
         alert('Adresse mise à jour !');
       }
     } else { // Add new address
       const { data, error } = await supabase.from('addresses').insert({ ...addressData, user_id: user.id }).select().single();
-      if (error) alert('Erreur lors de l\'ajout de l\'adresse.');
+      if (error) alert("Erreur lors de l'ajout de l'adresse.");
       else {
         setAddresses([...addresses, data]);
         alert('Adresse ajoutée !');
@@ -146,7 +151,7 @@ const AccountPage = () => {
   };
 
   const handleDeleteAddress = async (addressId: number) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette adresse ?')) {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette adresse ?")) {
       const { error } = await supabase.from('addresses').delete().eq('id', addressId);
       if (error) alert('Erreur lors de la suppression.');
       else {
@@ -154,6 +159,10 @@ const AccountPage = () => {
         alert('Adresse supprimée.');
       }
     }
+  };
+
+  const handleToggleOrderDetails = (orderId: number) => {
+    setExpandedOrderId(prevId => (prevId === orderId ? null : orderId));
   };
 
   const handleAddNewAddress = () => {
@@ -185,7 +194,16 @@ const AccountPage = () => {
               <form onSubmit={handleProfileUpdate}>
                 <div style={styles.formGroup}><label htmlFor="firstName">Prénom</label><input type="text" id="firstName" name="firstName" defaultValue={profile?.first_name || ''} style={styles.input} /></div>
                 <div style={styles.formGroup}><label htmlFor="lastName">Nom</label><input type="text" id="lastName" name="lastName" defaultValue={profile?.last_name || ''} style={styles.input} /></div>
-                <div style={styles.formGroup}><label htmlFor="phone">Téléphone</label><input type="tel" id="phone" name="phone" defaultValue={profile?.phone || ''} style={styles.input} /></div>
+                <div style={{display: 'flex', gap: '1rem'}}>
+                  <div style={{...styles.formGroup, flex: '1'}}>
+                    <label htmlFor="countryCode">Indicatif pays</label>
+                    <input type="text" id="countryCode" name="countryCode" defaultValue={profile?.country_code || ''} style={styles.input} placeholder="+33" />
+                  </div>
+                  <div style={{...styles.formGroup, flex: '3'}}>
+                    <label htmlFor="phone">Téléphone</label>
+                    <input type="tel" id="phone" name="phone" defaultValue={profile?.phone || ''} style={styles.input} />
+                  </div>
+                </div>
                 <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Sauvegarde...' : 'Sauvegarder'}</button>
               </form>
             </section>
@@ -206,7 +224,7 @@ const AccountPage = () => {
                         </li>
                       ))}
                     </ul>
-                  ) : <p>Vous n\'avez pas encore d\'adresse.</p>}
+                  ) : <p>Vous n'avez pas encore d'adresse.</p>}
                   <button onClick={handleAddNewAddress} className="btn btn-primary" style={{marginTop: '1rem'}}>Ajouter une adresse</button>
                 </>
               ) : (
@@ -225,32 +243,33 @@ const AccountPage = () => {
                     <ul style={styles.orderList}>
                         {orders.map(order => (
                             <li key={order.id} style={styles.orderItem}>
-                                <div style={styles.orderHeader}>
-                                    <h3>Commande #{order.id} - {new Date(order.created_at).toLocaleDateString()}</h3>
-                                    <p>Statut: <strong>{order.status}</strong></p>
+                                <div style={styles.orderHeader} onClick={() => handleToggleOrderDetails(order.id)}>
+                                    <h3>Commande #{order.id}</h3>
+                                    <p>{new Date(order.created_at).toLocaleDateString()}</p>
                                     <p>Total: <strong>{order.amount_total.toFixed(2)} €</strong></p>
+                                    <p>Statut: <strong>{order.status}</strong></p>
                                 </div>
-                                <div style={styles.orderDetails}>
-                                    <h4>Articles:</h4>
-                                    <ul style={styles.orderItemsList}>
-                                        {order.order_items.map(item => (
-                                            <li key={item.id} style={styles.orderItemDetail}>
-                                                {item.quantity} x {item.product_name} ({item.price.toFixed(2)} €/unité)
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
+                                {expandedOrderId === order.id && (
+                                  <div style={styles.orderDetails}>
+                                      <h4>Articles:</h4>
+                                      <ul style={styles.orderItemsList}>
+                                          {order.order_items.map(item => (
+                                              <li key={item.id} style={styles.orderItemDetail}>
+                                                  {item.quantity} x {item.product_name} ({item.price.toFixed(2)} €/unité)
+                                              </li>
+                                          ))}
+                                      </ul>
+                                  </div>
+                                )}
                             </li>
                         ))}
                     </ul>
                 ) : (
-                    <p>Vous n\'avez pas encore passé de commande.</p>
+                    <p>Vous n'avez pas encore passé de commande.</p>
                 )}
             </section>
           </>
         )}
-
-        <section style={styles.section}><h2 style={{marginTop: '2rem'}}>Mes Échanges</h2><p>Échanges à venir.</p></section>
       </main>
     </>
   );
@@ -263,10 +282,21 @@ const styles = {
   addressList: { listStyle: 'none', padding: 0 },
   addressItem: { padding: '1rem', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   orderList: { listStyle: 'none', padding: 0 },
-  orderItem: { backgroundColor: '#fff', border: '1px solid #ddd', borderRadius: '8px', padding: '1.5rem', marginBottom: '1rem' },
-  orderHeader: { marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #eee' },
-  orderDetails: { marginTop: '1rem' },
-  orderItemsList: { listStyle: 'disc', paddingLeft: '1.5rem' },
+  orderItem: { backgroundColor: '#fff', border: '1px solid #ddd', borderRadius: '8px', marginBottom: '1rem', overflow: 'hidden' },
+  orderHeader: { 
+    display: 'flex', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    padding: '1.5rem', 
+    cursor: 'pointer',
+    transition: 'background-color 0.2s',
+  },
+  orderDetails: { 
+    padding: '0 1.5rem 1.5rem 1.5rem', 
+    borderTop: '1px solid #eee',
+    backgroundColor: '#fafafa',
+  },
+  orderItemsList: { listStyle: 'disc', paddingLeft: '1.5rem', marginTop: '1rem' },
   orderItemDetail: { marginBottom: '0.5rem' },
 };
 
