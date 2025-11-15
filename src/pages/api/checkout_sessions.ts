@@ -15,6 +15,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ error: 'Le panier est vide.' });
       }
 
+      // Get customer IP address
+      const forwarded = req.headers['x-forwarded-for'];
+      const ip = typeof forwarded === 'string' ? forwarded.split(',')[0] : req.socket.remoteAddress;
+
       // Transform cart items into Stripe's line_items format
       const line_items = cartItems.map((item: any) => {
         return {
@@ -44,6 +48,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         cancel_url: cancel_url,
         customer_email: user?.email,
         client_reference_id: user?.id,
+        metadata: {
+          customer_ip: ip || 'N/A', // Add IP to metadata
+        },
       });
 
       if (!session.url) {

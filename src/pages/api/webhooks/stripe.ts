@@ -65,7 +65,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 };
 
 const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
-  const { client_reference_id: userId, amount_total, id: stripe_session_id } = session;
+  const { client_reference_id: userId, amount_total, id: stripe_session_id, metadata } = session;
+  const customerIp = metadata?.customer_ip;
 
   if (!userId) {
     console.error('❌ No user ID in Stripe session. Order cannot be created.');
@@ -86,13 +87,14 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
         stripe_session_id: stripe_session_id,
         amount_total: amount_total / 100, // Convert from cents to euros
         status: 'paid', // Or 'pending' if you have further processing
+        customer_ip_address: customerIp, // Add the customer's IP address
       })
       .select()
       .single();
 
     if (orderError) throw orderError;
 
-    console.log(`📝 Order ${orderData.id} created for user ${userId}`);
+    console.log(`📝 Order ${orderData.id} created for user ${userId} from IP ${customerIp}`);
 
     // 2. Retrieve line items from the session
     const { data: lineItems } = await stripe.checkout.sessions.listLineItems(session.id);
