@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/router';
 import Header from '@/components/Header';
 import Head from 'next/head';
+import Link from 'next/link';
 
 const LoginPage = () => {
   const supabase = createClient();
@@ -12,12 +13,19 @@ const LoginPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Redirect if user is already logged in
+  // Redirect if user is already fully logged in
   useEffect(() => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        router.push('/mon-compte');
+        // Check if the session is from a full password authentication
+        const lastAmr = user.amr?.slice(-1)[0];
+        if (lastAmr?.method === 'password') {
+          // If fully authenticated, redirect to the account page
+          router.push('/mon-compte');
+        }
+        // Otherwise, if the session is temporary (e.g., from password recovery),
+        // do nothing and let the user log in normally.
       }
     };
     checkUser();
@@ -28,39 +36,23 @@ const LoginPage = () => {
     setLoading(true);
     setError(null);
 
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Une erreur est survenue.');
-      }
-
-      // Manually set the session on the client-side
-      const { session, user } = data;
-      if (session && user) {
-        await supabase.auth.setSession({
-          access_token: session.access_token,
-          refresh_token: session.refresh_token,
-        });
-        const redirectPath = router.query.redirect || '/mon-compte';
-        router.push(redirectPath as string);
-      } else {
-        throw new Error('Session invalide reçue du serveur.');
-      }
-
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    if (error) {
+      setError('Email ou mot de passe invalide.'); // Keep a generic message for security
+      console.error('Login error:', error.message);
+    } else {
+      // On successful login, Supabase client handles the session.
+      // The onAuthStateChange listener elsewhere will pick it up.
+      // We just need to redirect the user.
+      const redirectPath = router.query.redirect || '/mon-compte';
+      router.push(redirectPath as string);
     }
+
+    setLoading(false);
   };
 
   return (
@@ -104,8 +96,12 @@ const LoginPage = () => {
           <button type="submit" className="btn btn-primary" style={styles.button} disabled={loading}>
             {loading ? 'Connexion en cours...' : 'Se connecter'}
           </button>
+          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+            <Link href="/mot-de-passe-oublie" style={styles.link}>
+              Mot de passe oublié ?
+            </Link>
+          </div>
         </form>
-        {/* We can add links for Sign Up and Forgot Password later */}
       </main>
     </>
   );
@@ -142,6 +138,10 @@ const styles = {
     backgroundColor: '#f8d7da',
     color: '#721c24',
     textAlign: 'center' as 'center',
+  },
+  link: {
+    color: '#0070f3',
+    textDecoration: 'none',
   }
 };
 

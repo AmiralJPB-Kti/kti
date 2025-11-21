@@ -62,45 +62,64 @@ const AccountPage = () => {
   // State for order expansion
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
 
+  // States for password change
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      // This check should only run when the user is actively on this page.
+      if (router.pathname === '/mon-compte') {
+        const user = session?.user;
+
+        if (!user) {
+          router.push('/login');
+          return;
+        }
+
+        // Security check: Explicitly deny access if the last auth method was 'recovery'.
+        const lastAmr = user.amr?.slice(-1)[0];
+        if (lastAmr?.method === 'recovery') {
+          await supabase.auth.signOut();
+          router.push('/login');
+          return;
+        }
+
+        // --- If we reach here, the user is valid and fully authenticated ---
+        setLoading(true);
+        setUser(user);
+
+        // Fetch profile
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles').select('*').eq('id', user.id).single();
+        if (profileError && profileError.code !== 'PGRST116') console.error('Error fetching profile:', profileError);
+        else setProfile(profileData);
+
+        // Fetch addresses
+        const { data: addressesData, error: addressesError } = await supabase
+          .from('addresses').select('*').eq('user_id', user.id).order('created_at');
+        if (addressesError) console.error('Error fetching addresses:', addressesError);
+        else setAddresses(addressesData);
+
+        // Fetch orders with their items, sorted by order ID
+        const { data: ordersData, error: ordersError } = await supabase
+          .from('orders')
+          .select('*, order_items(*)')
+          .eq('user_id', user.id)
+          .order('id', { ascending: false }); // Sort by order number
+        if (ordersError) console.error('Error fetching orders:', ordersError);
+        else setOrders(ordersData as Order[]);
+
+        setLoading(false);
       }
-      setUser(user);
-
-      // Fetch profile
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles').select('*').eq('id', user.id).single();
-      if (profileError && profileError.code !== 'PGRST116') console.error('Error fetching profile:', profileError);
-      else setProfile(profileData);
-
-      // Fetch addresses
-      const { data: addressesData, error: addressesError } = await supabase
-        .from('addresses').select('*').eq('user_id', user.id).order('created_at');
-      if (addressesError) console.error('Error fetching addresses:', addressesError);
-      else setAddresses(addressesData);
-
-      // Fetch orders with their items, sorted by order ID
-      const { data: ordersData, error: ordersError } = await supabase
-        .from('orders')
-        .select('*, order_items(*)')
-        .eq('user_id', user.id)
-        .order('id', { ascending: false }); // Sort by order number
-      if (ordersError) console.error('Error fetching orders:', ordersError);
-      else setOrders(ordersData as Order[]);
-
-      setLoading(false);
-    };
-
-    fetchUserData();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session?.user) router.push('/login');
-      else setUser(session.user);
     });
-    return () => subscription.unsubscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [supabase, router]);
 
   const handleProfileUpdate = async (event: FormEvent<HTMLFormElement>) => {
@@ -159,6 +178,34 @@ const AccountPage = () => {
         alert('Adresse supprimée.');
       }
     }
+  };
+
+  const handlePasswordUpdate = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setPasswordError('');
+    setPasswordMessage('');
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Les mots de passe ne correspondent pas.');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPasswordError('Le mot de passe doit contenir au moins 6 caractères.');
+      return;
+    }
+    
+    setPasswordSaving(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+    if (error) {
+      setPasswordError('Erreur lors de la mise à jour du mot de passe. Essayez de vous reconnecter et de réessayer.');
+      console.error('Password update error:', error);
+    } else {
+      setPasswordMessage('Mot de passe mis à jour avec succès !');
+      setNewPassword('');
+      setConfirmPassword('');
+    }
+    setPasswordSaving(false);
   };
 
   const handleToggleOrderDetails = (orderId: number) => {
@@ -235,6 +282,42 @@ const AccountPage = () => {
                   saving={saving}
                 />
               )}
+            </section>
+
+            <section style={styles.section}>
+              <h2>Modifier mon mot de passe</h2>
+              <form onSubmit={handlePasswordUpdate}>
+                <div style={styles.formGroup}>
+                  <label htmlFor="newPassword">Nouveau mot de passe</label>
+                  <input
+                    type="password"
+                    id="newPassword"
+                    name="newPassword"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                    style={styles.input}
+                    placeholder="Nouveau mot de passe (6+ caractères)"
+                  />
+                </div>
+                <div style={styles.formGroup}>
+                  <label htmlFor="confirmPassword">Confirmer le mot de passe</label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    style={styles.input}
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary" disabled={passwordSaving}>
+                  {passwordSaving ? 'Mise à jour...' : 'Changer le mot de passe'}
+                </button>
+                {passwordMessage && <p style={{ color: 'green', marginTop: '1rem' }}>{passwordMessage}</p>}
+                {passwordError && <p style={{ color: 'red', marginTop: '1rem' }}>{passwordError}</p>}
+              </form>
             </section>
 
             <section style={styles.section}>

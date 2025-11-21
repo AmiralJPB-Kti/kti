@@ -6,7 +6,11 @@ import { useCart } from '@/context/CartContext';
 import CartIcon from './CartIcon';
 import { createClient } from '@/lib/supabase/client'; // Import Supabase client
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  forceLoggedOut?: boolean;
+}
+
+const Header: React.FC<HeaderProps> = ({ forceLoggedOut = false }) => {
   const { itemCount } = useCart();
   const supabase = createClient();
   const router = useRouter();
@@ -54,7 +58,7 @@ const Header: React.FC = () => {
             <li><Link href="/produits" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Produits</Link></li>
             <li><Link href="/a-propos" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Mon Histoire</Link></li>
             <li><Link href="/contact" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Contact</Link></li>
-            {user ? (
+            {user && !forceLoggedOut ? (
               <>
                 <li><Link href="/mon-compte" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Mon Compte</Link></li>
                 <li><button onClick={handleLogout} style={{ background: 'none', border: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem' }}>Déconnexion</button></li>
