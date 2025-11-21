@@ -68,52 +68,61 @@ const AccountPage = () => {
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      // This check should only run when the user is actively on this page.
-      if (router.pathname === '/mon-compte') {
-        const user = session?.user;
+    // On initial mount, fetch all user data
+    const fetchInitialData = async () => {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
 
-        if (!user) {
-          router.push('/login');
-          return;
-        }
+      if (!user) {
+        router.push('/login');
+        return;
+      }
 
-        // Security check: Explicitly deny access if the last auth method was 'recovery'.
-        const lastAmr = user.amr?.slice(-1)[0];
-        if (lastAmr?.method === 'recovery') {
-          await supabase.auth.signOut();
-          router.push('/login');
-          return;
-        }
+      // Security check: Explicitly deny access if the last auth method was 'recovery'.
+      const lastAmr = user.amr?.slice(-1)[0];
+      if (lastAmr?.method === 'recovery') {
+        await supabase.auth.signOut();
+        router.push('/login');
+        return;
+      }
 
-        // --- If we reach here, the user is valid and fully authenticated ---
-        setLoading(true);
-        setUser(user);
+      // --- If we reach here, the user is valid and fully authenticated ---
+      setUser(user);
 
-        // Fetch profile
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles').select('*').eq('id', user.id).single();
-        if (profileError && profileError.code !== 'PGRST116') console.error('Error fetching profile:', profileError);
-        else setProfile(profileData);
+      // Fetch profile, addresses, and orders in parallel for efficiency
+      const [profileRes, addressesRes, ordersRes] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', user.id).single(),
+        supabase.from('addresses').select('*').eq('user_id', user.id).order('created_at'),
+        supabase.from('orders').select('*, order_items(*)').eq('user_id', user.id).order('id', { ascending: false })
+      ]);
 
-        // Fetch addresses
-        const { data: addressesData, error: addressesError } = await supabase
-          .from('addresses').select('*').eq('user_id', user.id).order('created_at');
-        if (addressesError) console.error('Error fetching addresses:', addressesError);
-        else setAddresses(addressesData);
+      if (profileRes.error && profileRes.error.code !== 'PGRST116') console.error('Error fetching profile:', profileRes.error);
+      else setProfile(profileRes.data);
 
-        // Fetch orders with their items, sorted by order ID
-        const { data: ordersData, error: ordersError } = await supabase
-          .from('orders')
-          .select('*, order_items(*)')
-          .eq('user_id', user.id)
-          .order('id', { ascending: false }); // Sort by order number
-        if (ordersError) console.error('Error fetching orders:', ordersError);
-        else setOrders(ordersData as Order[]);
+      if (addressesRes.error) console.error('Error fetching addresses:', addressesRes.error);
+      else setAddresses(addressesRes.data || []);
 
-        setLoading(false);
+      if (ordersRes.error) console.error('Error fetching orders:', ordersRes.error);
+      else setOrders(ordersRes.data as Order[] || []);
+
+      setLoading(false);
+    };
+
+    fetchInitialData();
+
+    // Set up a listener for subsequent auth events
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (router.pathname !== '/mon-compte') return;
+
+      if (event === 'SIGNED_OUT') {
+        router.push('/login');
+      } else if (event === 'USER_UPDATED') {
+        // When password is changed, just update the user object in state.
+        // No need to reload the entire page's data, which caused the hang.
+        setUser(session?.user || null);
       }
     });
 
@@ -290,7 +299,7 @@ const AccountPage = () => {
                 <div style={styles.formGroup}>
                   <label htmlFor="newPassword">Nouveau mot de passe</label>
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     id="newPassword"
                     name="newPassword"
                     value={newPassword}
@@ -303,7 +312,7 @@ const AccountPage = () => {
                 <div style={styles.formGroup}>
                   <label htmlFor="confirmPassword">Confirmer le mot de passe</label>
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     id="confirmPassword"
                     name="confirmPassword"
                     value={confirmPassword}
@@ -311,6 +320,16 @@ const AccountPage = () => {
                     required
                     style={styles.input}
                   />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '1rem 0' }}>
+                  <input
+                    type="checkbox"
+                    id="showPassword"
+                    checked={showPassword}
+                    onChange={(e) => setShowPassword(e.target.checked)}
+                    style={{ height: '1rem', width: '1rem' }}
+                  />
+                  <label htmlFor="showPassword" style={{ marginBottom: 0, userSelect: 'none' }}>Afficher les mots de passe</label>
                 </div>
                 <button type="submit" className="btn btn-primary" disabled={passwordSaving}>
                   {passwordSaving ? 'Mise à jour...' : 'Changer le mot de passe'}
