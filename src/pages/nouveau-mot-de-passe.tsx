@@ -12,6 +12,7 @@ const NouveauMotDePasse = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -73,7 +74,7 @@ const NouveauMotDePasse = () => {
 
           <form onSubmit={handleUpdatePassword} className={styles.form}>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="Nouveau mot de passe"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -81,13 +82,23 @@ const NouveauMotDePasse = () => {
               className={styles.input}
             />
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="Confirmer le mot de passe"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               className={styles.input}
             />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0.5rem 0' }}>
+              <input
+                type="checkbox"
+                id="showPassword"
+                checked={showPassword}
+                onChange={(e) => setShowPassword(e.target.checked)}
+                style={{ height: '1rem', width: '1rem' }}
+              />
+              <label htmlFor="showPassword" style={{ marginBottom: 0, userSelect: 'none', fontWeight: 'normal' }}>Afficher les mots de passe</label>
+            </div>
             <button type="submit" disabled={loading} className={styles.button}>
               {loading ? 'Mise à jour...' : 'Mettre à jour le mot de passe'}
             </button>

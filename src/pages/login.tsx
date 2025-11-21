@@ -101,6 +101,9 @@ const LoginPage = () => {
               Mot de passe oublié ?
             </Link>
           </div>
+          <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
+            <p>Pas encore de compte ? <Link href="/inscription" style={styles.link}>S'inscrire</Link></p>
+          </div>
         </form>
       </main>
     </>
