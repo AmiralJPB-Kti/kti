@@ -4,10 +4,8 @@ export const apiVersion =
 export const dataset =
   process.env.NEXT_PUBLIC_SANITY_DATASET || 'production' // Ajout d'une valeur par défaut pour le build Vercel
 
-export const projectId = assertValue(
-  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-  'Missing environment variable: NEXT_PUBLIC_SANITY_PROJECT_ID'
-)
+export const projectId =
+  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'votre-sanity-project-id' // Ajout d'une valeur par défaut pour le build Vercel. IMPORTANT: configurez la vraie valeur sur Vercel!
 
 function assertValue<T>(v: T | undefined, errorMessage: string): T {
   if (v === undefined) {
