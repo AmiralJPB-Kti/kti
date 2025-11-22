@@ -67,6 +67,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
   const { client_reference_id: userId, amount_total, id: stripe_session_id, metadata } = session;
   const customerIp = metadata?.customer_ip;
+  const shippingStreet = metadata?.shipping_street;
+  const shippingCity = metadata?.shipping_city;
+  const shippingPostalCode = metadata?.shipping_postal_code;
+  const shippingCountry = metadata?.shipping_country;
+  const isGift = metadata?.is_gift === 'true';
 
   if (!userId) {
     console.error('❌ No user ID in Stripe session. Order cannot be created.');
@@ -88,6 +93,11 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
         amount_total: amount_total / 100, // Convert from cents to euros
         status: 'paid', // Or 'pending' if you have further processing
         customer_ip_address: customerIp, // Add the customer's IP address
+        shipping_street: shippingStreet,
+        shipping_city: shippingCity,
+        shipping_postal_code: shippingPostalCode,
+        shipping_country: shippingCountry,
+        is_gift: isGift,
       })
       .select()
       .single();

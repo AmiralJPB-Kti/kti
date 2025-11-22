@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     try {
-      const { cartItems, user } = req.body;
+      const { cartItems, user, shipping } = req.body;
 
       if (!cartItems || cartItems.length === 0) {
         return res.status(400).json({ error: 'Le panier est vide.' });
@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const ip = typeof forwarded === 'string' ? forwarded.split(',')[0] : req.socket.remoteAddress;
 
       // Transform cart items into Stripe's line_items format
-      const line_items = cartItems.map((item: any) => {
+      let line_items = cartItems.map((item: any) => {
         return {
           price_data: {
             currency: 'eur',
@@ -33,6 +33,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           quantity: item.quantity,
         };
       });
+
+      // Add shipping cost as a line item if provided
+      if (shipping && shipping.cost > 0) {
+        line_items.push({
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: 'Frais de livraison',
+            },
+            unit_amount: Math.round(shipping.cost * 100),
+          },
+          quantity: 1,
+        });
+      }
 
       // Define the success and cancel URLs for redirection after payment
       const origin = req.headers.origin || 'http://localhost:3000';
@@ -49,7 +63,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         customer_email: user?.email,
         client_reference_id: user?.id,
         metadata: {
-          customer_ip: ip || 'N/A', // Add IP to metadata
+          customer_ip: ip || 'N/A',
+          shipping_street: shipping?.address?.street || 'N/A',
+          shipping_city: shipping?.address?.city || 'N/A',
+          shipping_postal_code: shipping?.address?.postal_code || 'N/A',
+          shipping_country: shipping?.address?.country || 'N/A',
+          is_gift: shipping?.isGift ? 'true' : 'false',
         },
       });
 

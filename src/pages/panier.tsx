@@ -11,56 +11,9 @@ import { createClient } from '@/lib/supabase/client'
 
 export default function PanierPage() {
   const { cartItems, removeFromCart, updateItemQuantity, cartTotal, itemCount } = useCart();
-  const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const supabase = createClient();
   const router = useRouter();
-
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-    };
-    getUser();
-  }, [supabase]);
-
   const handleCheckout = async () => {
-    if (!user) {
-      // If user is not logged in, redirect to login page
-      // We add a redirect query param to come back to the cart after login
-      router.push('/login?redirect=/panier');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const response = await fetch('/api/checkout_sessions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ cartItems, user }),
-      });
-
-      if (!response.ok) {
-        const errorBody = await response.json();
-        throw new Error(errorBody.error.message || 'Failed to create checkout session');
-      }
-
-      const { url } = await response.json();
-
-      if (url) {
-        window.location.href = url;
-      } else {
-        throw new Error('URL de paiement non trouvée.');
-      }
-
-    } catch (error: any) {
-      console.error('Checkout error:', error);
-      alert(`Une erreur est survenue: ${error.message}`);
-      setLoading(false); // Reset loading state on error
-    }
+    router.push('/livraison'); // Redirect to new delivery page
   };
 
   return (
@@ -110,7 +63,7 @@ export default function PanierPage() {
               </div>
               <div className={styles.summaryLine}>
                 <span>Livraison</span>
-                <span>Calculée à l'étape suivante</span>
+                <span>À calculer</span>
               </div>
               <div className={`${styles.summaryLine} ${styles.summaryTotal}`}>
                 <span>Total</span>
@@ -120,9 +73,8 @@ export default function PanierPage() {
                 className="btn btn-primary" 
                 style={{width: '100%', marginTop: '1rem'}}
                 onClick={handleCheckout}
-                disabled={loading}
               >
-                {loading ? 'Chargement...' : 'Passer la commande'}
+                Passer la commande
               </button>
             </div>
           </div>
