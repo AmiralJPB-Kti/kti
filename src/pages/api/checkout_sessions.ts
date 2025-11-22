@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 
 // Initialize Stripe with the secret key from environment variables
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20', // It's a good practice to pin the API version
+  // apiVersion: '2024-06-20', // La version de l'API sera déterminée par la bibliothèque Stripe installée
 });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

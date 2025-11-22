@@ -14,7 +14,7 @@ const supabaseAdmin = createClient(
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
+  // apiVersion: '2024-06-20', // La version de l'API sera déterminée par la bibliothèque Stripe installée
 });
 
 // Get the webhook secret from environment variables

@@ -82,7 +82,7 @@ const AccountPage = () => {
       }
 
       // Security check: Explicitly deny access if the last auth method was 'recovery'.
-      const lastAmr = user.amr?.slice(-1)[0];
+      const lastAmr = (user as any).amr?.slice(-1)[0];
       if (lastAmr?.method === 'recovery') {
         await supabase.auth.signOut();
         router.push('/login');

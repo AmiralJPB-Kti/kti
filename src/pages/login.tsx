@@ -19,7 +19,7 @@ const LoginPage = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         // Check if the session is from a full password authentication
-        const lastAmr = user.amr?.slice(-1)[0];
+        const lastAmr = (user as any).amr?.slice(-1)[0];
         if (lastAmr?.method === 'password') {
           // If fully authenticated, redirect to the account page
           router.push('/mon-compte');
