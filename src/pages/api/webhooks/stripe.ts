@@ -3,6 +3,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { buffer } from 'micro';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { resend } from '../../../lib/resend';
+import { orderConfirmationEmailTemplate } from '../../../lib/email-templates';
 
 // Initialize Supabase admin client
 // IMPORTANT: Use service_role key for admin access to bypass RLS.
@@ -65,13 +67,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 };
 
 const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
-  const { client_reference_id: userId, amount_total, id: stripe_session_id, metadata } = session;
+  const { client_reference_id: userId, amount_total, id: stripe_session_id, metadata, customer_details } = session;
   const customerIp = metadata?.customer_ip;
   const shippingStreet = metadata?.shipping_street;
   const shippingCity = metadata?.shipping_city;
   const shippingPostalCode = metadata?.shipping_postal_code;
   const shippingCountry = metadata?.shipping_country;
   const isGift = metadata?.is_gift === 'true';
+  const customerEmail = customer_details?.email || session.customer_email;
 
   if (!userId) {
     console.error('❌ No user ID in Stripe session. Order cannot be created.');
@@ -129,6 +132,28 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
     if (itemsError) throw itemsError;
 
     console.log(`🛍️ ${orderItems.length} items added to order ${orderData.id}`);
+
+    // 4. Send confirmation email via Resend
+    if (customerEmail) {
+      try {
+        const { data: emailData, error: emailError } = await resend.emails.send({
+          from: 'Kti <onboarding@resend.dev>', // Use default verified domain for now
+          to: [customerEmail],
+          subject: 'Confirmation de votre commande - Kti',
+          html: orderConfirmationEmailTemplate(orderData.id, amount_total / 100, lineItems),
+        });
+
+        if (emailError) {
+          console.error('❌ Error sending confirmation email:', emailError);
+        } else {
+          console.log('📧 Confirmation email sent:', emailData?.id);
+        }
+      } catch (emailErr) {
+        console.error('❌ Exception sending email:', emailErr);
+      }
+    } else {
+      console.warn('⚠️ No customer email found, skipping confirmation email.');
+    }
 
   } catch (error) {
     console.error('❌ Error creating order in Supabase:', error);

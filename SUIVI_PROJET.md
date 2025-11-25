@@ -42,6 +42,14 @@ Nous avons résolu plusieurs erreurs bloquantes qui empêchaient le déploiement
     *   `src/lib/supabase/client.ts` : URL et Clé Anon Supabase en dur par défaut.
 *   **Résultat :** Le build passe ("Compiled successfully") et le site est en ligne.
 
+### D. Gestion des Emails Transactionnels (Resend)
+Intégration d'un système d'envoi d'emails transactionnels pour les confirmations de commande et les emails de bienvenue, utilisant Resend.
+*   **Configuration Resend :** Initialisation du client Resend (`src/lib/resend.ts`) et création de templates HTML simples (`src/lib/email-templates.ts`).
+*   **Email de Confirmation de Commande :** Intégré dans le Webhook Stripe (`src/pages/api/webhooks/stripe.ts`). Un email récapitulatif est envoyé au client après la validation du paiement et la création de la commande en base de données.
+*   **Email de Bienvenue (Inscription) :** Une nouvelle route API (`src/pages/api/send-welcome-email.ts`) est appelée par la page d'inscription (`src/pages/inscription.tsx`) pour envoyer un email de bienvenue suite à une inscription réussie.
+    *   **Note :** L'email de vérification de compte Supabase peut être configuré séparément via le dashboard Supabase. Cette implémentation gère un email de bienvenue additionnel.
+
+
 ---
 
 ## 2. Pour la prochaine fois

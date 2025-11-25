@@ -44,7 +44,20 @@ const InscriptionPage = () => {
     if (signUpError) {
       setError(signUpError.message);
     } else {
-      setMessage('Inscription réussie ! Veuillez vérifier votre e-mail pour confirmer votre compte.');
+      // Send welcome email
+      try {
+        await fetch('/api/send-welcome-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        });
+      } catch (err) {
+        console.error('Failed to send welcome email', err);
+      }
+
+      setMessage('Inscription réussie ! Un email de bienvenue vous a été envoyé.');
       // Optionally redirect to login after a short delay
       setTimeout(() => {
         router.push('/login');
