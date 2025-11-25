@@ -20,11 +20,11 @@
     "@supabase/supabase-js": "^2.81.1",
     "micro": "^10.0.1",
     "next": "16.0.2",
-    "next-sanity": "^11.6.6",
+    "next-sanity": "^9.12.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "resend": "^6.4.2",
-    "sanity": "^4.15.0",
+    "sanity": "^3.95.0",
     "stripe": "^19.3.1",
     "styled-components": "^6.1.19"
   },

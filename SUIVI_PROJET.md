@@ -1,5 +1,15 @@
 # Suivi du Projet Kti
-**Dernière mise à jour :** 22 Novembre 2025
+
+## Contexte Général
+**Projet :** Site e-commerce "kti.badie.eu" (Domaine chez OVH).
+**Objectif :** Création et déploiement d'une boutique en ligne familiale.
+**Équipe :** AmiralJP et sa sœur.
+**Niveau technique :** Compétences limitées, nécessité d'un accompagnement pas-à-pas et pédagogique de la part de l'assistant (Gemini).
+**Stack Technique :** GitHub, Supabase, Vercel, Stripe, Sanity, Resend.
+
+---
+
+**Dernière mise à jour :** 25 Novembre 2025
 **État :** En Production (Fonctionnel sur Vercel)
 
 Ce document sert de point de repère pour reprendre le développement. Il résume les accomplissements techniques et l'état actuel du projet.
@@ -49,7 +59,18 @@ Intégration d'un système d'envoi d'emails transactionnels pour les confirmatio
 *   **Email de Bienvenue (Inscription) :** Une nouvelle route API (`src/pages/api/send-welcome-email.ts`) est appelée par la page d'inscription (`src/pages/inscription.tsx`) pour envoyer un email de bienvenue suite à une inscription réussie.
         *   **Note :** L'email de vérification de compte Supabase peut être configuré séparément via le dashboard Supabase. Cette implémentation gère un email de bienvenue additionnel.
     
-    ### E. Prérequis pour la Production (Action Requise)
+    ### F. Intégration Mondial Relay (25/11/2025)
+Nous avons implémenté la "V2" de la livraison en ajoutant le choix "Point Relais".
+*   **Page Livraison (`src/pages/livraison.tsx`) :**
+    *   Ajout d'un sélecteur : "Domicile" vs "Point Relais".
+    *   Intégration du **Widget Officiel Mondial Relay** (via `next/script` + jQuery).
+    *   Affichage dynamique : Si "Point Relais" est choisi, la carte s'affiche.
+    *   Logique de paiement adaptée : Envoi de l'adresse du point relais (formatée) au lieu de l'adresse du client.
+*   **Backend Stripe (`src/pages/api/checkout_sessions.ts`) :**
+    *   Ajout de métadonnées supplémentaires (`delivery_mode`, `relay_id`) pour le suivi.
+    *   L'adresse du relais remplace l'adresse de livraison sur la facture Stripe (via le champ `shipping_street` formaté `[Relais] Nom...`).
+
+    ### G. Prérequis pour la Production (Action Requise)
     Pour que l'envoi d'emails fonctionne pour **tous** les clients en production (et pas seulement vers l'adresse du compte Resend) :
     1.  **Validation de Domaine :** Ajouter le domaine (ex: `badie.eu`) dans le dashboard Resend > Domains, et configurer les enregistrements DNS (DKIM, SPF) chez l'hébergeur.
     2.  **Vercel Env :** Ajouter la variable d'environnement `RESEND_API_KEY` dans les réglages du projet Vercel.

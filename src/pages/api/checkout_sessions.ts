@@ -69,6 +69,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           shipping_postal_code: shipping?.address?.postal_code || 'N/A',
           shipping_country: shipping?.address?.country || 'N/A',
           is_gift: shipping?.isGift ? 'true' : 'false',
+          delivery_mode: shipping?.mode || 'home',
+          relay_id: shipping?.relayId || '',
         },
       });
 
