@@ -47,12 +47,16 @@ Intégration d'un système d'envoi d'emails transactionnels pour les confirmatio
 *   **Configuration Resend :** Initialisation du client Resend (`src/lib/resend.ts`) et création de templates HTML simples (`src/lib/email-templates.ts`).
 *   **Email de Confirmation de Commande :** Intégré dans le Webhook Stripe (`src/pages/api/webhooks/stripe.ts`). Un email récapitulatif est envoyé au client après la validation du paiement et la création de la commande en base de données.
 *   **Email de Bienvenue (Inscription) :** Une nouvelle route API (`src/pages/api/send-welcome-email.ts`) est appelée par la page d'inscription (`src/pages/inscription.tsx`) pour envoyer un email de bienvenue suite à une inscription réussie.
-    *   **Note :** L'email de vérification de compte Supabase peut être configuré séparément via le dashboard Supabase. Cette implémentation gère un email de bienvenue additionnel.
-
-
----
-
-## 2. Pour la prochaine fois
+        *   **Note :** L'email de vérification de compte Supabase peut être configuré séparément via le dashboard Supabase. Cette implémentation gère un email de bienvenue additionnel.
+    
+    ### E. Prérequis pour la Production (Action Requise)
+    Pour que l'envoi d'emails fonctionne pour **tous** les clients en production (et pas seulement vers l'adresse du compte Resend) :
+    1.  **Validation de Domaine :** Ajouter le domaine (ex: `badie.eu`) dans le dashboard Resend > Domains, et configurer les enregistrements DNS (DKIM, SPF) chez l'hébergeur.
+    2.  **Vercel Env :** Ajouter la variable d'environnement `RESEND_API_KEY` dans les réglages du projet Vercel.
+    
+    ---
+    
+    ## 2. Pour la prochaine fois
 
 Pour reprendre le travail, il suffira de :
 1.  **Lire ce fichier** pour se remettre en contexte.
