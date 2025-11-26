@@ -35,14 +35,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       // Add shipping cost as a line item if provided
-      if (shipping && shipping.cost > 0) {
+      const shippingCost = Number(shipping?.cost) || 0;
+      if (shippingCost > 0) {
         line_items.push({
           price_data: {
             currency: 'eur',
             product_data: {
               name: 'Frais de livraison',
             },
-            unit_amount: Math.round(shipping.cost * 100),
+            unit_amount: Math.round(shippingCost * 100),
           },
           quantity: 1,
         });
@@ -52,6 +53,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const origin = req.headers.origin || 'http://localhost:3000';
       const success_url = `${origin}/success?session_id={CHECKOUT_SESSION_ID}`;
       const cancel_url = `${origin}/panier`; // Redirect back to cart on cancellation
+
+      console.log("Creating Stripe Session for user:", user?.email);
 
       // Create a new checkout session with the Stripe API
       const session = await stripe.checkout.sessions.create({
@@ -63,14 +66,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         customer_email: user?.email,
         client_reference_id: user?.id,
         metadata: {
-          customer_ip: ip || 'N/A',
-          shipping_street: shipping?.address?.street || 'N/A',
-          shipping_city: shipping?.address?.city || 'N/A',
-          shipping_postal_code: shipping?.address?.postal_code || 'N/A',
-          shipping_country: shipping?.address?.country || 'N/A',
+          customer_ip: String(ip || 'N/A'),
+          shipping_street: String(shipping?.address?.street || 'N/A'),
+          shipping_city: String(shipping?.address?.city || 'N/A'),
+          shipping_postal_code: String(shipping?.address?.postal_code || 'N/A'),
+          shipping_country: String(shipping?.address?.country || 'N/A'),
           is_gift: shipping?.isGift ? 'true' : 'false',
-          delivery_mode: shipping?.mode || 'home',
-          relay_id: shipping?.relayId || '',
+          delivery_mode: String(shipping?.mode || 'home'),
+          relay_id: String(shipping?.relayId || ''),
         },
       });
 
@@ -82,8 +85,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.status(200).json({ url: session.url });
 
     } catch (err: any) {
-      console.error('Stripe API Error:', err.message);
-      res.status(500).json({ error: { statusCode: 500, message: err.message } });
+      console.error('Stripe API Error:', err); // Log full error
+      // Return a proper JSON error response
+      res.status(500).json({ message: err.message || 'Internal Server Error' });
     }
   } else {
     // Handle any other HTTP method
