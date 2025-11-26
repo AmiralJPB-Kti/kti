@@ -253,12 +253,16 @@ export default function LivraisonPage() {
     <>
       <Head><title>Livraison | Kt'i</title></Head>
       
-      {/* Load jQuery first */}
+      {/* Load jQuery first - Standard strategy */}
       <Script 
         src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" 
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
+        onLoad={() => {
+          // Mark jQuery as loaded if needed, or just wait for MR script
+          console.log("jQuery loaded");
+        }}
       />
-      {/* Load Mondial Relay Plugin */}
+      {/* Load Mondial Relay Plugin - Dependent on jQuery */}
       <Script 
         src="https://widget.mondialrelay.com/parcelshop-picker/jquery.plugin.mondialrelay.parcelshoppicker.min.js"
         strategy="afterInteractive"
