@@ -120,6 +120,18 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
   }
 
   try {
+    // 0. Idempotency Check: Verify if order already exists
+    const { data: existingOrder } = await supabaseAdmin
+      .from('orders')
+      .select('id')
+      .eq('stripe_session_id', stripe_session_id)
+      .single();
+
+    if (existingOrder) {
+      console.log(`✅ Order already exists for session ${stripe_session_id}. Skipping creation.`);
+      return;
+    }
+
     // 1. Create the order in the 'orders' table
     const { data: orderData, error: orderError } = await supabaseAdmin
       .from('orders')
