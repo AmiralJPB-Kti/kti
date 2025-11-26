@@ -182,7 +182,7 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
     if (customerEmail) {
       try {
         const { data: emailData, error: emailError } = await resend.emails.send({
-          from: 'Kti <onboarding@resend.dev>', // Use default verified domain for now
+          from: 'Kti <contact@badie.eu>', // Domain verified, using legitimate sender
           to: [customerEmail],
           subject: 'Confirmation de votre commande - Kti',
           html: orderConfirmationEmailTemplate(orderData.id, amount_total / 100, lineItems),
@@ -220,7 +220,7 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
       };
 
       const { error: adminEmailError } = await resend.emails.send({
-        from: 'Kti Bot <onboarding@resend.dev>',
+        from: 'Kti Bot <contact@badie.eu>', // Domain verified
         to: ['kti@badie.eu'],
         subject: `🔔 Nouvelle Commande ! (#${orderData.id})`,
         html: adminNewOrderTemplate(

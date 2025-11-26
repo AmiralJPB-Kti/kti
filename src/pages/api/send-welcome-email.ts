@@ -12,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
       const { data, error } = await resend.emails.send({
-        from: 'Kti <onboarding@resend.dev>',
+        from: 'Kti <contact@badie.eu>',
         to: [email],
         subject: 'Bienvenue chez Kt\'i !',
         html: welcomeEmailTemplate(email),

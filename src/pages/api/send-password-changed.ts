@@ -28,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Kti Security <onboarding@resend.dev>',
+      from: 'Kti Security <contact@badie.eu>',
       to: [email],
       subject: 'Sécurité : Votre mot de passe a été modifié',
       html: passwordChangedTemplate(email),
