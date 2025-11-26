@@ -13,21 +13,13 @@ const NouveauMotDePasse = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isSessionReady, setIsSessionReady] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    // 1. Check initial session state
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setIsSessionReady(true);
-      }
-    });
-
-    // 2. Listen for Auth events (specifically PASSWORD_RECOVERY)
+    // Ce listener permet à Supabase de gérer l'échange de token (Hash -> Session)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY' || session) {
-        setIsSessionReady(true);
+      if (event === 'PASSWORD_RECOVERY') {
+        console.log("Mode récupération de mot de passe détecté");
       }
     });
 
@@ -55,9 +47,9 @@ const NouveauMotDePasse = () => {
     // 0. Get user email before update (needed for notification)
     const { data: { user } } = await supabase.auth.getUser();
     
-    // Safety check: if session was lost right before this call
+    // Safety check: if session was lost right before this call or never established
     if (!user) {
-      setError("Erreur de session. Le lien a peut-être expiré.");
+      setError("Erreur de session. Le lien est invalide ou a expiré. Veuillez refaire une demande de mot de passe oublié.");
       setLoading(false);
       return;
     }
