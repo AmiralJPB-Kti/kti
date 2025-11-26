@@ -148,6 +148,8 @@ export default function LivraisonPage() {
         const code = getCountryCode(selectedAddr.country);
         setRelayCountry(code);
         setRelayPostCode(selectedAddr.postal_code);
+        // Update Debug Info with currently selected address
+        setDebugInfo((prev: any) => ({ ...prev, selectedAddress: selectedAddr }));
       }
     }
   }, [selectedAddressId, addresses]);
@@ -176,6 +178,9 @@ export default function LivraisonPage() {
         document.body.appendChild(scriptJquery);
       };
       loadScripts();
+    } else if (deliveryMode === 'relay' && window.$ && window.$.fn.MR_ParcelShopPicker) {
+       // Already loaded, just re-init
+       initWidget();
     }
   }, [deliveryMode]);
 
@@ -189,23 +194,41 @@ export default function LivraisonPage() {
   const initWidget = () => {
     // Use state-managed postcode (derived from selected address)
     // If no address selected, fallback to empty (shows whole country)
-    const targetPostCode = relayPostCode || ""; 
+    const targetPostCode = relayPostCode || "";
+    
+    // Sanitize PostCode (remove spaces/dashes) to avoid breaking the widget
+    // Example: "1234-567" -> "1234567"
+    const cleanPostCode = targetPostCode.replace(/[^a-zA-Z0-9]/g, '');
+    
+    // Safety check
+    if (!window.$ || !window.$.fn.MR_ParcelShopPicker) return;
 
-    window.$("#Zone_Widget").MR_ParcelShopPicker({
-      Target: "#Target_Widget",
-      Brand: "BDTEST13", // Test Brand ID
-      Country: relayCountry, // Dynamic Country
-      PostCode: targetPostCode, 
-      ColLivMod: "24R",
-      NbResults: "7",
-      Responsive: true,
-      ShowResultsOnMap: true,
-      OnParcelShopSelected: (data: any) => {
-        console.log("Relay selected:", data);
-        setRelayPoint(data);
-      }
-    });
-    widgetLoaded.current = true;
+    try {
+      // CRITICAL: Empty the container before re-drawing to prevent conflicts
+      window.$("#Zone_Widget").empty();
+      // Ensure the input target is cleared too
+      window.$("#Target_Widget").val('');
+
+      console.log(`Initializing Widget for ${relayCountry} with Zip ${cleanPostCode}`);
+
+      window.$("#Zone_Widget").MR_ParcelShopPicker({
+        Target: "#Target_Widget",
+        Brand: "BDTEST13", // Test Brand ID
+        Country: relayCountry, // Dynamic Country
+        PostCode: cleanPostCode, 
+        ColLivMod: "24R",
+        NbResults: "7",
+        Responsive: true,
+        ShowResultsOnMap: true,
+        OnParcelShopSelected: (data: any) => {
+          console.log("Relay selected:", data);
+          setRelayPoint(data);
+        }
+      });
+      widgetLoaded.current = true;
+    } catch (e) {
+      console.error("Widget init error", e);
+    }
   };
 
   const handleScriptLoad = () => {
