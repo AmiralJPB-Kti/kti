@@ -87,19 +87,6 @@ const NouveauMotDePasse = () => {
     setLoading(false);
   };
 
-  if (!isSessionReady) {
-    return (
-      <>
-        <Header forceLoggedOut={true} />
-        <main className={styles.main}>
-          <div className={styles.container}>
-             <p style={{textAlign: 'center', padding: '2rem'}}>🔍 Vérification du lien de sécurité en cours...</p>
-          </div>
-        </main>
-      </>
-    );
-  }
-
   return (
     <>
       <Header forceLoggedOut={true} />
