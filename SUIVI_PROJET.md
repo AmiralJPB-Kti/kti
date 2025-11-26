@@ -97,14 +97,19 @@ Gros travail de plomberie pour faire fonctionner le déploiement :
     *   Obligation d'avoir une adresse de facturation personnelle même pour choisir un point relais.
     *   Blindage de l'API Stripe pour éviter les erreurs "Unexpected end of JSON".
 
-### L. Prérequis pour la Production (Toujours d'actualité)
-1.  **Emails (Resend) :** Valider le domaine `badie.eu` (DNS) et ajouter la clé API dans Vercel.
-2.  **Sanity Studio :** Ajouter `https://kti.badie.eu` dans les CORS Origins sur `manage.sanity.io`.
+### L. État des lieux fin de session (25/11/2025)
+Suite aux derniers tests en production (Vercel) :
+*   ✅ **Prix Sanity :** Fonctionne (Tarifs corrects récupérés).
+*   ✅ **Carte Mondial Relay :** Fonctionne (S'affiche correctement pour France et Portugal).
+*   ❌ **Paiement :** Erreur "Server Error" (500) au moment de valider.
+    *   *Diagnostic :* Probable absence de la variable `STRIPE_SECRET_KEY` dans les réglages Vercel, provoquant un crash au démarrage de l'API.
 
 ---
 
 ## 3. Pour la prochaine fois
 
-Pour reprendre le travail :
-1.  **Vérifier la Prod :** Tester un parcours complet (Panier -> Livraison Relais -> Paiement) sur le vrai site.
-2.  **Prochaine Étape Suggérée :** S'attaquer au design (CSS) pour rendre le tout plus joli, maintenant que la mécanique complexe fonctionne.
+**Priorité Absolue :**
+1.  **Vérifier Vercel Env :** Ajouter `STRIPE_SECRET_KEY` (et `STRIPE_WEBHOOK_SECRET` si besoin) dans les *Settings > Environment Variables* du projet sur Vercel.
+2.  **Retester le paiement :** Cela devrait résoudre l'erreur 500.
+3.  **Nettoyage :** Retirer le code de Debug (la boîte noire) dans `livraison.tsx`.
+4.  **Design :** S'attaquer au CSS.
