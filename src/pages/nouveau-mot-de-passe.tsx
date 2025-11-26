@@ -13,13 +13,22 @@ const NouveauMotDePasse = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isSessionReady, setIsSessionReady] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    // Ce listener est principalement là pour que le client Supabase puisse
-    // détecter l'événement PASSWORD_RECOVERY à partir de l'URL et établir la session temporaire.
+    // 1. Check initial session state
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setIsSessionReady(true);
+      }
+    });
+
+    // 2. Listen for Auth events (specifically PASSWORD_RECOVERY)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      // On ne fait rien de spécial ici, la magie opère déjà en arrière-plan.
+      if (event === 'PASSWORD_RECOVERY' || session) {
+        setIsSessionReady(true);
+      }
     });
 
     return () => {
@@ -45,7 +54,15 @@ const NouveauMotDePasse = () => {
 
     // 0. Get user email before update (needed for notification)
     const { data: { user } } = await supabase.auth.getUser();
-    const userEmail = user?.email;
+    
+    // Safety check: if session was lost right before this call
+    if (!user) {
+      setError("Erreur de session. Le lien a peut-être expiré.");
+      setLoading(false);
+      return;
+    }
+    
+    const userEmail = user.email;
 
     // 1. Mise à jour du mot de passe grâce à la session temporaire
     const { error: updateError } = await supabase.auth.updateUser({ password });
@@ -77,6 +94,19 @@ const NouveauMotDePasse = () => {
     
     setLoading(false);
   };
+
+  if (!isSessionReady) {
+    return (
+      <>
+        <Header forceLoggedOut={true} />
+        <main className={styles.main}>
+          <div className={styles.container}>
+             <p style={{textAlign: 'center', padding: '2rem'}}>🔍 Vérification du lien de sécurité en cours...</p>
+          </div>
+        </main>
+      </>
+    );
+  }
 
   return (
     <>
