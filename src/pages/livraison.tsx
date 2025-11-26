@@ -113,9 +113,8 @@ export default function LivraisonPage() {
 
       // 3. Fetch Site Settings (Shipping Rates) from Sanity
       try {
-        // We specifically ask for the document with ID 'siteSettings' (Singleton)
-        // If not found, we fallback to the first document of type 'siteSettings' (just in case)
-        const settings = await client.fetch(`*[_id == "siteSettings" || _type == "siteSettings"][0]{
+        // FETCH THE MOST RECENTLY UPDATED SETTINGS (Fix for ghost documents)
+        const settings = await client.fetch(`*[_type == "siteSettings"] | order(_updatedAt desc)[0]{
           _id,
           shippingRateHome,
           shippingRateRelay,
@@ -152,6 +151,33 @@ export default function LivraisonPage() {
       }
     }
   }, [selectedAddressId, addresses]);
+
+  // MANUAL SCRIPT LOADING (Robustness Fix)
+  useEffect(() => {
+    // Only load if we are in relay mode and scripts aren't loaded yet
+    if (deliveryMode === 'relay' && !window.$) {
+      const loadScripts = () => {
+        // 1. Load jQuery
+        const scriptJquery = document.createElement('script');
+        scriptJquery.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js";
+        scriptJquery.onload = () => {
+          console.log("jQuery loaded via manual script");
+          
+          // 2. Load MR Plugin (only after jQuery is done)
+          const scriptMR = document.createElement('script');
+          scriptMR.src = "https://widget.mondialrelay.com/parcelshop-picker/jquery.plugin.mondialrelay.parcelshoppicker.min.js";
+          scriptMR.onload = () => {
+             console.log("MR Plugin loaded via manual script");
+             // We can trigger init via the other useEffect or directly here if needed
+             // But the other useEffect listening to deliveryMode/window.$ will likely catch it
+          };
+          document.body.appendChild(scriptMR);
+        };
+        document.body.appendChild(scriptJquery);
+      };
+      loadScripts();
+    }
+  }, [deliveryMode]);
 
   // Initialize Widget when mode changes to relay OR country/postcode changes
   useEffect(() => {
@@ -254,12 +280,19 @@ export default function LivraisonPage() {
         }),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Erreur de paiement');
+      let data;
+      const text = await response.text();
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error(`Server Error: ${text.substring(0, 100)}...`);
       }
 
-      const { url } = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Erreur de paiement');
+      }
+
+      const { url } = data;
       window.location.href = url;
 
     } catch (error: any) {
@@ -275,21 +308,7 @@ export default function LivraisonPage() {
     <>
       <Head><title>Livraison | Kt'i</title></Head>
       
-      {/* Load jQuery first - Standard strategy */}
-      <Script 
-        src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" 
-        strategy="afterInteractive"
-        onLoad={() => {
-          // Mark jQuery as loaded if needed, or just wait for MR script
-          console.log("jQuery loaded");
-        }}
-      />
-      {/* Load Mondial Relay Plugin - Dependent on jQuery */}
-      <Script 
-        src="https://widget.mondialrelay.com/parcelshop-picker/jquery.plugin.mondialrelay.parcelshoppicker.min.js"
-        strategy="afterInteractive"
-        onLoad={handleScriptLoad}
-      />
+      {/* Scripts loaded manually in useEffect for better control */}
 
       <Header />
       <main className="container" style={{ maxWidth: '1000px', margin: '2rem auto', padding: '0 1rem' }}>
