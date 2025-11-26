@@ -43,6 +43,10 @@ const NouveauMotDePasse = () => {
 
     setLoading(true);
 
+    // 0. Get user email before update (needed for notification)
+    const { data: { user } } = await supabase.auth.getUser();
+    const userEmail = user?.email;
+
     // 1. Mise à jour du mot de passe grâce à la session temporaire
     const { error: updateError } = await supabase.auth.updateUser({ password });
 
@@ -51,6 +55,15 @@ const NouveauMotDePasse = () => {
       setError(updateError.message);
       console.error('Error updating password:', updateError.message);
     } else {
+      // 1.5 Send Notification Email (Async, non-blocking)
+      if (userEmail) {
+        fetch('/api/send-password-changed', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: userEmail }),
+        }).catch(err => console.error("Failed to send password notification:", err));
+      }
+
       // 2. Déconnexion immédiate pour détruire la session temporaire
       await supabase.auth.signOut();
       
