@@ -29,7 +29,6 @@ export default function LivraisonPage() {
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [isGift, setIsGift] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<any>({}); // TEMP: Detailed debug object
 
   // Shipping Configuration (Default values before fetch)
   const [shippingRates, setShippingRates] = useState({
@@ -44,21 +43,6 @@ export default function LivraisonPage() {
   const [relayPostCode, setRelayPostCode] = useState<string>('');
   const [relayPoint, setRelayPoint] = useState<any>(null);
   const widgetLoaded = useRef(false);
-
-  // Debug: Check jQuery status periodically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDebugInfo((prev: any) => ({
-        ...prev,
-        jQueryLoaded: !!window.$,
-        mrPluginLoaded: !!(window.$ && window.$.fn && window.$.fn.MR_ParcelShopPicker),
-        deliveryMode,
-        relayCountry,
-        currentRates: shippingRates
-      }));
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [deliveryMode, relayCountry, shippingRates]);
 
   // Helper to map full country names to ISO codes expected by MR
   const getCountryCode = (countryName: string) => {
@@ -107,7 +91,6 @@ export default function LivraisonPage() {
         setAddresses(data);
         if (data.length > 0) {
           setSelectedAddressId(data[0].id);
-          setDebugInfo((prev: any) => ({ ...prev, selectedAddress: data[0] }));
         }
       }
 
@@ -128,10 +111,8 @@ export default function LivraisonPage() {
             freeThreshold: settings.freeShippingThreshold ?? 0
           });
         }
-        setDebugInfo((prev: any) => ({ ...prev, sanityStatus: "OK", sanityData: settings }));
       } catch (err: any) {
         console.error("Error fetching shipping rates:", err);
-        setDebugInfo((prev: any) => ({ ...prev, sanityStatus: "ERROR", sanityError: err.message }));
       }
 
       setLoading(false);
@@ -148,8 +129,6 @@ export default function LivraisonPage() {
         const code = getCountryCode(selectedAddr.country);
         setRelayCountry(code);
         setRelayPostCode(selectedAddr.postal_code);
-        // Update Debug Info with currently selected address
-        setDebugInfo((prev: any) => ({ ...prev, selectedAddress: selectedAddr }));
       }
     }
   }, [selectedAddressId, addresses]);
@@ -308,7 +287,8 @@ export default function LivraisonPage() {
       try {
         data = JSON.parse(text);
       } catch (e) {
-        throw new Error(`Server Error: ${text.substring(0, 100)}...`);
+        // Show FULL error text now
+        throw new Error(`Server Error: ${text}`);
       }
 
       if (!response.ok) {
@@ -519,11 +499,6 @@ export default function LivraisonPage() {
           </div>
         </div>
       </main>
-
-      {/* DEBUG INFO */}
-      <div style={{position: 'fixed', bottom: '10px', left: '10px', background: 'rgba(0,0,0,0.8)', color: '#0f0', padding: '10px', borderRadius: '5px', fontSize: '11px', zIndex: 9999, maxWidth: '400px', overflow: 'auto', maxHeight: '200px', fontFamily: 'monospace'}}>
-        <pre style={{margin: 0}}>{JSON.stringify(debugInfo, null, 2)}</pre>
-      </div>
     </>
   );
 }
