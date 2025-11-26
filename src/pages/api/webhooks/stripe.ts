@@ -4,7 +4,7 @@ import { buffer } from 'micro';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { resend } from '../../../lib/resend';
-import { orderConfirmationEmailTemplate } from '../../../lib/email-templates';
+import { orderConfirmationEmailTemplate, adminNewOrderTemplate } from '../../../lib/email-templates';
 import { 
   STRIPE_KEY_PART_1, 
   STRIPE_KEY_PART_2, 
@@ -198,6 +198,46 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
       }
     } else {
       console.warn('⚠️ No customer email found, skipping confirmation email.');
+    }
+
+    // 5. Send Notification email to ADMIN (kti@badie.eu)
+    try {
+      const shippingDetails = {
+        mode: metadata?.delivery_mode || 'home',
+        relayId: metadata?.relay_id,
+        relayName: metadata?.shipping_street?.includes('] ') ? metadata?.shipping_street?.split('] ')[1] : metadata?.shipping_street,
+        address: {
+          street: shippingStreet,
+          city: shippingCity,
+          postal_code: shippingPostalCode,
+          country: shippingCountry
+        }
+      };
+
+      const customerDetails = {
+        name: customer_details?.name || 'Client Inconnu',
+        email: customerEmail || 'Email Inconnu'
+      };
+
+      const { error: adminEmailError } = await resend.emails.send({
+        from: 'Kti Bot <onboarding@resend.dev>',
+        to: ['kti@badie.eu'],
+        subject: `🔔 Nouvelle Commande ! (#${orderData.id})`,
+        html: adminNewOrderTemplate(
+          orderData.id, 
+          amount_total / 100, 
+          lineItems, 
+          customerDetails, 
+          shippingDetails, 
+          isGift
+        ),
+      });
+
+      if (adminEmailError) console.error('❌ Admin Email Error:', adminEmailError);
+      else console.log('📧 Admin email sent to kti@badie.eu');
+
+    } catch (err) {
+      console.error('❌ Exception sending admin email:', err);
     }
 
   } catch (error) {
