@@ -1,6 +1,7 @@
 'use client'
 
-import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
 // Define the shape of a cart item
 export interface CartItem {
@@ -9,7 +10,7 @@ export interface CartItem {
   price: number;
   image?: any;
   quantity: number;
-  reference?: string; // Added reference
+  reference?: string;
 }
 
 // Define the shape of the context
@@ -33,17 +34,60 @@ interface CartProviderProps {
 
 export const CartProvider = ({ children }: CartProviderProps) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  const supabase = createClient();
+
+  // 1. Listen to Auth Changes
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUserId(session?.user?.id || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
+
+  // Helper to get the correct storage key
+  const getStorageKey = useCallback(() => {
+    return userId ? `cart_items_${userId}` : 'cart_items_guest';
+  }, [userId]);
+
+  // 2. Load Cart when User changes (or on init)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const key = getStorageKey();
+      const storedCart = localStorage.getItem(key);
+      if (storedCart) {
+        try {
+          setCartItems(JSON.parse(storedCart));
+        } catch (e) {
+          console.error("Error parsing cart from local storage", e);
+          setCartItems([]);
+        }
+      } else {
+        setCartItems([]); // Start fresh if nothing stored for this user
+      }
+      setIsInitialized(true);
+    }
+  }, [getStorageKey]);
+
+  // 3. Save Cart when items change
+  useEffect(() => {
+    if (isInitialized && typeof window !== 'undefined') {
+      const key = getStorageKey();
+      localStorage.setItem(key, JSON.stringify(cartItems));
+    }
+  }, [cartItems, isInitialized, getStorageKey]);
 
   const addToCart = useCallback((item: Omit<CartItem, 'quantity'>) => {
     setCartItems(prevItems => {
       const existingItem = prevItems.find(i => i._id === item._id);
       if (existingItem) {
-        // If item exists, increment quantity
         return prevItems.map(i =>
           i._id === item._id ? { ...i, quantity: i.quantity + 1 } : i
         );
       } else {
-        // Otherwise, add new item with quantity 1
         return [...prevItems, { ...item, quantity: 1 }];
       }
     });

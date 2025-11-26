@@ -15,6 +15,10 @@ export default defineType({
       name: 'story',
       title: 'Mon Histoire',
     },
+    {
+      name: 'shipping',
+      title: 'Livraison',
+    },
   ],
   fields: [
     defineField({
@@ -74,6 +78,31 @@ export default defineType({
       ],
       description: 'Contenu de la section "Mon Histoire" sur la page d\'accueil.',
       group: 'story',
+    }),
+    // --- Champs Livraison ---
+    defineField({
+      name: 'shippingRateHome',
+      title: 'Frais de Port : Domicile (Colissimo)',
+      type: 'number',
+      description: 'Prix standard pour la livraison à domicile (en €).',
+      validation: (Rule) => Rule.min(0),
+      group: 'shipping',
+    }),
+    defineField({
+      name: 'shippingRateRelay',
+      title: 'Frais de Port : Point Relais',
+      type: 'number',
+      description: 'Prix standard pour la livraison en point relais (en €).',
+      validation: (Rule) => Rule.min(0),
+      group: 'shipping',
+    }),
+    defineField({
+      name: 'freeShippingThreshold',
+      title: 'Seuil de Livraison Offerte',
+      type: 'number',
+      description: 'Montant du panier à partir duquel la livraison est GRATUITE (en €). Laisser vide ou 0 pour désactiver.',
+      validation: (Rule) => Rule.min(0),
+      group: 'shipping',
     }),
   ],
   preview: {

@@ -8,6 +8,8 @@ import { createClient } from '@/lib/supabase/client';
 import AddressForm from '@/components/AddressForm';
 import { Address } from './mon-compte';
 
+import { client } from '@/sanity/lib/client';
+
 declare global {
   interface Window {
     $: any;
@@ -27,6 +29,13 @@ export default function LivraisonPage() {
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [isGift, setIsGift] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
+
+  // Shipping Configuration (Default values before fetch)
+  const [shippingRates, setShippingRates] = useState({
+    home: 6.00,
+    relay: 4.50,
+    freeThreshold: 0 // 0 means disabled
+  });
 
   // Delivery Mode State
   const [deliveryMode, setDeliveryMode] = useState<'home' | 'relay'>('home');
@@ -49,8 +58,11 @@ export default function LivraisonPage() {
     return countryName.length === 2 ? countryName.toUpperCase() : 'FR';
   };
 
-  // Shipping cost logic
-  const shippingCost = deliveryMode === 'relay' ? 4.50 : 6.00; 
+  // Calculate Shipping Cost
+  const baseShippingCost = deliveryMode === 'relay' ? shippingRates.relay : shippingRates.home;
+  const isFreeShipping = shippingRates.freeThreshold > 0 && cartTotal >= shippingRates.freeThreshold;
+  const shippingCost = isFreeShipping ? 0 : baseShippingCost;
+  
   const totalWithShipping = cartTotal + shippingCost;
 
   useEffect(() => {
@@ -60,14 +72,15 @@ export default function LivraisonPage() {
     }
 
     const initPage = async () => {
+      // 1. Fetch User
       const { data: { user } } = await supabase.auth.getUser();
-      
       if (!user) {
         router.push('/login?redirect=/livraison');
         return;
       }
       setUser(user);
 
+      // 2. Fetch Addresses
       const { data, error } = await supabase
         .from('addresses')
         .select('*')
@@ -80,6 +93,26 @@ export default function LivraisonPage() {
           setSelectedAddressId(data[0].id);
         }
       }
+
+      // 3. Fetch Site Settings (Shipping Rates) from Sanity
+      try {
+        const settings = await client.fetch(`*[_type == "siteSettings"][0]{
+          shippingRateHome,
+          shippingRateRelay,
+          freeShippingThreshold
+        }`);
+        
+        if (settings) {
+          setShippingRates({
+            home: settings.shippingRateHome ?? 6.00,
+            relay: settings.shippingRateRelay ?? 4.50,
+            freeThreshold: settings.freeShippingThreshold ?? 0
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching shipping rates:", err);
+      }
+
       setLoading(false);
     };
 
@@ -131,6 +164,29 @@ export default function LivraisonPage() {
     console.log("Mondial Relay script loaded");
     if (deliveryMode === 'relay') {
       initWidget();
+    }
+  };
+
+  const handleAddressAdded = async (newAddress: Partial<Address>) => {
+    if (!user) return;
+    // Add new address to DB
+    const { data, error } = await supabase
+      .from('addresses')
+      .insert({ ...newAddress, user_id: user.id })
+      .select()
+      .single();
+
+    if (error) {
+      alert("Erreur lors de l'ajout de l'adresse.");
+    } else {
+      setAddresses([...addresses, data]);
+      setSelectedAddressId(data.id); // Select the new address
+      setIsAddingAddress(false);
+      // Also update relay country if needed since we just added an address
+      if (data.country) {
+         setRelayCountry(getCountryCode(data.country));
+         setRelayPostCode(data.postal_code);
+      }
     }
   };
 
@@ -296,36 +352,53 @@ export default function LivraisonPage() {
                 </>
               ) : (
                 <>
-                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
-                    <h3>2. Choisir mon Point Relais</h3>
-                    <select 
-                      value={relayCountry} 
-                      onChange={(e) => setRelayCountry(e.target.value)}
-                      style={{padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd'}}
-                    >
-                      <option value="FR">France</option>
-                      <option value="BE">Belgique</option>
-                      <option value="ES">Espagne</option>
-                      <option value="PT">Portugal</option>
-                      <option value="LU">Luxembourg</option>
-                      <option value="NL">Pays-Bas</option>
-                    </select>
-                  </div>
+                  <h3>2. Choisir mon Point Relais</h3>
 
-                  <div style={{minHeight: '550px', width: '100%'}}>
-                    {/* Widget Container - Increased default size */}
-                    <div id="Zone_Widget" style={{width: '100%', height: '600px'}}></div>
-                    <input type="hidden" id="Target_Widget" />
-                    
-                    {relayPoint && (
-                      <div style={{marginTop: '1rem', padding: '1rem', background: '#f0f9ff', border: '1px solid #0070f3', borderRadius: '8px'}}>
-                        <strong>Point Relais sélectionné :</strong><br/>
-                        {relayPoint.Nom}<br/>
-                        {relayPoint.Adresse1}<br/>
-                        {relayPoint.CP} {relayPoint.Ville}
+                  {addresses.length === 0 ? (
+                    <div style={{padding: '1rem', backgroundColor: '#fff3cd', border: '1px solid #ffeeba', borderRadius: '8px', marginBottom: '1rem'}}>
+                      <p style={{color: '#856404', marginBottom: '1rem'}}>
+                        <strong>Attention :</strong> Vous devez enregistrer une adresse personnelle (pour la facturation) avant de pouvoir choisir un point relais.
+                      </p>
+                      <AddressForm 
+                        onSave={handleAddressAdded} 
+                        onCancel={() => {}} // No cancel possible here, mandatory
+                        saving={false} 
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
+                        <span>Pays du point relais :</span>
+                        <select 
+                          value={relayCountry} 
+                          onChange={(e) => setRelayCountry(e.target.value)}
+                          style={{padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd'}}
+                        >
+                          <option value="FR">France</option>
+                          <option value="BE">Belgique</option>
+                          <option value="ES">Espagne</option>
+                          <option value="PT">Portugal</option>
+                          <option value="LU">Luxembourg</option>
+                          <option value="NL">Pays-Bas</option>
+                        </select>
                       </div>
-                    )}
-                  </div>
+
+                      <div style={{minHeight: '550px', width: '100%'}}>
+                        {/* Widget Container - Increased default size */}
+                        <div id="Zone_Widget" style={{width: '100%', height: '600px'}}></div>
+                        <input type="hidden" id="Target_Widget" />
+                        
+                        {relayPoint && (
+                          <div style={{marginTop: '1rem', padding: '1rem', background: '#f0f9ff', border: '1px solid #0070f3', borderRadius: '8px'}}>
+                            <strong>Point Relais sélectionné :</strong><br/>
+                            {relayPoint.Nom}<br/>
+                            {relayPoint.Adresse1}<br/>
+                            {relayPoint.CP} {relayPoint.Ville}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </>
               )}
             </section>
@@ -366,13 +439,14 @@ export default function LivraisonPage() {
                 className="btn btn-primary" 
                 style={{width: '100%', marginTop: '1.5rem', padding: '1rem'}}
                 onClick={handlePayment}
-                disabled={processingPayment || (deliveryMode === 'home' ? !selectedAddressId : !relayPoint)}
+                disabled={processingPayment || addresses.length === 0 || (deliveryMode === 'home' ? !selectedAddressId : !relayPoint)}
               >
                 {processingPayment ? 'Chargement...' : 'Payer maintenant'}
               </button>
               
-              {deliveryMode === 'home' && !selectedAddressId && <p style={styles.errorMsg}>Veuillez choisir une adresse</p>}
-              {deliveryMode === 'relay' && !relayPoint && <p style={styles.errorMsg}>Veuillez sélectionner un point relais</p>}
+              {addresses.length === 0 && <p style={styles.errorMsg}>Adresse de facturation requise</p>}
+              {addresses.length > 0 && deliveryMode === 'home' && !selectedAddressId && <p style={styles.errorMsg}>Veuillez choisir une adresse</p>}
+              {addresses.length > 0 && deliveryMode === 'relay' && !relayPoint && <p style={styles.errorMsg}>Veuillez sélectionner un point relais</p>}
             </div>
           </div>
         </div>
