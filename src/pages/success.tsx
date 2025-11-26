@@ -3,14 +3,30 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import { useCart } from '@/context/CartContext';
+import { createClient } from '@/lib/supabase/client';
 
 const SuccessPage = () => {
   const { clearCart } = useCart();
+  const supabase = createClient();
 
-  // Clear the cart once the component mounts
+  // Clear the cart rigorously once the component mounts
   useEffect(() => {
-    clearCart();
-  }, [clearCart]);
+    const performCleanup = async () => {
+      // 1. Clear Context state
+      clearCart();
+
+      // 2. Manually clear LocalStorage (Brute force fix)
+      // We need to know WHICH key to clear (guest or user)
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        localStorage.removeItem(`cart_items_${user.id}`);
+      }
+      localStorage.removeItem('cart_items_guest'); // Clear guest cart too just in case
+    };
+
+    performCleanup();
+  }, [clearCart, supabase]);
 
   return (
     <>
