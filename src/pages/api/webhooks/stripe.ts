@@ -52,6 +52,8 @@ export const config = {
 };
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  console.log(`Webhook received: Method=${req.method}, URL=${req.url}`);
+  
   if (req.method === 'POST') {
     const buf = await buffer(req);
     const sig = req.headers['stripe-signature']!;
