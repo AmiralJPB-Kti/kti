@@ -1,14 +1,20 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
 
-// Initialize Stripe with the secret key from environment variables
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  // apiVersion: '2024-06-20', // La version de l'API sera déterminée par la bibliothèque Stripe installée
-});
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     try {
+      // 1. Check API Key availability
+      if (!process.env.STRIPE_SECRET_KEY) {
+        console.error("CRITICAL: STRIPE_SECRET_KEY is missing in environment variables.");
+        return res.status(500).json({ message: 'Configuration Error: Stripe Secret Key is missing.' });
+      }
+
+      // 2. Initialize Stripe inside the handler to catch errors safely
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+        // apiVersion: '2024-06-20', // Optional: lock version
+      });
+
       const { cartItems, user, shipping } = req.body;
 
       if (!cartItems || cartItems.length === 0) {
