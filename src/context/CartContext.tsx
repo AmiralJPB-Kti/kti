@@ -56,6 +56,15 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   // 2. Load Cart when User changes (or on init)
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // CRITICAL FIX: If we are on the success page, Force Empty the cart immediately
+      // This prevents the "ghost cart" issue where localStorage reloads the old cart
+      if (window.location.pathname.includes('/success')) {
+        console.log("Success page detected: Force clearing cart context.");
+        setCartItems([]);
+        setIsInitialized(true);
+        return;
+      }
+
       const key = getStorageKey();
       const storedCart = localStorage.getItem(key);
       if (storedCart) {
