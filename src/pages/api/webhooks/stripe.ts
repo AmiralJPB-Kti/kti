@@ -9,15 +9,26 @@ import {
   STRIPE_KEY_PART_1, 
   STRIPE_KEY_PART_2, 
   STRIPE_WEBHOOK_SECRET_PART_1, 
-  STRIPE_WEBHOOK_SECRET_PART_2 
+  STRIPE_WEBHOOK_SECRET_PART_2,
+  SUPABASE_URL,
+  SUPABASE_SERVICE_ROLE_KEY_PART_1,
+  SUPABASE_SERVICE_ROLE_KEY_PART_2
 } from '../../../lib/stripe-config';
+
+// Reconstruct Supabase Keys
+const hardcodedSupabaseUrl = SUPABASE_URL;
+const hardcodedServiceKey = (SUPABASE_SERVICE_ROLE_KEY_PART_1 && SUPABASE_SERVICE_ROLE_KEY_PART_2) 
+  ? (SUPABASE_SERVICE_ROLE_KEY_PART_1 + SUPABASE_SERVICE_ROLE_KEY_PART_2) 
+  : '';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || hardcodedSupabaseUrl;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || hardcodedServiceKey;
 
 // Initialize Supabase admin client
 // IMPORTANT: Use service_role key for admin access to bypass RLS.
-// Store this in your environment variables and never expose it on the client side.
 const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  supabaseUrl || '',
+  supabaseServiceKey || ''
 );
 
 // Reconstruct Stripe Keys
