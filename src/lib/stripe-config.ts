@@ -18,5 +18,4 @@ export const STRIPE_WEBHOOK_SECRET_PART_2 = "rx9s9nJy0O2DOa5df";
 // Nécessaires pour que le Webhook puisse enregistrer la commande en base
 export const SUPABASE_URL = "https://xhkcnqqvkfyeeikhwifw.supabase.co"; // ex: https://xyz.supabase.co
 export const SUPABASE_SERVICE_ROLE_KEY_PART_1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhoa2NucX"; // La clé qui commence par eyJ... (Service Role, pas Anon)
-export const SUPABASE_SERVICE_ROLE_KEY_PART_2 = "F2a2Z5ZWVpa2h3aWZ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzExMzQ3MSwiZXhwIjoyMDc4Njg5NDcxfQ.EIcMhJbPFRzqH5yVs6eXrYgLZi10444lEMyn1aKjelo
-";
+export const SUPABASE_SERVICE_ROLE_KEY_PART_2 = "F2a2Z5ZWVpa2h3aWZ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzExMzQ3MSwiZXhwIjoyMDc4Njg5NDcxfQ.EIcMhJbPFRzqH5yVs6eXrYgLZi10444lEMyn1aKjelo";
