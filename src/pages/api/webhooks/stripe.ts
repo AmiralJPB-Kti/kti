@@ -5,6 +5,12 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { resend } from '../../../lib/resend';
 import { orderConfirmationEmailTemplate } from '../../../lib/email-templates';
+import { 
+  STRIPE_KEY_PART_1, 
+  STRIPE_KEY_PART_2, 
+  STRIPE_WEBHOOK_SECRET_PART_1, 
+  STRIPE_WEBHOOK_SECRET_PART_2 
+} from '../../../lib/stripe-config';
 
 // Initialize Supabase admin client
 // IMPORTANT: Use service_role key for admin access to bypass RLS.
@@ -14,13 +20,17 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 );
 
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+// Reconstruct Stripe Keys
+const hardcodedKey = (STRIPE_KEY_PART_1 && STRIPE_KEY_PART_2) ? (STRIPE_KEY_PART_1 + STRIPE_KEY_PART_2) : '';
+const apiKey = process.env.STRIPE_SECRET_KEY || hardcodedKey;
+
+const hardcodedWebhookSecret = (STRIPE_WEBHOOK_SECRET_PART_1 && STRIPE_WEBHOOK_SECRET_PART_2) ? (STRIPE_WEBHOOK_SECRET_PART_1 + STRIPE_WEBHOOK_SECRET_PART_2) : '';
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || hardcodedWebhookSecret;
+
+// Initialize Stripe safely
+const stripe = new Stripe(apiKey || '', {
   // apiVersion: '2024-06-20', // La version de l'API sera déterminée par la bibliothèque Stripe installée
 });
-
-// Get the webhook secret from environment variables
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 // Tell Next.js to disable body parsing for this route,
 // as we need the raw body to verify the webhook signature.
@@ -34,6 +44,16 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
     const buf = await buffer(req);
     const sig = req.headers['stripe-signature']!;
+
+    if (!apiKey) {
+      console.error("❌ Stripe API Key missing in Webhook handler");
+      return res.status(500).send("Configuration Error");
+    }
+
+    if (!webhookSecret) {
+       console.error("❌ Stripe Webhook Secret missing in Webhook handler");
+       return res.status(500).send("Configuration Error");
+    }
 
     let event: Stripe.Event;
 
