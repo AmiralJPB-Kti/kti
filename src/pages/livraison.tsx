@@ -29,6 +29,7 @@ export default function LivraisonPage() {
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [isGift, setIsGift] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [debugInfo, setDebugInfo] = useState(''); // TEMP: For debugging Sanity fetch
 
   // Shipping Configuration (Default values before fetch)
   const [shippingRates, setShippingRates] = useState({
@@ -109,8 +110,10 @@ export default function LivraisonPage() {
             freeThreshold: settings.freeShippingThreshold ?? 0
           });
         }
-      } catch (err) {
+        setDebugInfo(JSON.stringify({ status: "Sanity OK", rates: settings }));
+      } catch (err: any) {
         console.error("Error fetching shipping rates:", err);
+        setDebugInfo(JSON.stringify({ status: "Sanity ERROR", message: err.message }));
       }
 
       setLoading(false);
@@ -455,6 +458,11 @@ export default function LivraisonPage() {
           </div>
         </div>
       </main>
+
+      {/* DEBUG INFO */}
+      <div style={{position: 'fixed', bottom: '10px', left: '10px', background: 'rgba(0,0,0,0.7)', color: 'white', padding: '5px', borderRadius: '5px', fontSize: '0.7rem', zIndex: 1000}}>
+        Debug: {debugInfo}
+      </div>
     </>
   );
 }
