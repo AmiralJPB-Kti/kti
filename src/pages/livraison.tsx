@@ -113,7 +113,10 @@ export default function LivraisonPage() {
 
       // 3. Fetch Site Settings (Shipping Rates) from Sanity
       try {
-        const settings = await client.fetch(`*[_type == "siteSettings"][0]{
+        // We specifically ask for the document with ID 'siteSettings' (Singleton)
+        // If not found, we fallback to the first document of type 'siteSettings' (just in case)
+        const settings = await client.fetch(`*[_id == "siteSettings" || _type == "siteSettings"][0]{
+          _id,
           shippingRateHome,
           shippingRateRelay,
           freeShippingThreshold
