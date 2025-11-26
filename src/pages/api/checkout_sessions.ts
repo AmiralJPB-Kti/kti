@@ -1,17 +1,22 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
+import { STRIPE_KEY_PART_1, STRIPE_KEY_PART_2 } from '@/lib/stripe-config';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     try {
-      // 1. Check API Key availability
-      if (!process.env.STRIPE_SECRET_KEY) {
-        console.error("CRITICAL: STRIPE_SECRET_KEY is missing in environment variables.");
+      // 1. Check API Key availability (Env Var OR Hardcoded Split-Key Fallback)
+      // We reconstruct the key by joining the two parts
+      const hardcodedKey = (STRIPE_KEY_PART_1 && STRIPE_KEY_PART_2) ? (STRIPE_KEY_PART_1 + STRIPE_KEY_PART_2) : '';
+      const apiKey = process.env.STRIPE_SECRET_KEY || hardcodedKey;
+
+      if (!apiKey) {
+        console.error("CRITICAL: STRIPE_SECRET_KEY is missing in env vars AND fallback file is empty.");
         return res.status(500).json({ message: 'Configuration Error: Stripe Secret Key is missing.' });
       }
 
       // 2. Initialize Stripe inside the handler to catch errors safely
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      const stripe = new Stripe(apiKey, {
         // apiVersion: '2024-06-20', // Optional: lock version
       });
 
