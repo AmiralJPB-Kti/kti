@@ -3,6 +3,7 @@ import type { AppProps } from 'next/app'
 import { CartProvider } from '@/context/CartContext'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements } from '@stripe/react-stripe-js'
+import Footer from '@/components/Footer' // Import Footer
 
 // Load the Stripe promise outside of the component render to avoid recreating it on every render
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
@@ -12,6 +13,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <CartProvider>
       <Elements stripe={stripePromise}>
         <Component {...pageProps} />
+        <Footer /> {/* Render Footer */}
       </Elements>
     </CartProvider>
   )

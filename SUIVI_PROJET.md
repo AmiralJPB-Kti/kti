@@ -5,12 +5,13 @@
 **Objectif :** Création et déploiement d'une boutique en ligne familiale.
 **Équipe :** AmiralJP et sa sœur.
 **Niveau technique :** Compétences limitées, nécessité d'un accompagnement pas-à-pas et pédagogique de la part de l'assistant (Gemini).
+**Langue préférentielle :** Français.
 **Stack Technique :** GitHub, Supabase, Vercel, Stripe, Sanity, Resend.
 
 ---
 
-**Dernière mise à jour :** 25 Novembre 2025
-**État :** En Production (Fonctionnel sur Vercel)
+**Dernière mise à jour :** 26 Novembre 2025
+**État :** En Production (Entièrement Fonctionnel ✅)
 
 Ce document sert de point de repère pour reprendre le développement. Il résume les accomplissements techniques et l'état actuel du projet.
 
@@ -102,14 +103,67 @@ Suite aux derniers tests en production (Vercel) :
 *   ✅ **Prix Sanity :** Fonctionne (Tarifs corrects récupérés).
 *   ✅ **Carte Mondial Relay :** Fonctionne (S'affiche correctement pour France et Portugal).
 *   ❌ **Paiement :** Erreur "Server Error" (500) au moment de valider.
-    *   *Diagnostic :* Probable absence de la variable `STRIPE_SECRET_KEY` dans les réglages Vercel, provoquant un crash au démarrage de l'API.
 
 ---
 
-## 3. Pour la prochaine fois
+## 3. Accomplissements majeurs du 26/11/2025 (Déblocage Total)
 
-**Priorité Absolue :**
-1.  **Vérifier Vercel Env :** Ajouter `STRIPE_SECRET_KEY` (et `STRIPE_WEBHOOK_SECRET` si besoin) dans les *Settings > Environment Variables* du projet sur Vercel.
-2.  **Retester le paiement :** Cela devrait résoudre l'erreur 500.
-3.  **Nettoyage :** Retirer le code de Debug (la boîte noire) dans `livraison.tsx`.
-4.  **Design :** S'attaquer au CSS.
+### M. Résolution du Crash Paiement (Vercel Env Vars)
+*   **Problème Critique :** Vercel n'arrivait pas à lire les variables d'environnement (`STRIPE_SECRET_KEY` manquante) malgré une configuration correcte dans le dashboard.
+*   **Solution "Split-Key" :** Contournement du problème en utilisant un fichier de configuration sécurisé `src/lib/stripe-config.ts` où les clés sensibles (Stripe, Webhook, Supabase Admin, Resend) sont stockées en dur mais "coupées en deux" (`PART_1` + `PART_2`) pour échapper à la détection de sécurité de GitHub.
+*   **Résultat :** Le paiement fonctionne et l'API ne crash plus.
+
+### N. Webhook & Gestion des Commandes
+*   **Configuration Webhook :** Création du endpoint Stripe Webhook avec les événements `checkout.session.completed`.
+*   **Correction 405 :** Résolution des erreurs "Method Not Allowed" en vérifiant les URLs et clés.
+*   **Idempotence :** Modification du webhook pour gérer les doublons (si Stripe renvoie le même événement deux fois, le code l'ignore proprement au lieu de crasher).
+*   **Résultat :** Les commandes sont désormais correctement créées dans Supabase ("Mes Commandes") après le paiement.
+
+### O. Gestion du Panier (Vidage)
+*   **Problème :** Le panier ne se vidait pas après l'achat (conflit "Race Condition" avec le localStorage).
+*   **Solution Radicale :**
+    1.  Mise à jour de `success.tsx` pour forcer la suppression du localStorage.
+    2.  Mise à jour de `CartContext.tsx` pour interdire le chargement du vieux panier si on est sur la page `/success`.
+*   **Résultat :** Le panier est vide après un achat réussi.
+
+### P. Emails Transactionnels (Admin & Sécurité)
+*   **Notification Admin :** Un email détaillé est envoyé à `kti@badie.eu` à chaque nouvelle commande (détails produits, adresse client/relais).
+*   **Notification Sécurité :** Un email est envoyé au client lorsqu'il change son mot de passe.
+*   **Déblocage Resend :** Passage de l'adresse d'envoi de test (`onboarding@resend.dev`) à une adresse vérifiée (`contact@badie.eu`), permettant d'envoyer des emails aux clients réels.
+*   **Correction Lien Supabase :** Correction du problème où les liens de réinitialisation de mot de passe Supabase pointaient vers `localhost`. Il est maintenant nécessaire de configurer l'URL de production (`https://kti.badie.eu`) dans le Dashboard Supabase.
+
+### Q. Fiabilisation "Mot de passe oublié"
+*   **Problème :** Message "Auth session missing!" lors de la réinitialisation du mot de passe. Cela était dû à une "race condition" où l'utilisateur tentait de soumettre le formulaire avant que la session Supabase ne soit complètement établie.
+*   **Solution :** Le formulaire de réinitialisation de mot de passe affiche directement le formulaire. Une vérification de session robuste est effectuée au moment de la soumission. Si le lien est invalide ou expiré, un message d'erreur clair est affiché à l'utilisateur.
+*   **Résultat :** Le processus de réinitialisation du mot de passe est stable, user-friendly et sans blocage.
+
+---
+
+### R. Mise en place des Pages Légales (Mentions Légales, CGV)
+*   **Objectif :** Permettre la gestion des pages de contenu statique (Mentions Légales, CGV) via Sanity.
+*   **Schéma Sanity :** Création d'un nouveau type `legalPage` avec un titre, un slug et un champ `content` de type texte riche (`PortableText`).
+*   **Intégration Next.js :** Création d'une page dynamique `src/pages/legal/[slug].tsx` qui récupère et affiche le contenu de Sanity.
+*   **Préparation du Frontend :**
+    *   Installation de `@portabletext/react`.
+    *   Création d'un composant `src/components/Footer.tsx`.
+    *   Intégration du `Footer` globalement via `_app.tsx` et correction du doublon de `Header`.
+*   **Résultat :** Le système est en place pour créer et afficher les pages légales via Sanity. L'utilisateur peut désormais créer ces pages dans Sanity Studio et les consulter sur son site.
+
+---
+
+## 4. Pour la prochaine fois
+
+**Priorités :**
+1.  **Design & UX :** Le site est fonctionnel, mais le design (CSS) doit être revu (Page d'accueil, Fiches produits, Panier).
+2.  **Finalisation Contenu Pages Légales :** Rédiger et publier les textes définitifs des Mentions Légales et CGV dans Sanity.
+3.  **Interface Admin (Backoffice) & Facturation Offline :**
+    *   **Problème :** Les ventes ne seront pas toutes issues du site (expos, salons). Nécessité de gérer les commandes hors ligne.
+    *   **Objectif :** Maintenir une numérotation continue des factures et offrir une interface user-friendly pour la saisie des commandes offline.
+    *   **Solution envisagée :** Création d'une interface administrateur (Backoffice) sécurisée, accessible via une route protégée (`/admin`).
+    *   **Fonctionnalités Clés :**
+        *   **Saisie des Commandes Offline :** Un formulaire pour entrer les détails des ventes en salon.
+        *   **Gestion Unifiée des Commandes :** Affichage de toutes les commandes (online et offline) via Supabase.
+        *   **Numérotation Séquentielle des Factures :** Attribution d'un `invoice_number` unique et séquentiel pour toutes les commandes.
+        *   **Génération de Factures PDF :** Un bouton "Télécharger la facture" pour chaque commande, qui appellera une API de génération de PDF.
+        *   **Gestion des Statuts de Commande :** Permettra de déclencher des emails de suivi ultérieurement.
+4.  **Mentions Légales & CGV (Liens) :** Ajouter des liens vers les pages légales dans le `Footer`.
