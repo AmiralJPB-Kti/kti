@@ -10,7 +10,7 @@
 
 ---
 
-**Dernière mise à jour :** 26 Novembre 2025
+**Dernière mise à jour :** 27 Novembre 2025
 **État :** En Production (Entièrement Fonctionnel ✅)
 
 Ce document sert de point de repère pour reprendre le développement. Il résume les accomplissements techniques et l'état actuel du projet.
@@ -139,19 +139,22 @@ Suite aux derniers tests en production (Vercel) :
 
 ---
 
-### R. Mise en place des Pages Légales (Mentions Légales, CGV)
-*   **Objectif :** Permettre la gestion des pages de contenu statique (Mentions Légales, CGV) via Sanity.
-*   **Schéma Sanity :** Création d'un nouveau type `legalPage` avec un titre, un slug et un champ `content` de type texte riche (`PortableText`).
-*   **Intégration Next.js :** Création d'une page dynamique `src/pages/legal/[slug].tsx` qui récupère et affiche le contenu de Sanity.
-*   **Préparation du Frontend :**
-    *   Installation de `@portabletext/react`.
-    *   Création d'un composant `src/components/Footer.tsx`.
-    *   Intégration du `Footer` globalement via `_app.tsx` et correction du doublon de `Header`.
-*   **Résultat :** Le système est en place pour créer et afficher les pages légales via Sanity. L'utilisateur peut désormais créer ces pages dans Sanity Studio et les consulter sur son site.
+## 4. Accomplissements du 27/11/2025 (Tarification Internationale)
+
+### S. Gestion Fine des Frais de Port (France vs International)
+*   **Besoin :** Différencier les tarifs de livraison selon que le client (ou le point relais) est en France ou à l'étranger.
+*   **Solution Sanity :** Ajout de deux nouveaux champs dans le schéma `siteSettings` :
+    *   `shippingRateInternational` : Pour la livraison à Domicile hors France.
+    *   `shippingRateRelayInternational` : Pour la livraison en Point Relais hors France.
+*   **Solution Frontend (`src/pages/livraison.tsx`) :**
+    *   Détection automatique du pays de l'adresse sélectionnée (Domicile).
+    *   Détection automatique du pays du point relais sélectionné (Mondial Relay).
+    *   Application dynamique du tarif correspondant (Standard ou International) en temps réel.
+*   **Résultat :** L'administrateur peut désormais définir 4 tarifs distincts (Home FR, Home Monde, Relay FR, Relay Monde) directement depuis le studio Sanity.
 
 ---
 
-## 4. Pour la prochaine fois
+## 5. Pour la prochaine fois
 
 **Priorités :**
 1.  **Design & UX :** Le site est fonctionnel, mais le design (CSS) doit être revu (Page d'accueil, Fiches produits, Panier).

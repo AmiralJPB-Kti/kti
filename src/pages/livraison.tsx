@@ -33,7 +33,9 @@ export default function LivraisonPage() {
   // Shipping Configuration (Default values before fetch)
   const [shippingRates, setShippingRates] = useState({
     home: 6.00,
+    international: 18.00, // Default international rate
     relay: 4.50,
+    relayInternational: 8.00, // Default international relay rate
     freeThreshold: 0 // 0 means disabled
   });
 
@@ -58,8 +60,33 @@ export default function LivraisonPage() {
     return countryName.length === 2 ? countryName.toUpperCase() : 'FR';
   };
 
+  // Helper to check if address is international (Not France)
+  const isInternationalAddress = (addressId: number | null) => {
+    if (!addressId || addresses.length === 0) return false;
+    const addr = addresses.find(a => a.id === addressId);
+    if (!addr) return false;
+    const code = getCountryCode(addr.country);
+    return code !== 'FR';
+  };
+
   // Calculate Shipping Cost
-  const baseShippingCost = deliveryMode === 'relay' ? shippingRates.relay : shippingRates.home;
+  let baseShippingCost = 0;
+  if (deliveryMode === 'relay') {
+    // Check relay country
+    if (relayCountry !== 'FR') {
+      baseShippingCost = shippingRates.relayInternational;
+    } else {
+      baseShippingCost = shippingRates.relay;
+    }
+  } else {
+    // Home delivery
+    if (isInternationalAddress(selectedAddressId)) {
+      baseShippingCost = shippingRates.international;
+    } else {
+      baseShippingCost = shippingRates.home;
+    }
+  }
+
   const isFreeShipping = shippingRates.freeThreshold > 0 && cartTotal >= shippingRates.freeThreshold;
   const shippingCost = isFreeShipping ? 0 : baseShippingCost;
   
@@ -100,14 +127,18 @@ export default function LivraisonPage() {
         const settings = await client.fetch(`*[_type == "siteSettings"] | order(_updatedAt desc)[0]{
           _id,
           shippingRateHome,
+          shippingRateInternational,
           shippingRateRelay,
+          shippingRateRelayInternational,
           freeShippingThreshold
         }`);
         
         if (settings) {
           setShippingRates({
             home: settings.shippingRateHome ?? 6.00,
+            international: settings.shippingRateInternational ?? 18.00,
             relay: settings.shippingRateRelay ?? 4.50,
+            relayInternational: settings.shippingRateRelayInternational ?? 8.00,
             freeThreshold: settings.freeShippingThreshold ?? 0
           });
         }

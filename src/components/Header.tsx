@@ -57,7 +57,6 @@ const Header: React.FC<HeaderProps> = ({ forceLoggedOut = false }) => {
             <li><Link href="/" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Accueil</Link></li>
             <li><Link href="/produits" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Produits</Link></li>
             <li><Link href="/a-propos" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Mon Histoire</Link></li>
-            <li><Link href="/contact" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Contact</Link></li>
             {user && !forceLoggedOut ? (
               <>
                 <li><Link href="/mon-compte" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Mon Compte</Link></li>
