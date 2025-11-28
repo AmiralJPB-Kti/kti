@@ -69,6 +69,21 @@ Le bouton "Ajouter au panier" disparaît. Il est remplacé par un bouton **"Comm
 
 ---
 
+### 4.C. Galerie Photo Avancée (Vues et Angles)
+
+Pour offrir une expérience immersive ("tourner autour du produit"), vous pouvez préciser l'angle de chaque photo.
+
+1.  Chargez vos photos dans le champ "Photos du produit".
+2.  Pour chaque photo, cliquez sur le petit bouton **Edit** (crayon) ou double-cliquez sur l'image.
+3.  Une fenêtre s'ouvre. Dans le menu déroulant **"Vue / Angle"**, choisissez l'option correspondante (Face Avant, Dessus, Détail...).
+4.  Vous pouvez aussi ajouter un texte alternatif pour Google.
+5.  Fermez la petite fenêtre.
+
+**Résultat sur le site :**
+Les photos s'affichent sous forme de galerie interactive. Quand le client clique sur une vignette, la légende s'affiche (ex: *"Vue : Côté Droit"*).
+
+---
+
 ## ⚠️ 5. Étape Cruciale : PUBLIER
 
 Sanity fonctionne avec un système de **Brouillon** (Draft) et de **Publication**.

@@ -8,12 +8,19 @@ import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import styles from '@/styles/ProductDetail.module.css'
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
 
 // Define the type for a single detailed product
+interface ProductImage {
+  asset: any;
+  label?: string;
+  alt?: string;
+}
+
 interface Product {
   _id: string;
   name: string;
-  images: any[];
+  images: ProductImage[];
   description: string;
   price: number;
   dimensions: {
@@ -23,9 +30,9 @@ interface Product {
   };
   reference: string;
   materials: { _id: string; name: string; }[];
-  stock: number; // Added stock
-  status: 'unique' | 'sur-commande'; // Added status
-  customizationOptions?: string; // Added customizationOptions
+  stock: number; 
+  status: 'unique' | 'sur-commande';
+  customizationOptions?: string; 
 }
 
 interface ProductDetailPageProps {
@@ -38,6 +45,16 @@ import { useCart } from '@/context/CartContext';
 
 export default function ProductDetailPage({ product }: ProductDetailPageProps) {
   const router = useRouter();
+  
+  // State for the interactive gallery
+  const [selectedImage, setSelectedImage] = useState<ProductImage | null>(null);
+
+  // Set initial image when product loads
+  useEffect(() => {
+    if (product && product.images && product.images.length > 0) {
+      setSelectedImage(product.images[0]);
+    }
+  }, [product]);
   
   if (!product) {
     return <div>Produit non trouvé.</div>;
@@ -54,7 +71,6 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
       reference: product.reference,
     };
     addToCart(itemToAdd);
-    // Optional: Add user feedback, e.g., a toast notification
     alert(`"${product.name}" a été ajouté au panier !`);
   };
 
@@ -71,16 +87,58 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
       <main className={`container ${styles.productLayout}`}>
         {/* Image Gallery */}
         <div className={styles.imageGallery}>
-          {product.images && product.images.length > 0 ? (
-            <Image
-              src={urlFor(product.images[0]).url()}
-              alt={product.name}
-              width={800}
-              height={800}
-              style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
-            />
-          ) : (
-            <div className={styles.imagePlaceholder} />
+          {/* Main Large Image */}
+          <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', backgroundColor: '#f9f9f9', borderRadius: '8px', overflow: 'hidden' }}>
+            {selectedImage ? (
+              <Image
+                src={urlFor(selectedImage).url()}
+                alt={selectedImage.alt || product.name}
+                fill
+                style={{ objectFit: 'contain' }} // 'contain' shows the whole product without cropping
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
+              />
+            ) : (
+              <div className={styles.imagePlaceholder} style={{ width: '100%', height: '100%' }} />
+            )}
+          </div>
+
+          {/* Caption for the view */}
+          {selectedImage && selectedImage.label && (
+            <p style={{ textAlign: 'center', marginTop: '0.5rem', fontStyle: 'italic', color: '#666' }}>
+              Vue : {selectedImage.label}
+            </p>
+          )}
+
+          {/* Thumbnails Grid */}
+          {product.images && product.images.length > 1 && (
+            <div style={{ display: 'flex', gap: '10px', marginTop: '1rem', overflowX: 'auto', paddingBottom: '10px' }}>
+              {product.images.map((img, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedImage(img)}
+                  style={{
+                    border: selectedImage === img ? '2px solid var(--color-primary)' : '1px solid #ddd',
+                    borderRadius: '4px',
+                    padding: 0,
+                    cursor: 'pointer',
+                    minWidth: '80px',
+                    height: '80px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    opacity: selectedImage === img ? 1 : 0.7,
+                    transition: 'all 0.2s'
+                  }}
+                >
+                   <Image
+                    src={urlFor(img).width(200).url()} // Load smaller version for thumbnail
+                    alt={img.alt || `Vue ${index + 1}`}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                  />
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
@@ -185,7 +243,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
     groq`*[_type == "product" && slug.current == $slug][0]{
       _id,
       name,
-      images,
+      images[]{..., asset->}, // Fetch all fields including label and alt
       description,
       price,
       dimensions,

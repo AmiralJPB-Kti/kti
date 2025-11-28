@@ -68,7 +68,38 @@ export default defineType({
       name: 'images',
       title: 'Photos du produit',
       type: 'array',
-      of: [{type: 'image', options: {hotspot: true}}],
+      of: [
+        {
+          type: 'image',
+          options: {hotspot: true},
+          fields: [
+            {
+              name: 'label',
+              type: 'string',
+              title: 'Vue / Angle',
+              options: {
+                list: [
+                  {title: 'Face Avant', value: 'Face Av'},
+                  {title: 'Face Arrière', value: 'Face Ar'},
+                  {title: 'Dessus', value: 'Dessus'},
+                  {title: 'Dessous', value: 'Dessous'},
+                  {title: 'Côté Droit', value: 'Droit'},
+                  {title: 'Côté Gauche', value: 'Gauche'},
+                  {title: 'Détail / Singularité', value: 'Singularité'},
+                  {title: 'Autre', value: 'Autre'},
+                ],
+                layout: 'dropdown', // Afficher en menu déroulant
+              },
+            },
+            {
+              name: 'alt',
+              type: 'string',
+              title: 'Texte alternatif (Pour le référencement Google)',
+              description: 'Décrivez brièvement l\'image (ex: Sac rouge vue de face)',
+            },
+          ],
+        },
+      ],
     }),
     defineField({
       name: 'price',

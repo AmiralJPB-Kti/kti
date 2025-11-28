@@ -163,6 +163,14 @@ Suite aux derniers tests en production (Vercel) :
     *   **Expérience Client :** Le bouton redirige vers la page Contact, où le message est **pré-rempli** avec le nom et la référence du produit.
     *   **Emailing :** Le formulaire de contact envoie désormais une copie (accusé de réception) au client en plus de notifier l'administrateur.
 
+### U. Galerie Produit Interactive (Vues Multiples)
+*   **Besoin :** Permettre au client de visualiser le produit sous tous les angles (Face, Dos, Dessus, Détails...) avec des légendes claires.
+*   **Backoffice (Sanity) :** Enrichissement du champ `images` pour permettre l'ajout de métadonnées. Chaque image peut désormais avoir une **étiquette** (sélectionnée via un menu déroulant : "Face Avant", "Côté Droit", "Singularité"...) et un texte alternatif SEO.
+*   **Frontend :** Refonte de l'affichage image sur la fiche produit.
+    *   Mise en place d'une **galerie interactive** : Grande image principale + Bandeau de miniatures défilable.
+    *   Interaction : Le clic sur une miniature met à jour l'image principale instantanément.
+    *   Légende : Affichage dynamique de l'angle de vue (ex: *"Vue : Face Arrière"*) sous l'image principale.
+
 ---
 
 ## 5. Pour la prochaine fois
