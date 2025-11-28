@@ -1,13 +1,27 @@
 import Head from 'next/head';
 import Header from '@/components/Header';
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 const ContactPage = () => {
+  const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Pre-fill message if coming from a product page
+  useEffect(() => {
+    if (router.query.product) {
+      const productName = decodeURIComponent(router.query.product as string);
+      const productRef = router.query.reference ? decodeURIComponent(router.query.reference as string) : '';
+      
+      const refText = productRef ? ` (Réf: ${productRef})` : '';
+      
+      setMessage(`Bonjour,\n\nJe souhaiterais commander une création similaire au modèle "${productName}"${refText}.\n\nVoici mes préférences (couleurs, détails...) :\n`);
+    }
+  }, [router.query.product, router.query.reference]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

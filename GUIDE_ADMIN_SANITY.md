@@ -55,6 +55,18 @@ C'est ici que vous réglez les tarifs Colissimo et Point Relais.
 3.  **Pour ajouter :** Cliquez sur le bouton **Create** (icône crayon) en haut à gauche de la liste.
 4.  Remplissez les champs (Nom, Slug, Images, Prix, Description...).
 
+### 4.B. Gérer les produits vendus (Sur Commande)
+
+K'ti propose des pièces uniques. Mais quand un sac est vendu, il peut servir de modèle pour une nouvelle commande. Voici comment faire :
+
+1.  **Stock :** Mettez le stock à **0**.
+2.  **Statut :** Cochez la case **"Sur Commande"**.
+3.  **Options de personnalisation :** Un nouveau champ apparaît. Écrivez un petit texte pour le client (ex: *"Ce modèle est vendu, mais je peux le refaire sur commande. Délai 3 semaines. Choix de couleurs possible."*).
+4.  **Publier :** Cliquez sur le bouton vert "Publish".
+
+**Résultat sur le site :**
+Le bouton "Ajouter au panier" disparaît. Il est remplacé par un bouton **"Commander une création similaire"** qui redirige le client vers le formulaire de contact, avec le message déjà pré-rempli avec la référence du sac !
+
 ---
 
 ## ⚠️ 5. Étape Cruciale : PUBLIER

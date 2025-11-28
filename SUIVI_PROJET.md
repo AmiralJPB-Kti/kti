@@ -139,7 +139,7 @@ Suite aux derniers tests en production (Vercel) :
 
 ---
 
-## 4. Accomplissements du 27/11/2025 (Tarification Internationale)
+## 4. Accomplissements du 27/11/2025 (Tarification & UX)
 
 ### S. Gestion Fine des Frais de Port (France vs International)
 *   **Besoin :** Différencier les tarifs de livraison selon que le client (ou le point relais) est en France ou à l'étranger.
@@ -151,6 +151,17 @@ Suite aux derniers tests en production (Vercel) :
     *   Détection automatique du pays du point relais sélectionné (Mondial Relay).
     *   Application dynamique du tarif correspondant (Standard ou International) en temps réel.
 *   **Résultat :** L'administrateur peut désormais définir 4 tarifs distincts (Home FR, Home Monde, Relay FR, Relay Monde) directement depuis le studio Sanity.
+
+### T. Cosmétique & Gestion "Sur Commande"
+*   **Navigation Épurée :**
+    *   Suppression du lien "Contact" dans le menu principal (Header) pour alléger le design.
+    *   Création d'un menu secondaire dans le pied de page (Footer) avec les liens : **Mentions Légales**, **CGV**, et **Contact**.
+*   **Valorisation des Produits Vendus (Sur Commande) :**
+    *   **Objectif :** Transformer un produit "Épuisé" en opportunité de commande personnalisée.
+    *   **Backoffice (Sanity) :** Ajout d'un champ conditionnel "Options de personnalisation" qui n'apparaît que si le statut est "Sur Commande".
+    *   **Frontend (Fiche Produit) :** Si stock = 0 et statut = "Sur Commande", le bouton d'achat est remplacé par un bouton **"Commander une création similaire"**.
+    *   **Expérience Client :** Le bouton redirige vers la page Contact, où le message est **pré-rempli** avec le nom et la référence du produit.
+    *   **Emailing :** Le formulaire de contact envoie désormais une copie (accusé de réception) au client en plus de notifier l'administrateur.
 
 ---
 

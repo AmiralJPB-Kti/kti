@@ -4,24 +4,28 @@ import { client } from '@/sanity/lib/client'
 import { urlFor } from '@/sanity/lib/image'
 import groq from 'groq'
 import Image from 'next/image'
-import { PortableText } from '@portabletext/react'
+import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import styles from '@/styles/ProductDetail.module.css'
+import Link from 'next/link'
 
 // Define the type for a single detailed product
 interface Product {
   _id: string;
   name: string;
   images: any[];
-  description: string; // Changed to string
+  description: string;
   price: number;
   dimensions: {
     height?: number;
     width?: number;
     depth?: number;
   };
-  reference: string; // Added reference
-  materials: { _id: string; name: string; }[]; // Added materials
+  reference: string;
+  materials: { _id: string; name: string; }[];
+  stock: number; // Added stock
+  status: 'unique' | 'sur-commande'; // Added status
+  customizationOptions?: string; // Added customizationOptions
 }
 
 interface ProductDetailPageProps {
@@ -33,6 +37,8 @@ import { useCart } from '@/context/CartContext';
 // ... (imports existants)
 
 export default function ProductDetailPage({ product }: ProductDetailPageProps) {
+  const router = useRouter();
+  
   if (!product) {
     return <div>Produit non trouvé.</div>;
   }
@@ -45,18 +51,21 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
       name: product.name,
       price: product.price,
       image: product.images && product.images.length > 0 ? product.images[0] : undefined,
-      reference: product.reference, // Pass reference
+      reference: product.reference,
     };
     addToCart(itemToAdd);
     // Optional: Add user feedback, e.g., a toast notification
     alert(`"${product.name}" a été ajouté au panier !`);
   };
 
+  // Logic to determine what to show based on stock and status
+  const isOutOfStock = product.stock <= 0;
+  const isMadeToOrder = product.status === 'sur-commande';
+
   return (
     <>
       <Head>
         <title>{product.name} | Kt'i</title>
-        {/* Add a meta description if a short description field exists */}
       </Head>
       <Header />
       <main className={`container ${styles.productLayout}`}>
@@ -73,7 +82,6 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
           ) : (
             <div className={styles.imagePlaceholder} />
           )}
-          {/* Thumbnails could go here */}
         </div>
 
         {/* Product Info */}
@@ -82,11 +90,7 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
           <p className={styles.price}>{product.price.toFixed(2)} €</p>
           
           <div className={styles.description}>
-            {product.description ? (
-              <p>{product.description}</p> // Render as plain text
-            ) : (
-              <p>Aucune description disponible.</p>
-            )}
+            {product.description ? <p>{product.description}</p> : <p>Aucune description disponible.</p>}
           </div>
 
           {product.dimensions && (
@@ -107,13 +111,55 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
             </div>
           )}
 
-          <button 
-            className="btn btn-primary" 
-            style={{marginTop: '2rem', width: '100%'}}
-            onClick={handleAddToCart}
-          >
-            Ajouter au panier
-          </button>
+          {/* Call to Action Section */}
+          <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #eee' }}>
+            {!isOutOfStock ? (
+              // Case 1: IN STOCK
+              <button 
+                className="btn btn-primary" 
+                style={{width: '100%'}}
+                onClick={handleAddToCart}
+              >
+                Ajouter au panier
+              </button>
+            ) : (
+              // Case 2: OUT OF STOCK
+              isMadeToOrder ? (
+                // Case 2a: MADE TO ORDER
+                <div style={{ backgroundColor: '#f0f9ff', padding: '1.5rem', borderRadius: '8px', border: '1px solid #bde0fe' }}>
+                  <h4 style={{ color: '#0056b3', marginTop: 0 }}>✨ Ce modèle unique a été vendu</h4>
+                  <p style={{ fontSize: '0.95rem', color: '#333' }}>
+                    Mais je peux en réaliser une version similaire spécialement pour vous !
+                  </p>
+                  
+                  {product.customizationOptions && (
+                    <div style={{ marginTop: '1rem', marginBottom: '1rem', fontStyle: 'italic', fontSize: '0.9rem' }}>
+                      <strong>Options possibles :</strong><br/>
+                      {product.customizationOptions}
+                    </div>
+                  )}
+
+                  <Link 
+                    href={`/contact?product=${encodeURIComponent(product.name)}&reference=${encodeURIComponent(product.reference)}`}
+                    className="btn btn-primary"
+                    style={{ display: 'block', textAlign: 'center', textDecoration: 'none', marginTop: '1rem' }}
+                  >
+                    Commander une création similaire
+                  </Link>
+                </div>
+              ) : (
+                // Case 2b: SOLD OUT (ARCHIVED)
+                <button 
+                  className="btn btn-secondary" 
+                  style={{width: '100%', cursor: 'not-allowed', opacity: 0.7}}
+                  disabled
+                >
+                  ❌ Pièce unique vendue
+                </button>
+              )
+            )}
+          </div>
+
         </div>
       </main>
     </>
@@ -128,7 +174,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   return {
     paths: paths.map((slug: string) => ({ params: { slug } })),
-    fallback: 'blocking', // or true if you want to show a loading state
+    fallback: 'blocking',
   };
 };
 
@@ -143,8 +189,11 @@ export const getStaticProps: GetStaticProps = async (context) => {
       description,
       price,
       dimensions,
-      reference, // Fetch reference
-      materials[]->{_id, name} // Fetch materials
+      reference,
+      materials[]->{_id, name},
+      stock,
+      status,
+      customizationOptions
     }`,
     { slug }
   );

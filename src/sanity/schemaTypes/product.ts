@@ -96,6 +96,14 @@ export default defineType({
       initialValue: 'unique',
     }),
     defineField({
+      name: 'customizationOptions',
+      title: 'Options de personnalisation (Si "Sur Commande")',
+      type: 'text',
+      rows: 3,
+      description: 'Expliquez ici ce qui peut être modifié pour une refabrication (ex: "Disponible dans d\'autres coloris de cuir, sangle différente...").',
+      hidden: ({document}) => document?.status !== 'sur-commande', // Masquer si ce n'est pas sur commande
+    }),
+    defineField({
       name: 'isNew',
       title: 'Nouveauté',
       type: 'boolean',
