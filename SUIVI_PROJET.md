@@ -171,6 +171,16 @@ Suite aux derniers tests en production (Vercel) :
     *   Interaction : Le clic sur une miniature met à jour l'image principale instantanément.
     *   Légende : Affichage dynamique de l'angle de vue (ex: *"Vue : Face Arrière"*) sous l'image principale.
 
+### V. Optimisation de la Bannière d'Accueil (HeroBanner)
+*   **Besoin :** Réduire l'encombrement visuel de la bannière principale pour faire remonter le contenu important ("Nos Nouveautés").
+*   **Solution Frontend (`src/components/HeroBanner.tsx`) :**
+    *   Réduction de la hauteur de la bannière de `40vh` à `25vh`.
+    *   Réduction de la taille de la police du slogan (`h1`) de `3rem` à `2rem`.
+    *   Ajustement des marges et du padding du bouton d'appel à l'action pour s'adapter à la nouvelle taille.
+*   **Solution Frontend (`src/pages/index.tsx`) :**
+    *   Réduction de la marge supérieure de la section principale (`main`) de `4rem` à `2rem` pour remonter "Nos Nouveautés".
+*   **Résultat :** Une bannière plus compacte et un accès plus rapide aux produits phares.
+
 ---
 
 ## 5. Pour la prochaine fois

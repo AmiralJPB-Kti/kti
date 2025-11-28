@@ -38,7 +38,7 @@ export default function Home({ products, settings }: HomeProps) {
       </Head>
       <Header />
       <HeroBanner settings={settings} />
-      <main className="container" style={{ paddingTop: '4rem' }}>
+      <main className="container" style={{ paddingTop: '2rem' }}>
         <section>
           <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Nos Nouveautés</h2>
           <div className={styles.productGrid}>
