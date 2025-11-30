@@ -198,4 +198,19 @@ Suite aux derniers tests en production (Vercel) :
         *   **Numérotation Séquentielle des Factures :** Attribution d'un `invoice_number` unique et séquentiel pour toutes les commandes.
         *   **Génération de Factures PDF :** Un bouton "Télécharger la facture" pour chaque commande, qui appellera une API de génération de PDF.
         *   **Gestion des Statuts de Commande :** Permettra de déclencher des emails de suivi ultérieurement.
-4.  **Mentions Légales & CGV (Liens) :** Ajouter des liens vers les pages légales dans le `Footer`.
+4.  **Mentions Légales & CGV (Liens) :** Ajouter des liens vers les pages légales dans le `Footer`. ✅ (Terminé)
+
+---
+
+## 6. Accomplissements du 30/11/2025 (Réinstallation & Outils)
+
+### W. Restauration de l'Environnement
+Suite à une réinstallation système complète (Linux Mint) :
+*   **Synchronisation :** Récupération du dépôt Git et mise à jour des dépendances.
+*   **Outils :** Réinstallation de Remmina et récupération des profils de connexion.
+*   **Vérification :** Le projet compile et est prêt pour le développement.
+
+### X. Script de Monitoring des Commandes
+*   **Restauration :** Retrouvé et restauré le script Python `fetch_daily_orders.py` qui récupère les commandes du jour dans Supabase.
+*   **Configuration :** Le script tourne via une tâche Cron (23h59) et génère un CSV dans `../Commandes_du_jour/`.
+*   **Objectif Futur :** Ce script est actuellement externe et basique. **Le but est de le professionnaliser et de l'intégrer proprement dans l'architecture du projet** (ex: route API admin, dashboard, ou script TypeScript intégré).
