@@ -246,3 +246,18 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
     *   Vignettes : Une règle CSS globale `overflow-x: hidden` sur `html/body` empêchait tout défilement horizontal.
     *   Texte : La classe `.container` manquait de marge interne horizontale (`padding`).
 *   **Fix :** Modification de `globals.css` pour autoriser le défilement horizontal (restauration des vignettes) et ajout d'un padding de sécurité (`2rem 1rem`) sur le conteneur principal.
+
+---
+
+## 8. Accomplissements du 01/12/2025 (Partie 2 - Zoom & Paiement)
+
+### DD. Zoom Image Produit
+*   **Besoin :** Les clients souhaitaient pouvoir zoomer sur les photos pour apprécier les détails des créations.
+*   **Solution :** Intégration de la librairie `react-medium-image-zoom`.
+    *   L'image principale de la fiche produit est désormais cliquable.
+    *   Au clic, elle s'agrandit en plein écran avec une transition fluide (effet "Lightbox").
+    *   Compatible Mobile & Desktop.
+
+### EE. UX Paiement Stripe (Format Date)
+*   **Problème :** Stripe Checkout rejette parfois les dates d'expiration si l'utilisateur saisit l'année sur 4 chiffres (ex: "2026") au lieu de 2 ("26"). Comme la page est hébergée par Stripe, nous ne pouvons pas forcer le format techniquement.
+*   **Palliatif :** Ajout d'un encart d'information visible ("Info Paiement") sur la page de livraison, juste avant le bouton de validation, pour avertir l'utilisateur de saisir l'année à 2 chiffres.

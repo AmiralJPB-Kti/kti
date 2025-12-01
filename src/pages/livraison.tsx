@@ -514,6 +514,10 @@ export default function LivraisonPage() {
                 <span>{totalWithShipping.toFixed(2)} €</span>
               </div>
 
+              <div style={{marginTop: '1rem', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#666', fontStyle: 'italic', backgroundColor: '#fff3cd', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ffeeba'}}>
+                💡 <strong>Info Paiement :</strong> Lors de la saisie de votre carte, merci d'indiquer l'année d'expiration à <strong>2 chiffres</strong> (ex: pour 2026, tapez <strong>26</strong>).
+              </div>
+
               <button 
                 className="btn btn-primary" 
                 style={{width: '100%', marginTop: '1.5rem', padding: '1rem'}}
