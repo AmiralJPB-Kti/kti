@@ -1,9 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { Resend } from 'resend';
-
-// Use PART_1 + PART_2 logic if needed, but standard env var is simpler if Vercel is configured
-// Assuming RESEND_API_KEY is set in Vercel env
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { resend } from '../../lib/resend';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {

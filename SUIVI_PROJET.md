@@ -234,3 +234,8 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
 ### AA. Correction Bug Critique (Contact)
 *   **Bug :** Le formulaire de contact crashait avec une erreur "Unexpected end of JSON input" si le serveur renvoyait une erreur non-JSON (ex: erreur 500 brut).
 *   **Fix :** Sécurisation de la fonction `handleSubmit` dans `contact.tsx`. Le code vérifie désormais le type de contenu de la réponse (`content-type`) avant de tenter de la parser en JSON, affichant une erreur lisible en cas de pépin serveur.
+
+### BB. Correction Bug API Email (Server-Side)
+*   **Bug :** L'erreur "Une erreur inconnue est survenue serveur" persistait lors de l'envoi du formulaire.
+*   **Cause :** Le fichier `api/send-email.ts` tentait de créer une nouvelle instance du client Resend en utilisant uniquement `process.env.RESEND_API_KEY`, qui est vide dans le contexte de production actuel (Vercel), ignorant ainsi le mécanisme de secours (fallback) mis en place dans `lib/resend.ts`.
+*   **Fix :** Remplacement de l'instanciation locale par l'import de l'instance partagée `resend` depuis `src/lib/resend.ts`, qui gère correctement les clés API via la configuration "Split-Key".
