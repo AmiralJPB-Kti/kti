@@ -45,6 +45,7 @@ import { useCart } from '@/context/CartContext';
 
 export default function ProductDetailPage({ product }: ProductDetailPageProps) {
   const router = useRouter();
+  const { addToCart } = useCart();
   
   // State for the interactive gallery
   const [selectedImage, setSelectedImage] = useState<ProductImage | null>(null);
@@ -59,8 +60,6 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
   if (!product) {
     return <div>Produit non trouvé.</div>;
   }
-
-  const { addToCart } = useCart();
 
   const handleAddToCart = () => {
     const itemToAdd = {
@@ -85,6 +84,25 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
       </Head>
       <Header />
       <main className={`container ${styles.productLayout}`}>
+        {/* Navigation Rapide */}
+        <div style={{ 
+          gridColumn: '1 / -1', 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          marginBottom: '1rem',
+          paddingBottom: '1rem',
+          borderBottom: '1px solid #eee',
+          width: '100%'
+        }}>
+          <Link href="/produits" style={{ textDecoration: 'none', color: '#666', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500 }}>
+            ← Retour aux produits
+          </Link>
+          <Link href="/panier" style={{ textDecoration: 'none', color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
+            Voir mon panier →
+          </Link>
+        </div>
+
         {/* Image Gallery */}
         <div className={styles.imageGallery}>
           {/* Main Large Image */}

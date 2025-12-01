@@ -37,7 +37,17 @@ const ContactPage = () => {
         body: JSON.stringify({ name, email, message }),
       });
 
-      const data = await response.json();
+      let data;
+      const contentType = response.headers.get("content-type");
+      
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        data = await response.json();
+      } else {
+        // Si la réponse n'est pas du JSON (ex: erreur 500 serveur brut), on lit le texte
+        const text = await response.text();
+        console.error("Non-JSON response:", text);
+        throw new Error(response.statusText || "Une erreur inconnue est survenue serveur.");
+      }
 
       if (!response.ok) {
         throw new Error(data.error || 'Une erreur est survenue.');
@@ -50,7 +60,8 @@ const ContactPage = () => {
       setMessage('');
 
     } catch (error: any) {
-      setStatusMessage({ type: 'error', text: error.message });
+      console.error("Erreur contact:", error);
+      setStatusMessage({ type: 'error', text: error.message || "Erreur de connexion." });
     } finally {
       setSubmitting(false);
     }

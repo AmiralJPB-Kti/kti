@@ -10,6 +10,7 @@ const LoginPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -78,13 +79,24 @@ const LoginPage = () => {
           <div style={styles.formGroup}>
             <label htmlFor="password">Mot de passe</label>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               style={styles.input}
             />
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+            <input
+              type="checkbox"
+              id="showPassword"
+              checked={showPassword}
+              onChange={(e) => setShowPassword(e.target.checked)}
+              style={{ height: '1rem', width: '1rem' }}
+            />
+            <label htmlFor="showPassword" style={{ marginBottom: 0, userSelect: 'none', fontWeight: 'normal', fontSize: '0.9rem' }}>Afficher le mot de passe</label>
           </div>
 
           {error && (

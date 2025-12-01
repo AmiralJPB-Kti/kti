@@ -48,22 +48,22 @@ const Header: React.FC<HeaderProps> = ({ forceLoggedOut = false }) => {
       top: 0,
       zIndex: 1000,
     }}>
-      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 0, width: '100%' }}>
+      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 1rem', width: '100%', flexWrap: 'wrap' }}>
         <Link href="/" passHref>
           <Logo />
         </Link>
         <nav>
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            <li><Link href="/" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Accueil</Link></li>
-            <li><Link href="/produits" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Produits</Link></li>
-            <li><Link href="/a-propos" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Mon Histoire</Link></li>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <li><Link href="/" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold', fontSize: '0.9rem' }}>Accueil</Link></li>
+            <li><Link href="/produits" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold', fontSize: '0.9rem' }}>Produits</Link></li>
+            <li><Link href="/a-propos" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold', fontSize: '0.9rem' }}>L'Atelier</Link></li>
             {user && !forceLoggedOut ? (
               <>
-                <li><Link href="/mon-compte" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Mon Compte</Link></li>
-                <li><button onClick={handleLogout} style={{ background: 'none', border: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem' }}>Déconnexion</button></li>
+                <li><Link href="/mon-compte" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold', fontSize: '0.9rem' }}>Compte</Link></li>
+                <li><button onClick={handleLogout} style={{ background: 'none', border: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.9rem' }}>Déconnexion</button></li>
               </>
             ) : (
-              <li><Link href="/login" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold' }}>Connexion</Link></li>
+              <li><Link href="/login" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold', fontSize: '0.9rem' }}>Connexion</Link></li>
             )}
             <li>
               <Link href="/panier" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', position: 'relative', display: 'flex', alignItems: 'center' }}>
@@ -81,7 +81,7 @@ const Header: React.FC<HeaderProps> = ({ forceLoggedOut = false }) => {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    fontSize: '12px',
+                    fontSize: '11px',
                     fontWeight: 'bold',
                   }}>
                     {itemCount}

@@ -198,39 +198,4 @@ Suite aux derniers tests en production (Vercel) :
         *   **Numérotation Séquentielle des Factures :** Attribution d'un `invoice_number` unique et séquentiel pour toutes les commandes.
         *   **Génération de Factures PDF :** Un bouton "Télécharger la facture" pour chaque commande, qui appellera une API de génération de PDF.
         *   **Gestion des Statuts de Commande :** Permettra de déclencher des emails de suivi ultérieurement.
-4.  **Mentions Légales & CGV (Liens) :** Ajouter des liens vers les pages légales dans le `Footer`. ✅ (Terminé)
-
----
-
-## 6. Accomplissements du 30/11/2025 (Réinstallation & Outils)
-
-### W. Restauration de l'Environnement
-Suite à une réinstallation système complète (Linux Mint) :
-*   **Synchronisation :** Récupération du dépôt Git et mise à jour des dépendances.
-*   **Outils :** Réinstallation de Remmina et récupération des profils de connexion.
-*   **Vérification :** Le projet compile et est prêt pour le développement.
-
-### X. Script de Monitoring des Commandes
-*   **Restauration :** Retrouvé et restauré le script Python `fetch_daily_orders.py` qui récupère les commandes du jour dans Supabase.
-*   **Configuration :** Le script tourne via une tâche Cron (23h59) et génère un CSV dans `../Commandes_du_jour/`.
-*   **Objectif Futur :** Ce script est actuellement externe et basique. **Le but est de le professionnaliser et de l'intégrer proprement dans l'architecture du projet** (ex: route API admin, dashboard, ou script TypeScript intégré).
-
----
-
-## 7. Accomplissements du 01/12/2025 (Retours Utilisateurs & UX)
-
-Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avons apporté plusieurs correctifs d'ergonomie et de stabilité.
-
-### Y. Améliorations UX & Mobile (Header)
-*   **Problème :** Sur mobile, le panier n'était pas visible ou sortait de l'écran, et les menus étaient confus.
-*   **Solution :**
-    *   **Header Responsive :** Passage du Header en `flex-wrap` avec ajustement des marges et des tailles de police pour s'assurer que le panier reste toujours visible, même sur petit écran.
-    *   **Wording :** Renommage de "Mon Histoire" en **"L'Atelier"** et "Mon Compte" en **"Compte"** pour plus de clarté et de concision.
-
-### Z. Navigation & Ergonomie
-*   **Fiche Produit :** Ajout d'une barre de navigation rapide en haut de la page ("← Retour aux produits" / "Voir mon panier →") pour éviter que l'utilisateur ne se sente perdu après un clic.
-*   **Page de Connexion :** Ajout de la fonctionnalité **"Afficher le mot de passe"** (œil/checkbox) pour faciliter la saisie sur mobile, alignant ainsi le comportement sur la page d'inscription.
-
-### AA. Correction Bug Critique (Contact)
-*   **Bug :** Le formulaire de contact crashait avec une erreur "Unexpected end of JSON input" si le serveur renvoyait une erreur non-JSON (ex: erreur 500 brut).
-*   **Fix :** Sécurisation de la fonction `handleSubmit` dans `contact.tsx`. Le code vérifie désormais le type de contenu de la réponse (`content-type`) avant de tenter de la parser en JSON, affichant une erreur lisible en cas de pépin serveur.
+4.  **Mentions Légales & CGV (Liens) :** Ajouter des liens vers les pages légales dans le `Footer`.
