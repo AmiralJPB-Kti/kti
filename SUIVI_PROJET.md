@@ -239,3 +239,10 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
 *   **Bug :** L'erreur "Une erreur inconnue est survenue serveur" persistait lors de l'envoi du formulaire.
 *   **Cause :** Le fichier `api/send-email.ts` tentait de créer une nouvelle instance du client Resend en utilisant uniquement `process.env.RESEND_API_KEY`, qui est vide dans le contexte de production actuel (Vercel), ignorant ainsi le mécanisme de secours (fallback) mis en place dans `lib/resend.ts`.
 *   **Fix :** Remplacement de l'instanciation locale par l'import de l'instance partagée `resend` depuis `src/lib/resend.ts`, qui gère correctement les clés API via la configuration "Split-Key".
+
+### CC. Correction CSS Mobile (Vignettes & Texte)
+*   **Problème :** Sur mobile, les vignettes de la galerie produit étaient inaccessibles (pas de défilement) et le texte des fiches produits était tronqué ou collé aux bords.
+*   **Cause :**
+    *   Vignettes : Une règle CSS globale `overflow-x: hidden` sur `html/body` empêchait tout défilement horizontal.
+    *   Texte : La classe `.container` manquait de marge interne horizontale (`padding`).
+*   **Fix :** Modification de `globals.css` pour autoriser le défilement horizontal (restauration des vignettes) et ajout d'un padding de sécurité (`2rem 1rem`) sur le conteneur principal.

@@ -33,7 +33,7 @@ This creates a consistent, artisanal, and warm "Made in France" theme.
 html,
 body {
   max-width: 100vw;
-  overflow-x: hidden;
+  /* overflow-x: hidden; removed to allow horizontal scrolling for elements like image galleries */
 }
 
 body {
@@ -72,7 +72,7 @@ a:hover {
   width: 90%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 0;
+  padding: 2rem 1rem; /* Added horizontal padding for mobile readability */
 }
 
 /* A basic button style using the logo's colors */
