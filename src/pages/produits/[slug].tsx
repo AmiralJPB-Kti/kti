@@ -82,7 +82,7 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
   return (
     <>
       <Head>
-        <title>{product.name} | Kt'i</title>
+        <title>{`${product.name} | Kt'i`}</title>
       </Head>
       <Header />
       <main className={`container ${styles.productLayout}`}>
