@@ -9,8 +9,8 @@ import Header from '@/components/Header'
 import styles from '@/styles/ProductDetail.module.css'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import Zoom from 'react-medium-image-zoom'
-import 'react-medium-image-zoom/dist/styles.css'
+import InnerImageZoom from 'react-inner-image-zoom'
+import 'react-inner-image-zoom/lib/InnerImageZoom/styles.css'
 
 // Define the type for a single detailed product
 interface ProductImage {
@@ -110,16 +110,14 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
           {/* Main Large Image */}
           <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', backgroundColor: '#f9f9f9', borderRadius: '8px', overflow: 'hidden', zIndex: 10 }}>
             {selectedImage ? (
-              <Zoom>
-                <Image
-                  src={urlFor(selectedImage).url()}
-                  alt={selectedImage.alt || product.name}
-                  fill
-                  style={{ objectFit: 'contain' }} // 'contain' shows the whole product without cropping
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  priority
-                />
-              </Zoom>
+              <InnerImageZoom
+                src={urlFor(selectedImage).width(800).auto('format').url()}
+                zoomSrc={urlFor(selectedImage).width(2000).quality(90).auto('format').url()}
+                alt={selectedImage.alt || product.name}
+                zoomType="hover"
+                zoomPreload={true}
+                className="custom-zoom-image"
+              />
             ) : (
               <div className={styles.imagePlaceholder} style={{ width: '100%', height: '100%' }} />
             )}
@@ -128,7 +126,7 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
           {/* Caption for the view */}
           {selectedImage && selectedImage.label && (
             <p style={{ textAlign: 'center', marginTop: '0.5rem', fontStyle: 'italic', color: '#666' }}>
-              Vue : {selectedImage.label} <span style={{ fontSize: '0.8rem', color: '#999' }}>(Cliquer pour zoomer)</span>
+              Vue : {selectedImage.label} <span style={{ fontSize: '0.8rem', color: '#999' }}>(Survoler ou cliquer pour zoomer)</span>
             </p>
           )}
 

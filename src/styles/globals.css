@@ -75,6 +75,19 @@ a:hover {
   padding: 2rem 1rem; /* Added horizontal padding for mobile readability */
 }
 
+/* Custom styles for InnerImageZoom */
+.custom-zoom-image figure {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.custom-zoom-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 /* A basic button style using the logo's colors */
 .btn {
   display: inline-block;

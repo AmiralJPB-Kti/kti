@@ -251,12 +251,11 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
 
 ## 8. Accomplissements du 01/12/2025 (Partie 2 - Zoom & Paiement)
 
-### DD. Zoom Image Produit
-*   **Besoin :** Les clients souhaitaient pouvoir zoomer sur les photos pour apprécier les détails des créations.
-*   **Solution :** Intégration de la librairie `react-medium-image-zoom`.
-    *   L'image principale de la fiche produit est désormais cliquable.
-    *   Au clic, elle s'agrandit en plein écran avec une transition fluide (effet "Lightbox").
-    *   Compatible Mobile & Desktop.
+### DD. Zoom Image Produit (V2 - Haute Définition)
+*   **Besoin :** Les clients souhaitaient pouvoir zoomer sur les photos pour apprécier les détails des créations. La première solution (Lightbox simple) était insuffisante car elle n'affichait pas une résolution plus élevée.
+*   **Solution :** Intégration de la librairie `react-inner-image-zoom`.
+    *   **Technique :** Chargement de deux images distinctes : une légère pour l'affichage standard (800px) et une ultra-HD (2000px) pour le zoom.
+    *   **UX :** Au survol de la souris (Desktop) ou au toucher (Mobile), une loupe permet d'explorer l'image HD sans perte de qualité.
 
 ### EE. UX Paiement Stripe (Format Date)
 *   **Problème :** Stripe Checkout rejette parfois les dates d'expiration si l'utilisateur saisit l'année sur 4 chiffres (ex: "2026") au lieu de 2 ("26"). Comme la page est hébergée par Stripe, nous ne pouvons pas forcer le format techniquement.
