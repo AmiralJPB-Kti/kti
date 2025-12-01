@@ -10,7 +10,7 @@ import styles from '@/styles/ProductDetail.module.css'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import InnerImageZoom from 'react-inner-image-zoom'
-import 'react-inner-image-zoom/lib/InnerImageZoom/styles.css'
+import 'react-inner-image-zoom/lib/styles.min.css'
 
 // Define the type for a single detailed product
 interface ProductImage {
