@@ -67,3 +67,8 @@
   margin-bottom: 0.5rem;
 }
 
+/* Styles for react-inner-image-zoom */
+.imageGallery :global(.iiz__img) {
+  border-radius: 8px;
+}
+

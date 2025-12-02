@@ -108,7 +108,7 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
         {/* Image Gallery */}
         <div className={styles.imageGallery}>
           {/* Main Large Image */}
-          <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', backgroundColor: '#f9f9f9', borderRadius: '8px', overflow: 'hidden', zIndex: 10 }}>
+          <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', backgroundColor: '#f9f9f9' }}>
             {selectedImage ? (
               <InnerImageZoom
                 src={urlFor(selectedImage).width(800).auto('format').url()}
@@ -116,7 +116,7 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
                 alt={selectedImage.alt || product.name}
                 zoomType="hover"
                 zoomPreload={true}
-                className="custom-zoom-image"
+                className="custom-zoom-image" // Garder cette classe pour les styles additionnels si besoin
               />
             ) : (
               <div className={styles.imagePlaceholder} style={{ width: '100%', height: '100%' }} />

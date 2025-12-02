@@ -256,6 +256,7 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
 *   **Solution :** Intégration de la librairie `react-inner-image-zoom`.
     *   **Technique :** Chargement de deux images distinctes : une légère pour l'affichage standard (800px) et une ultra-HD (2000px) pour le zoom.
     *   **UX :** Au survol de la souris (Desktop) ou au toucher (Mobile), une loupe permet d'explorer l'image HD sans perte de qualité.
+    *   **Correction Bug :** L'affichage de la "zone blanche" venait d'un `overflow: hidden` dans le conteneur de l'image principale. Ce style a été supprimé, et le `border-radius` a été appliqué via CSS directement sur l'image zoomée pour préserver l'esthétique.
 
 ### EE. UX Paiement Stripe (Format Date)
 *   **Problème :** Stripe Checkout rejette parfois les dates d'expiration si l'utilisateur saisit l'année sur 4 chiffres (ex: "2026") au lieu de 2 ("26"). Comme la page est hébergée par Stripe, nous ne pouvons pas forcer le format techniquement.
