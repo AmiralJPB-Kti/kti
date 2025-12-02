@@ -8,9 +8,8 @@ import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import styles from '@/styles/ProductDetail.module.css'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
-import InnerImageZoom from 'react-inner-image-zoom'
-import 'react-inner-image-zoom/lib/styles.min.css'
+import { useState, useEffect, useRef } from 'react'
+// Pas besoin d'importer de librairie de zoom ici
 
 // Define the type for a single detailed product
 interface ProductImage {
@@ -79,6 +78,31 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
   const isOutOfStock = product.stock <= 0;
   const isMadeToOrder = product.status === 'sur-commande';
 
+  // Custom Zoom Logic
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomCoords, setZoomCoords] = useState({ x: 0, y: 0 });
+  const imageContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!imageContainerRef.current) return;
+
+    const { left, top, width, height } = imageContainerRef.current.getBoundingClientRect();
+    const x = e.clientX - left; // x position within the element.
+    const y = e.clientY - top;  // y position within the element.
+
+    // Calculate percentage position
+    const xPercent = (x / width) * 100;
+    const yPercent = (y / height) * 100;
+
+    setZoomCoords({ x: xPercent, y: yPercent });
+  };
+  // End Custom Zoom Logic
+
+  // URLs for the main image and zoom image
+  const displayImageUrl = selectedImage ? urlFor(selectedImage).width(800).auto('format').url() : '';
+  const zoomImageUrl = selectedImage ? urlFor(selectedImage).width(2000).quality(90).auto('format').url() : '';
+
+
   return (
     <>
       <Head>
@@ -108,18 +132,34 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
         {/* Image Gallery */}
         <div className={styles.imageGallery}>
           {/* Main Large Image */}
-          <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', backgroundColor: '#f9f9f9' }}>
+          <div 
+            ref={imageContainerRef}
+            className={styles.imageZoomContainer} // Use a class for custom styles
+            onMouseEnter={() => setIsZoomed(true)}
+            onMouseLeave={() => setIsZoomed(false)}
+            onMouseMove={handleMouseMove}
+          >
             {selectedImage ? (
-              <InnerImageZoom
-                src={urlFor(selectedImage).width(800).auto('format').url()}
-                zoomSrc={urlFor(selectedImage).width(2000).quality(90).auto('format').url()}
+              <Image
+                src={displayImageUrl}
                 alt={selectedImage.alt || product.name}
-                zoomType="hover"
-                zoomPreload={true}
-                className="custom-zoom-image" // Garder cette classe pour les styles additionnels si besoin
+                fill
+                style={{ objectFit: 'contain' }}
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
               />
             ) : (
               <div className={styles.imagePlaceholder} style={{ width: '100%', height: '100%' }} />
+            )}
+            
+            {isZoomed && (
+              <div 
+                className={styles.loupe}
+                style={{
+                  backgroundImage: `url(${zoomImageUrl})`,
+                  backgroundPosition: `${zoomCoords.x}% ${zoomCoords.y}%`
+                }}
+              />
             )}
           </div>
 

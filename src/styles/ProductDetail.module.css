@@ -67,8 +67,46 @@
   margin-bottom: 0.5rem;
 }
 
-/* Styles for react-inner-image-zoom */
-.imageGallery :global(.iiz__img) {
-  border-radius: 8px;
+/* Custom Image Zoom Styles */
+.imageZoomContainer {
+  position: relative;
+  /* Next.js Image component handles width/height/aspect-ratio, 
+     but we need to ensure the container itself has a base for events */
+  width: 100%; /* Ensured by the wrapping div */
+  cursor: zoom-in;
+  border-radius: 8px; /* Apply border radius here for the whole container */
+  overflow: hidden; /* Keep the image within bounds */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+}
+
+/* Ensure the Next.js Image inside the container is styled correctly */
+.imageZoomContainer img {
+  border-radius: 8px; /* Also apply to the image itself */
+  object-fit: contain; /* Already set inline, but good to reinforce */
+}
+
+.loupe {
+  position: absolute;
+  border: 2px solid var(--color-accent-blue);
+  border-radius: 50%; /* Make it circular */
+  height: 150px; /* Size of the magnifying glass */
+  width: 150px; /* Size of the magnifying glass */
+  cursor: none; /* Hide default cursor */
+  background-repeat: no-repeat;
+  box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.85),
+              0 0 10px rgba(0, 0, 0, 0.2);
+  display: block;
+  pointer-events: none; /* Important to let mouse events pass through to the underlying image */
+  transform: translate(-50%, -50%); /* Center the loupe on the cursor */
+  z-index: 1001; /* Ensure it's above other elements */
+  overflow: hidden; /* Important for background image */
+}
+
+/* For smaller screens, prevent loupe from being too large */
+@media (max-width: 600px) {
+  .loupe {
+    height: 100px;
+    width: 100px;
+  }
 }
 

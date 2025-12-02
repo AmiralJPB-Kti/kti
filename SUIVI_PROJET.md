@@ -251,12 +251,15 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
 
 ## 8. Accomplissements du 01/12/2025 (Partie 2 - Zoom & Paiement)
 
-### DD. Zoom Image Produit (V2 - Haute Définition)
-*   **Besoin :** Les clients souhaitaient pouvoir zoomer sur les photos pour apprécier les détails des créations. La première solution (Lightbox simple) était insuffisante car elle n'affichait pas une résolution plus élevée.
-*   **Solution :** Intégration de la librairie `react-inner-image-zoom`.
-    *   **Technique :** Chargement de deux images distinctes : une légère pour l'affichage standard (800px) et une ultra-HD (2000px) pour le zoom.
-    *   **UX :** Au survol de la souris (Desktop) ou au toucher (Mobile), une loupe permet d'explorer l'image HD sans perte de qualité.
-    *   **Correction Bug :** L'affichage de la "zone blanche" venait d'un `overflow: hidden` dans le conteneur de l'image principale. Ce style a été supprimé, et le `border-radius` a été appliqué via CSS directement sur l'image zoomée pour préserver l'esthétique.
+### DD. Zoom Image Produit (V3 - Loupe Custom HD)
+*   **Besoin :** Les clients souhaitaient pouvoir zoomer sur les photos pour apprécier les détails des créations. Les tentatives précédentes avec des librairies (`react-medium-image-zoom`, puis `react-inner-image-zoom`) ont rencontré des problèmes d'intégration (images floues, ou zoom non fonctionnel à cause de conflits CSS/JS).
+*   **Solution :** Abandon des librairies tierces au profit d'une **implémentation de loupe (magnifying glass) 100% personnalisée**.
+    *   **Technique :**
+        *   Une image basse résolution (`800px`) est affichée par défaut.
+        *   Au survol de la souris sur l'image (desktop) ou au toucher (mobile), un `div` simulant une loupe apparaît.
+        *   Ce `div` affiche en `background-image` une version **Haute Définition** (`2000px`) de la même image.
+        *   La `background-position` de la loupe est ajustée dynamiquement via JavaScript en fonction de la position du curseur, donnant un véritable effet de loupe qui révèle les détails de l'image HD.
+    *   **Avantages :** Contrôle total du comportement et du style, robustesse accrue, compatibilité garantie avec Next.js et la configuration du projet, résolution des problèmes d'accessibilité et de conflits de styles précédents.
 
 ### EE. UX Paiement Stripe (Format Date)
 *   **Problème :** Stripe Checkout rejette parfois les dates d'expiration si l'utilisateur saisit l'année sur 4 chiffres (ex: "2026") au lieu de 2 ("26"). Comme la page est hébergée par Stripe, nous ne pouvons pas forcer le format techniquement.
