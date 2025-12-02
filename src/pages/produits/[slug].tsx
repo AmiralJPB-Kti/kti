@@ -48,6 +48,11 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
   const router = useRouter();
   const { addToCart } = useCart();
   
+  // Custom Zoom Logic
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomCoords, setZoomCoords] = useState({ x: 0, y: 0 });
+  const imageContainerRef = useRef<HTMLDivElement>(null);
+
   // State for the interactive gallery
   const [selectedImage, setSelectedImage] = useState<ProductImage | null>(
     (product && product.images && product.images.length > 0) ? product.images[0] : null
@@ -58,11 +63,19 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
     if (product && product.images && product.images.length > 0 && selectedImage !== product.images[0]) {
       setSelectedImage(product.images[0]);
     }
-  }, [product, selectedImage]); // Added selectedImage to dependencies
+  }, [product, selectedImage]);
   
   if (!product) {
+    console.log("Product data is null or undefined.");
     return <div>Produit non trouvé.</div>;
   }
+
+  // --- Debugging Logs ---
+  console.log("Product data:", product);
+  console.log("Selected Image state:", selectedImage);
+  console.log("Product has images:", product.images && product.images.length > 0);
+  console.log("Initial selectedImage:", (product && product.images && product.images.length > 0) ? product.images[0] : null);
+  // --- End Debugging Logs ---
 
   const handleAddToCart = () => {
     const itemToAdd = {
@@ -103,6 +116,12 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
   // URLs for the main image and zoom image
   const displayImageUrl = selectedImage ? urlFor(selectedImage).width(800).auto('format').url() : '';
   const zoomImageUrl = selectedImage ? urlFor(selectedImage).width(2000).quality(90).auto('format').url() : '';
+
+  console.log("Generated displayImageUrl:", displayImageUrl);
+  console.log("Generated zoomImageUrl:", zoomImageUrl);
+  useEffect(() => {
+    console.log("Image container ref:", imageContainerRef.current);
+  }, [imageContainerRef]);
 
 
   return (

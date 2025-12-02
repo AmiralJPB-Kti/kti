@@ -262,6 +262,15 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
     *   **Avantages :** Contrôle total du comportement et du style, robustesse accrue, compatibilité garantie avec Next.js et la configuration du projet, résolution des problèmes d'accessibilité et de conflits de styles précédents.
     *   **Correction Bug (Image principale manquante) :** La photo principale du produit n'apparaissait plus du tout. La cause était une initialisation tardive de l'état `selectedImage`. L'état est maintenant initialisé directement à partir des props (`product.images[0]`) pour assurer l'affichage immédiat de l'image.
 
+#### Debug: Non-affichage de l'image principale (étape en cours)
+*   **Problème :** Malgré les corrections, l'image principale du produit ne s'affiche toujours pas.
+*   **Action de débogage :** Ajout de `console.log` stratégiques dans `src/pages/produits/[slug].tsx` pour inspecter :
+    *   Le contenu de l'objet `product` (données Sanity).
+    *   L'état `selectedImage` (si une image est bien sélectionnée).
+    *   Les URLs générées `displayImageUrl` et `zoomImageUrl`.
+    *   La référence DOM du conteneur de l'image (`imageContainerRef.current`).
+*   **Prochaine étape :** Attente du retour de l'utilisateur avec la sortie de la console du navigateur.
+
 ### EE. UX Paiement Stripe (Format Date)
 *   **Problème :** Stripe Checkout rejette parfois les dates d'expiration si l'utilisateur saisit l'année sur 4 chiffres (ex: "2026") au lieu de 2 ("26"). Comme la page est hébergée par Stripe, nous ne pouvons pas forcer le format techniquement.
 *   **Palliatif :** Ajout d'un encart d'information visible ("Info Paiement") sur la page de livraison, juste avant le bouton de validation, pour avertir l'utilisateur de saisir l'année à 2 chiffres.
