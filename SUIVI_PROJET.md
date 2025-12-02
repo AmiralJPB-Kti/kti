@@ -260,6 +260,7 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
         *   Ce `div` affiche en `background-image` une version **Haute Définition** (`2000px`) de la même image.
         *   La `background-position` de la loupe est ajustée dynamiquement via JavaScript en fonction de la position du curseur, donnant un véritable effet de loupe qui révèle les détails de l'image HD.
     *   **Avantages :** Contrôle total du comportement et du style, robustesse accrue, compatibilité garantie avec Next.js et la configuration du projet, résolution des problèmes d'accessibilité et de conflits de styles précédents.
+    *   **Correction Bug (Image principale manquante) :** La photo principale du produit n'apparaissait plus du tout. La cause était une initialisation tardive de l'état `selectedImage`. L'état est maintenant initialisé directement à partir des props (`product.images[0]`) pour assurer l'affichage immédiat de l'image.
 
 ### EE. UX Paiement Stripe (Format Date)
 *   **Problème :** Stripe Checkout rejette parfois les dates d'expiration si l'utilisateur saisit l'année sur 4 chiffres (ex: "2026") au lieu de 2 ("26"). Comme la page est hébergée par Stripe, nous ne pouvons pas forcer le format techniquement.

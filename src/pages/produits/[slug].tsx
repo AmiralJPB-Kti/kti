@@ -49,14 +49,16 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
   const { addToCart } = useCart();
   
   // State for the interactive gallery
-  const [selectedImage, setSelectedImage] = useState<ProductImage | null>(null);
+  const [selectedImage, setSelectedImage] = useState<ProductImage | null>(
+    (product && product.images && product.images.length > 0) ? product.images[0] : null
+  );
 
-  // Set initial image when product loads
+  // If product changes (e.g. via router push, not static props) ensure selectedImage resets to first image
   useEffect(() => {
-    if (product && product.images && product.images.length > 0) {
+    if (product && product.images && product.images.length > 0 && selectedImage !== product.images[0]) {
       setSelectedImage(product.images[0]);
     }
-  }, [product]);
+  }, [product, selectedImage]); // Added selectedImage to dependencies
   
   if (!product) {
     return <div>Produit non trouvé.</div>;
