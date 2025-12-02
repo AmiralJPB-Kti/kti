@@ -269,7 +269,8 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
     *   L'état `selectedImage` (si une image est bien sélectionnée).
     *   Les URLs générées `displayImageUrl` et `zoomImageUrl`.
     *   La référence DOM du conteneur de l'image (`imageContainerRef.current`).
-*   **Prochaine étape :** Attente du retour de l'utilisateur avec la sortie de la console du navigateur.
+*   **Correction :** Suppression d'une double déclaration des variables `isZoomed` et `zoomCoords` qui causait une erreur de compilation (`Identifier has already been declared`).
+*   **Prochaine étape :** Attente du retour de l'utilisateur après test local.
 
 ### EE. UX Paiement Stripe (Format Date)
 *   **Problème :** Stripe Checkout rejette parfois les dates d'expiration si l'utilisateur saisit l'année sur 4 chiffres (ex: "2026") au lieu de 2 ("26"). Comme la page est hébergée par Stripe, nous ne pouvons pas forcer le format techniquement.

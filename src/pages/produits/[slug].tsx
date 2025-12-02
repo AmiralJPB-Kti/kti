@@ -93,11 +93,6 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
   const isOutOfStock = product.stock <= 0;
   const isMadeToOrder = product.status === 'sur-commande';
 
-  // Custom Zoom Logic
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [zoomCoords, setZoomCoords] = useState({ x: 0, y: 0 });
-  const imageContainerRef = useRef<HTMLDivElement>(null);
-
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!imageContainerRef.current) return;
 
