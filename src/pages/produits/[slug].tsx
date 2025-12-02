@@ -53,29 +53,33 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
   const [zoomCoords, setZoomCoords] = useState({ x: 0, y: 0 });
   const imageContainerRef = useRef<HTMLDivElement>(null);
 
+  // Manual fine-tuning offsets for loupe centering
+  const [offsetX, setOffsetX] = useState(38); // Adjust this value to shift the loupe content horizontally
+  const [offsetY, setOffsetY] = useState(38); // Adjust this value to shift the loupe content vertically
+
   // State for the interactive gallery
+  // Initialized directly with the first image if available
   const [selectedImage, setSelectedImage] = useState<ProductImage | null>(
     (product && product.images && product.images.length > 0) ? product.images[0] : null
   );
 
-  // If product changes (e.g. via router push, not static props) ensure selectedImage resets to first image
+  // UseEffect to reset selected image if the product itself changes
+  // This ensures that if navigating between different products, the first image of the *new* product is shown
   useEffect(() => {
-    if (product && product.images && product.images.length > 0 && selectedImage !== product.images[0]) {
-      setSelectedImage(product.images[0]);
+    if (product && product.images && product.images.length > 0) {
+      // Only set if current selectedImage is different from the first image of the *new* product
+      // Or if selectedImage is null (e.g., initial load)
+      if (!selectedImage || selectedImage._key !== product.images[0]._key) {
+        setSelectedImage(product.images[0]);
+      }
     }
-  }, [product, selectedImage]);
+  }, [product]); // Dependency only on product, not selectedImage
   
   if (!product) {
-    console.log("Product data is null or undefined.");
     return <div>Produit non trouvé.</div>;
   }
 
-  // --- Debugging Logs ---
-  console.log("Product data:", product);
-  console.log("Selected Image state:", selectedImage);
-  console.log("Product has images:", product.images && product.images.length > 0);
-  console.log("Initial selectedImage:", (product && product.images && product.images.length > 0) ? product.images[0] : null);
-  // --- End Debugging Logs ---
+
 
   const handleAddToCart = () => {
     const itemToAdd = {
@@ -96,13 +100,23 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!imageContainerRef.current) return;
 
-    const { left, top, width, height } = imageContainerRef.current.getBoundingClientRect();
-    const x = e.clientX - left; // x position within the element.
-    const y = e.clientY - top;  // y position within the element.
+    const imgElement = imageContainerRef.current.querySelector('img');
+    if (!imgElement) return;
 
-    // Calculate percentage position
-    const xPercent = (x / width) * 100;
-    const yPercent = (y / height) * 100;
+    const imgRect = imgElement.getBoundingClientRect();
+    const containerRect = imageContainerRef.current.getBoundingClientRect();
+
+    // Calculate mouse position relative to the actual rendered image
+    const x = e.clientX - imgRect.left;
+    const y = e.clientY - imgRect.top;
+
+    // Calculate percentage position relative to the actual rendered image dimensions
+    let xPercent = (x / imgRect.width) * 100;
+    let yPercent = (y / imgRect.height) * 100;
+
+    // Clamp percentages to be within 0-100 to avoid issues if mouse goes slightly outside the image but still within container
+    xPercent = Math.max(0, Math.min(100, xPercent));
+    yPercent = Math.max(0, Math.min(100, yPercent));
 
     setZoomCoords({ x: xPercent, y: yPercent });
   };
@@ -112,11 +126,7 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
   const displayImageUrl = selectedImage ? urlFor(selectedImage).width(800).auto('format').url() : '';
   const zoomImageUrl = selectedImage ? urlFor(selectedImage).width(2000).quality(90).auto('format').url() : '';
 
-  console.log("Generated displayImageUrl:", displayImageUrl);
-  console.log("Generated zoomImageUrl:", zoomImageUrl);
-  useEffect(() => {
-    console.log("Image container ref:", imageContainerRef.current);
-  }, [imageContainerRef]);
+
 
 
   return (
@@ -173,7 +183,7 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
                 className={styles.loupe}
                 style={{
                   backgroundImage: `url(${zoomImageUrl})`,
-                  backgroundPosition: `${zoomCoords.x}% ${zoomCoords.y}%`
+                  backgroundPosition: `calc(${zoomCoords.x}% * 2 - 105% + ${offsetX}%) calc(${zoomCoords.y}% * 2 - 105% + ${offsetY}%)`
                 }}
               />
             )}
@@ -189,12 +199,12 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
           {/* Thumbnails Grid */}
           {product.images && product.images.length > 1 && (
             <div style={{ display: 'flex', gap: '10px', marginTop: '1rem', overflowX: 'auto', paddingBottom: '10px' }}>
-              {product.images.map((img, index) => (
+              {product.images.map((img) => (
                 <button
-                  key={index}
+                  key={img._key} // Use _key for key prop
                   onClick={() => setSelectedImage(img)}
                   style={{
-                    border: selectedImage === img ? '2px solid var(--color-primary)' : '1px solid #ddd',
+                    border: selectedImage && selectedImage._key === img._key ? '2px solid var(--color-primary)' : '1px solid #ddd', // Compare by _key
                     borderRadius: '4px',
                     padding: 0,
                     cursor: 'pointer',
@@ -202,13 +212,13 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
                     height: '80px',
                     position: 'relative',
                     overflow: 'hidden',
-                    opacity: selectedImage === img ? 1 : 0.7,
+                    opacity: selectedImage && selectedImage._key === img._key ? 1 : 0.7, // Compare by _key
                     transition: 'all 0.2s'
                   }}
                 >
                    <Image
                     src={urlFor(img).width(200).url()} // Load smaller version for thumbnail
-                    alt={img.alt || `Vue ${index + 1}`}
+                    alt={img.alt || `Vue ${img._key}`} // Use _key for alt fallback
                     fill
                     style={{ objectFit: 'cover' }}
                   />

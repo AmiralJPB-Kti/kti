@@ -275,3 +275,19 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
 ### EE. UX Paiement Stripe (Format Date)
 *   **Problème :** Stripe Checkout rejette parfois les dates d'expiration si l'utilisateur saisit l'année sur 4 chiffres (ex: "2026") au lieu de 2 ("26"). Comme la page est hébergée par Stripe, nous ne pouvons pas forcer le format techniquement.
 *   **Palliatif :** Ajout d'un encart d'information visible ("Info Paiement") sur la page de livraison, juste avant le bouton de validation, pour avertir l'utilisateur de saisir l'année à 2 chiffres.
+### FF. Correction et Améliorations de la Galerie Produit (02/12/2025)
+*   **Problème 1 : Image principale manquante.** L'image principale du produit ne s'affichait plus sur la page de détail.
+    *   **Cause :** Le conteneur de l'image (`.imageZoomContainer`) n'avait pas de hauteur définie, provoquant l'effondrement du composant `Next/Image` avec `fill`.
+    *   **Fix :** Ajout de `aspect-ratio: 1 / 1;` au style `.imageZoomContainer` dans `src/styles/ProductDetail.module.css` pour lui donner une hauteur basée sur sa largeur.
+    *   **Résultat :** L'image principale s'affiche à nouveau correctement.
+*   **Problème 2 : Loupe trop petite et imprécise.** La loupe pour le zoom était trop petite et la magnification insuffisante.
+    *   **Fix :** Augmentation de la taille de la loupe dans `src/styles/ProductDetail.module.css` (passant à `300px` de hauteur/largeur par défaut et `200px` pour mobile) et ajout de `background-size: 200%;` pour doubler le niveau de zoom.
+    *   **Résultat :** Loupe de taille plus adéquate avec une meilleure précision de zoom.
+*   **Problème 3 : Sélection des vignettes impossible.** Cliquer sur les vignettes ne mettait pas à jour l'image principale.
+    *   **Cause :** Le `useEffect` initialisant `selectedImage` avait `selectedImage` dans son tableau de dépendances, ce qui provoquait une réinitialisation de la sélection à la première image après chaque interaction de l'utilisateur. De plus, la comparaison `selectedImage === img` utilisait une égalité stricte d'objets, qui peut échouer pour des objets non primitifs.
+    *   **Fix :** Modification du `useEffect` dans `src/pages/produits/[slug].tsx` pour ne dépendre que de l'objet `product`, évitant ainsi les réinitialisations indésirables. La comparaison pour la sélection et le style des vignettes a été ajustée pour utiliser la propriété unique `_key` de chaque image Sanity.
+    *   **Résultat :** Les vignettes fonctionnent correctement et mettent à jour l'image principale au clic.
+*   **Problème 4 : Décalage persistant de la loupe.** Malgré les corrections précédentes, la loupe affichait un décalage constant ("11h00") par rapport au curseur.
+    *   **Cause :** La formule de `background-position` ne compensait pas pleinement les nuances de rendu et la manière dont les coordonnées de la souris sont mappées à l'image réelle lorsque l'aspect ratio diffère du conteneur.
+    *   **Fix :** Introduction de variables d'ajustement manuel `offsetX` et `offsetY` dans `src/pages/produits/[slug].tsx` pour affiner le centrage. Les valeurs optimales ont été déterminées itérativement à `offsetX = 38` et `offsetY = 38`. La fonction `handleMouseMove` a également été revue pour s'assurer que les pourcentages `xPercent` et `yPercent` sont calculés par rapport aux dimensions réelles de l'image rendue.
+    *   **Résultat :** Le centrage de la loupe est désormais précis et conforme au comportement attendu.
