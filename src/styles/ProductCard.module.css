@@ -1,5 +1,5 @@
 .card {
-  border: 1px solid var(--color-border);
+  /* border: 1px solid var(--color-border); Removed for a cleaner look */
   text-align: center;
   padding: 1rem;
   transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
@@ -7,11 +7,13 @@
   text-decoration: none;
   color: inherit;
   display: block;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm); /* Default subtle shadow */
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-lg);
 }
 
 .imageWrapper {
@@ -19,11 +21,13 @@
   aspect-ratio: 1 / 1; /* Creates a square container */
   position: relative;
   margin-bottom: 1rem;
+  border-radius: 4px; /* Slight radius for the image inside */
+  overflow: hidden;
 }
 
 .card h3 {
   margin-top: 1rem;
-  font-size: 1.2rem;
+  font-size: 1.4rem; /* Slightly bigger */
   color: var(--color-heading);
 }
 
@@ -34,8 +38,9 @@
 }
 
 .price {
-  font-weight: 700;
-  font-size: 1.2rem;
-  color: var(--color-heading);
+  font-family: var(--font-headings);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--color-accent-blue); /* Use accent color for price */
   margin-top: 0.5rem;
 }

@@ -199,7 +199,7 @@ export default function ProductDetailPage({ product }: ProductDetailPageProps) {
           {/* Thumbnails Grid */}
           {product.images && product.images.length > 1 && (
             <div style={{ display: 'flex', gap: '10px', marginTop: '1rem', overflowX: 'auto', paddingBottom: '10px' }}>
-              {product.images.map((img) => (
+              {product.images.filter(img => img.asset).map((img) => (
                 <button
                   key={img._key} // Use _key for key prop
                   onClick={() => setSelectedImage(img)}
@@ -329,7 +329,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
     groq`*[_type == "product" && slug.current == $slug][0]{
       _id,
       name,
-      images[]{..., asset->}, // Fetch all fields including label and alt
+      images[]{...}, // Fetch all fields including label and alt, but DO NOT expand asset->
       description,
       price,
       dimensions,

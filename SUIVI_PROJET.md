@@ -89,7 +89,7 @@ Gros travail de plomberie pour faire fonctionner le déploiement :
 ### J. Panier Persistant & Sécurisé
 *   **Problème résolu :** Un utilisateur connecté voyait le panier du précédent utilisateur.
 *   **Solution :** Utilisation du `localStorage` avec des clés dynamiques (`cart_items_guest` vs `cart_items_USER_ID`).
-*   **Résultat :** Le panier est sauvegardé si on ferme l'onglet, mais est bien vidé/changé quand on change de compte.
+*   **Résultat :** Le panier est sauvegardé si on ferme l'onglet, mais est bien vid_changed quand on change de compte.
 
 ### K. Robustesse Mondial Relay & Paiement
 *   **Chargement Script :** Passage à un chargement manuel séquentiel (jQuery puis Plugin) pour éviter que la carte ne s'affiche pas aléatoirement.
@@ -321,7 +321,7 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
 *   **Action :** Remplacement des polices système par des polices Google Fonts optimisées via `next/font`.
     *   **Titres & Navigation :** Utilisation de **"Kaushan Script"** (style pinceau/manuscrit) pour les H1-H6, les menus et les boutons.
     *   **Corps de texte :** Utilisation de **"Lato"** pour assurer une lisibilité optimale des descriptions et longs textes.
-*   **Implémentation :** Configuration globale dans `_app.tsx` et `globals.css`.
+    *   **Implémentation :** Configuration globale dans `_app.tsx` et `globals.css`.
 *   **État :** En attente de validation par la cliente (sœur d'AmiralJP).
 
 ### KK. Audit de Sécurité (Supabase)
@@ -330,3 +330,49 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
 *   **Correction Warning (Function Mutable) :** La fonction `handle_new_user` générait un avertissement de sécurité (`search_path` mutable).
     *   **Action :** Fixation du `search_path` à `public` pour empêcher l'injection de tables malveillantes.
 *   **Limitation Plan Gratuit :** L'avertissement concernant la "Protection contre les mots de passe fuités" ne peut être résolu car il nécessite un plan Supabase Pro.
+
+---
+
+## 10. Accomplissements du 03/12/2025 (Sécurité & Améliorations UX/Design)
+
+### A. Sécurité et Maintenance des Dépendances
+*   **Analyse `npm audit` :**
+    *   Examen détaillé des 13 vulnérabilités détectées (9 modérées, 4 élevées).
+    *   Décision de **ne pas utiliser `npm audit fix --force`** en raison du risque élevé de "breaking changes" (notamment avec Sanity v4).
+*   **Alignement `eslint-config-next` :**
+    *   Mise à jour de `eslint-config-next` vers une version 15 compatible avec Next.js 15, stabilisant l'environnement de développement.
+*   **Investigation `glob` :**
+    *   Identification de la vulnérabilité `glob` comme étant une sous-dépendance de `sanity` (via `@sanity/cli`).
+    *   Évaluation du risque comme étant faible pour la production, car l'exploitation serait limitée à l'environnement de build/développement.
+
+### B. Améliorations Design & UX (Pages Générales)
+*   **Préparation CSS Globale (`src/styles/globals.css`) :**
+    *   Ajout de variables CSS pour les ombres douces (`--shadow-sm`, `--shadow-md`, `--shadow-lg`), les transitions (`--transition-base`) et le `border-radius` (`--radius-md`).
+    *   Implémentation d'une animation `fadeIn` pour une apparition douce des éléments.
+
+### C. Améliorations Design & UX (Page d'Accueil & ProductCard)
+*   **`ProductCard` stylisé (`src/styles/ProductCard.module.css`) :**
+    *   Application de bords arrondis (`--radius-md`) aux cartes produits.
+    *   Intégration d'une ombre douce (`--shadow-sm`) par défaut et d'une ombre plus marquée au survol (`--shadow-lg`), avec effet de léger soulèvement.
+    *   Stylisation du prix avec la police manuscrite (`--font-headings`) et la couleur d'accent (`--color-accent-blue`).
+*   **Animation Page d'Accueil (`src/pages/index.tsx`) :**
+    *   Application de la classe `animate-fade-in` à la section des nouveautés pour une apparition progressive au chargement de la page.
+
+### D. Améliorations Design & UX (Fiche Produit)
+*   **Correction Bug Critique Image (`src/pages/produits/[slug].tsx`) :**
+    *   **Problème :** Erreur "Cannot read properties of null (reading '_ref')" lors de l'affichage de certaines images de produit (vignettes).
+    *   **Solution :**
+        1.  Modification de la requête GROQ dans `getStaticProps` pour ne plus étendre (`asset->`) l'objet `asset` dans le tableau `images`. `urlFor` fonctionne mieux avec la référence simple et cela évite les `null` en cas de lien brisé.
+        2.  Ajout d'un `.filter(img => img.asset)` dans le rendu de la galerie de vignettes pour ignorer les images sans référence d'asset valide, garantissant la stabilité de la page.
+*   **Stylisation des Éléments (`src/styles/ProductDetail.module.css`) :**
+    *   Application de la police manuscrite (`--font-headings`) au titre `h1` et au prix du produit.
+    *   Aération de la description du produit (interligne, couleur).
+    *   Stylisation des sections "Dimensions" et "Matériaux" avec un fond blanc cassé, des bords arrondis et une ombre douce, les rendant plus visuellement agréables.
+
+### E. Améliorations Design & UX (Header)
+*   **Affinage "Adoucir le Bandeau" (`src/components/Header.tsx`) :**
+    *   **Problème initial :** Passage à un fond clair rendant le logo "Kt'i" (partie blanche) illisible.
+    *   **Solution :** Revert du fond clair vers un fond gris anthracite foncé (`rgba(44, 44, 44, 0.85)`) pour restaurer le contraste avec le logo tricolore.
+    *   Maintien de l'effet "glassmorphism" avec `backdrop-filter: blur(10px)` et d'une ombre douce (`var(--shadow-sm)`) pour conserver l'aspect "adouci".
+    *   Réajustement des couleurs de texte des liens en blanc (`var(--color-accent-white)`) pour la lisibilité sur ce fond sombre.
+    *   Confirmation que les icônes (Panier, Recherche) s'adaptent automatiquement via `currentColor`.

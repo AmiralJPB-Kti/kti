@@ -18,6 +18,34 @@ This creates a consistent, artisanal, and warm "Made in France" theme.
   --font-headings: var(--font-kaushan); /* Use Kaushan Script for headings */
   --font-body: var(--font-lato); /* Use Lato for body text */
   --container-padding-x: 2rem; /* Default horizontal padding for containers */
+
+  /* Shadows & Transitions & Radius */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --transition-base: all 0.3s ease-in-out;
+  --radius-md: 8px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* Utilities */
+.shadow-hover {
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-base);
+}
+
+.shadow-hover:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
 }
 
 /* Reset and Base Styles */

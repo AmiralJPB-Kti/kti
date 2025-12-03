@@ -25,46 +25,65 @@
 .productInfo h1 {
   margin-top: 0;
   margin-bottom: 1rem;
+  font-family: var(--font-headings);
+  font-size: 2.5rem;
+  color: var(--color-accent-blue);
 }
 
 .price {
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-family: var(--font-headings);
+  font-size: 2rem;
+  font-weight: 400;
   color: var(--color-heading);
   margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 1rem;
+  display: inline-block;
 }
 
 .description {
   margin-top: 1.5rem;
-  line-height: 1.7;
+  line-height: 1.8;
+  font-size: 1.05rem;
+  color: #555;
 }
 
 .dimensions {
   margin-top: 1.5rem;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #555;
-  background-color: #f9f9f9;
-  padding: 1rem;
-  border-radius: 4px;
+  background-color: var(--color-accent-white);
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
 .dimensions h4 {
   margin-top: 0;
   margin-bottom: 0.5rem;
+  font-family: var(--font-headings);
+  font-size: 1.2rem;
+  color: var(--color-accent-blue);
 }
 
 .materials {
   margin-top: 1.5rem;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #555;
-  background-color: #f9f9f9;
-  padding: 1rem;
-  border-radius: 4px;
+  background-color: var(--color-accent-white);
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
 .materials h4 {
   margin-top: 0;
   margin-bottom: 0.5rem;
+  font-family: var(--font-headings);
+  font-size: 1.2rem;
+  color: var(--color-accent-blue);
 }
 
 /* Custom Image Zoom Styles */

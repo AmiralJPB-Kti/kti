@@ -39,7 +39,7 @@ export default function Home({ products, settings }: HomeProps) {
       <Header />
       <HeroBanner settings={settings} />
       <main className="container" style={{ paddingTop: '2rem' }}>
-        <section>
+        <section className="animate-fade-in">
           <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Nos Nouveautés</h2>
           <div className={styles.productGrid}>
             {products && products.length > 0 ? (
