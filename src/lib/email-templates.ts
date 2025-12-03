@@ -134,7 +134,7 @@ export const dailyReportTemplate = (date: string, orders: any[], totalRevenue: n
 
     return `
       <tr style="border-bottom: 1px solid #eee;">
-        <td style="padding: 8px;">#${order.id.slice(0, 8)}...</td>
+        <td style="padding: 8px;">#${String(order.id).slice(0, 8)}...</td>
         <td style="padding: 8px;">${order.shipping_city || 'N/A'}</td>
         <td style="padding: 8px;">${order.amount_total.toFixed(2)} €</td>
         <td style="padding: 8px;">
