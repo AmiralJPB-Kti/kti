@@ -92,7 +92,7 @@
   width: 300px; /* Increased size of the magnifying glass */
   cursor: none; /* Hide default cursor */
   background-repeat: no-repeat;
-  background-size: 200%; /* Add this to increase magnification */
+  background-size: 300%; /* Add this to increase magnification */
   box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.85),
               0 0 10px rgba(0, 0, 0, 0.2);
   display: block;

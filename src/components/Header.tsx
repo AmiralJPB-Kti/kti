@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Logo from './Logo';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCart } from '@/context/CartContext';
 import CartIcon from './CartIcon';
+import SearchIcon from './SearchIcon';
 import { createClient } from '@/lib/supabase/client'; // Import Supabase client
 
 interface HeaderProps {
@@ -15,6 +16,11 @@ const Header: React.FC<HeaderProps> = ({ forceLoggedOut = false }) => {
   const supabase = createClient();
   const router = useRouter();
   const [user, setUser] = useState<any>(null); // State to hold user info
+
+  // Search State
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const getUser = async () => {
@@ -31,9 +37,29 @@ const Header: React.FC<HeaderProps> = ({ forceLoggedOut = false }) => {
     return () => subscription.unsubscribe();
   }, [supabase]);
 
+  // Focus input when search opens
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push('/login'); // Redirect to login page after logout
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      router.push(`/recherche?q=${encodeURIComponent(searchTerm)}`);
+      setIsSearchOpen(false);
+      setSearchTerm('');
+    }
+  };
+
+  const toggleSearch = () => {
+    setIsSearchOpen(!isSearchOpen);
   };
 
   return (
@@ -57,6 +83,7 @@ const Header: React.FC<HeaderProps> = ({ forceLoggedOut = false }) => {
             <li><Link href="/" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold', fontSize: '0.9rem' }}>Accueil</Link></li>
             <li><Link href="/produits" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold', fontSize: '0.9rem' }}>Produits</Link></li>
             <li><Link href="/a-propos" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold', fontSize: '0.9rem' }}>L'Atelier</Link></li>
+            
             {user && !forceLoggedOut ? (
               <>
                 <li><Link href="/mon-compte" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold', fontSize: '0.9rem' }}>Compte</Link></li>
@@ -65,6 +92,49 @@ const Header: React.FC<HeaderProps> = ({ forceLoggedOut = false }) => {
             ) : (
               <li><Link href="/login" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontWeight: 'bold', fontSize: '0.9rem' }}>Connexion</Link></li>
             )}
+
+            {/* Search Bar Component */}
+            <li style={{ display: 'flex', alignItems: 'center' }}>
+                <form onSubmit={handleSearchSubmit} style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+                    <input 
+                        ref={searchInputRef}
+                        type="text" 
+                        placeholder="Rechercher..." 
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{
+                            width: isSearchOpen ? '150px' : '0',
+                            padding: isSearchOpen ? '5px 10px' : '0',
+                            border: isSearchOpen ? '1px solid #ccc' : 'none',
+                            borderRadius: '20px',
+                            outline: 'none',
+                            transition: 'all 0.3s ease-in-out',
+                            opacity: isSearchOpen ? 1 : 0,
+                            pointerEvents: isSearchOpen ? 'auto' : 'none',
+                            backgroundColor: '#fff',
+                            color: '#333',
+                            marginRight: '5px'
+                        }}
+                    />
+                    <button 
+                        type="button" // Make it type button so it doesn't submit form on click unless intended
+                        onClick={isSearchOpen && !searchTerm ? toggleSearch : (isSearchOpen ? handleSearchSubmit : toggleSearch) as any} 
+                        style={{ 
+                            background: 'none', 
+                            border: 'none', 
+                            color: 'var(--color-accent-white)', 
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '5px'
+                        }}
+                        aria-label="Rechercher"
+                    >
+                        <SearchIcon size={22} />
+                    </button>
+                </form>
+            </li>
+
             <li>
               <Link href="/panier" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <CartIcon />
@@ -97,5 +167,3 @@ const Header: React.FC<HeaderProps> = ({ forceLoggedOut = false }) => {
 };
 
 export default Header;
-
-
