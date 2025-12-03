@@ -67,7 +67,7 @@ export const adminNewOrderTemplate = (
 
   return `
     <div style="font-family: sans-serif; color: #333; border: 2px solid #0070f3; padding: 20px; border-radius: 10px;">
-      <h2 style="color: #0070f3;">🔔 Nouvelle Commande Recue !</h2>
+      <h2 style="color: #0070f3;">🔔 Nouvelle Commande Reçue !</h2>
       <p><strong>Commande :</strong> #${orderId}</p>
       <p><strong>Montant Total :</strong> ${totalAmount.toFixed(2)} €</p>
       

@@ -10,7 +10,7 @@
 
 ---
 
-**Dernière mise à jour :** 27 Novembre 2025
+**Dernière mise à jour :** 03 Décembre 2025
 **État :** En Production (Entièrement Fonctionnel ✅)
 
 Ce document sert de point de repère pour reprendre le développement. Il résume les accomplissements techniques et l'état actuel du projet.
@@ -275,6 +275,7 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
 ### EE. UX Paiement Stripe (Format Date)
 *   **Problème :** Stripe Checkout rejette parfois les dates d'expiration si l'utilisateur saisit l'année sur 4 chiffres (ex: "2026") au lieu de 2 ("26"). Comme la page est hébergée par Stripe, nous ne pouvons pas forcer le format techniquement.
 *   **Palliatif :** Ajout d'un encart d'information visible ("Info Paiement") sur la page de livraison, juste avant le bouton de validation, pour avertir l'utilisateur de saisir l'année à 2 chiffres.
+
 ### FF. Correction et Améliorations de la Galerie Produit (02/12/2025)
 *   **Problème 1 : Image principale manquante.** L'image principale du produit ne s'affichait plus sur la page de détail.
     *   **Cause :** Le conteneur de l'image (`.imageZoomContainer`) n'avait pas de hauteur définie, provoquant l'effondrement du composant `Next/Image` avec `fill`.
@@ -291,3 +292,22 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
     *   **Cause :** La formule de `background-position` ne compensait pas pleinement les nuances de rendu et la manière dont les coordonnées de la souris sont mappées à l'image réelle lorsque l'aspect ratio diffère du conteneur.
     *   **Fix :** Introduction de variables d'ajustement manuel `offsetX` et `offsetY` dans `src/pages/produits/[slug].tsx` pour affiner le centrage. Les valeurs optimales ont été déterminées itérativement à `offsetX = 38` et `offsetY = 38`. La fonction `handleMouseMove` a également été revue pour s'assurer que les pourcentages `xPercent` et `yPercent` sont calculés par rapport aux dimensions réelles de l'image rendue.
     *   **Résultat :** Le centrage de la loupe est désormais précis et conforme au comportement attendu.
+
+---
+
+## 9. Accomplissements du 03/12/2025 (Bannière & Emailing)
+
+### GG. Mise à jour Dynamique de la Bannière (Page Accueil)
+*   **Problème :** L'utilisateur avait changé l'image de bannière dans Sanity, mais l'ancienne persistait.
+*   **Cause :** La requête GROQ dans `getStaticProps` récupérait le *premier* document trouvé (`*[_type == "siteSettings"][0]`). En raison d'une configuration antérieure (probablement avant le passage en singleton strict), il existait plusieurs documents "siteSettings", et le code chargeait l'ancien.
+*   **Fix (`src/pages/index.tsx`) :** Modification de la requête pour utiliser `coalesce` et prioriser explicitement le document ayant l'ID officiel du singleton (`siteSettings`), ne se repliant sur le premier trouvé qu'en cas d'échec absolu.
+*   **Résultat :** La nouvelle bannière s'affiche correctement.
+
+### HH. Ajustement Visuel de la Bannière (HeroBanner)
+*   **Demande :** L'image de la bannière était jugée trop sombre et le texte illisible ou absent.
+*   **Actions :**
+    *   **Overlay :** Réduction drastique de l'opacité du voile noir (overlay) dans `HeroBanner.tsx` (passage de `0.75` à `0.1`).
+    *   **Résultat :** L'image est beaucoup plus lumineuse et met mieux en valeur les produits.
+
+### II. Correction Orthographique (Email Admin)
+*   **Correctif :** Correction d'une faute dans le sujet de l'email de notification de commande (`src/lib/email-templates.ts`) : "Nouvelle Commande **Recue**" -> "**Reçue**".

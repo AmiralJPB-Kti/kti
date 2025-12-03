@@ -65,7 +65,10 @@ export async function getStaticProps() {
       slug,
       "mainImage": images[0]
     },
-    "settings": *[_type == "siteSettings"][0]{
+    "settings": coalesce(
+      *[_type == "siteSettings" && _id == "siteSettings"][0],
+      *[_type == "siteSettings"][0]
+    ){
       title,
       tagline,
       heroImage,
