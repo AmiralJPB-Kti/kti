@@ -186,7 +186,11 @@ Suite aux derniers tests en production (Vercel) :
 ## 5. Pour la prochaine fois
 
 **Priorités :**
-1.  **Design & UX :** Le site est fonctionnel, mais le design (CSS) doit être revu (Page d'accueil, Fiches produits, Panier).
+1.  **Automatisation Reporting (Vercel Cron) :**
+    *   **Problème :** Le script actuel (`fetch_daily_orders.py`) tourne en local sur le PC du développeur (risque de panne, pc éteint).
+    *   **Solution cible :** Migrer vers **Vercel Cron Jobs**. Créer une route API `/api/cron/daily-report` déclenchée automatiquement chaque soir par Vercel.
+    *   **Livrable :** Au lieu de créer un fichier local, le script enverra un **email récapitulatif** (via Resend) à l'administrateur contenant les commandes du jour.
+2.  **Design & UX :** Le site est fonctionnel, mais le design (CSS) doit être revu (Page d'accueil, Fiches produits, Panier).
 2.  **Finalisation Contenu Pages Légales :** Rédiger et publier les textes définitifs des Mentions Légales et CGV dans Sanity.
 3.  **Interface Admin (Backoffice) & Facturation Offline :**
     *   **Problème :** Les ventes ne seront pas toutes issues du site (expos, salons). Nécessité de gérer les commandes hors ligne.
