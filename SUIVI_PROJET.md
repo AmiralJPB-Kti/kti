@@ -311,3 +311,11 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
 
 ### II. Correction Orthographique (Email Admin)
 *   **Correctif :** Correction d'une faute dans le sujet de l'email de notification de commande (`src/lib/email-templates.ts`) : "Nouvelle Commande **Recue**" -> "**Reçue**".
+
+### JJ. Refonte Typographique (Ambiance Artisanale)
+*   **Besoin :** Donner une identité visuelle plus marquée "Fait Main" au site.
+*   **Action :** Remplacement des polices système par des polices Google Fonts optimisées via `next/font`.
+    *   **Titres & Navigation :** Utilisation de **"Kaushan Script"** (style pinceau/manuscrit) pour les H1-H6, les menus et les boutons.
+    *   **Corps de texte :** Utilisation de **"Lato"** pour assurer une lisibilité optimale des descriptions et longs textes.
+*   **Implémentation :** Configuration globale dans `_app.tsx` et `globals.css`.
+*   **État :** En attente de validation par la cliente (sœur d'AmiralJP).
