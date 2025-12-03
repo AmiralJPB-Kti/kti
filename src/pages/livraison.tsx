@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import Script from 'next/script';
 import Header from '@/components/Header';
 import { useCart } from '@/context/CartContext';
 import { createClient } from '@/lib/supabase/client';
@@ -9,6 +8,7 @@ import AddressForm from '@/components/AddressForm';
 import { Address } from './mon-compte';
 
 import { client } from '@/sanity/lib/client';
+import styles from '@/styles/Livraison.module.css';
 
 declare global {
   interface Window {
@@ -345,28 +345,26 @@ export default function LivraisonPage() {
       {/* Scripts loaded manually in useEffect for better control */}
 
       <Header />
-      <main className="container" style={{ maxWidth: '1000px', margin: '2rem auto', padding: '0 1rem' }}>
-        <h1>Livraison</h1>
+      <main className="container">
+        <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Livraison</h1>
         
-        <div style={styles.grid}>
+        <div className={styles.grid}>
           {/* Left Column: Address & Options */}
-          <div style={styles.column}>
+          <div className={styles.column}>
             
             {/* Mode Selection */}
-            <section style={styles.section}>
+            <section className={styles.section}>
               <h3>1. Mode de Livraison</h3>
-              <div style={{display: 'flex', gap: '1rem', marginBottom: '1rem'}}>
+              <div className={styles.modeSelector}>
                 <button 
-                  className={`btn ${deliveryMode === 'home' ? 'btn-primary' : 'btn-secondary'}`}
+                  className={`${styles.modeBtn} ${deliveryMode === 'home' ? styles.modeBtnActive : ''}`}
                   onClick={() => setDeliveryMode('home')}
-                  style={{flex: 1}}
                 >
                   🏠 Domicile (Colissimo)
                 </button>
                 <button 
-                  className={`btn ${deliveryMode === 'relay' ? 'btn-primary' : 'btn-secondary'}`}
+                  className={`${styles.modeBtn} ${deliveryMode === 'relay' ? styles.modeBtnActive : ''}`}
                   onClick={() => setDeliveryMode('relay')}
-                  style={{flex: 1}}
                 >
                   🏪 Point Relais
                 </button>
@@ -374,7 +372,7 @@ export default function LivraisonPage() {
             </section>
 
             {/* Dynamic Content based on Mode */}
-            <section style={styles.section}>
+            <section className={styles.section}>
               {deliveryMode === 'home' ? (
                 <>
                   <h3>2. Adresse de livraison</h3>
@@ -387,19 +385,18 @@ export default function LivraisonPage() {
                   )}
 
                   {addresses.length > 0 && !isAddingAddress && (
-                    <div style={styles.addressList}>
+                    <div className={styles.addressList}>
                       {addresses.map(addr => (
-                        <label key={addr.id} style={{
-                          ...styles.addressCard,
-                          borderColor: selectedAddressId === addr.id ? '#0070f3' : '#ddd',
-                          backgroundColor: selectedAddressId === addr.id ? '#f0f9ff' : '#fff'
-                        }}>
+                        <label 
+                          key={addr.id} 
+                          className={`${styles.addressCard} ${selectedAddressId === addr.id ? styles.addressCardSelected : ''}`}
+                        >
                           <input 
                             type="radio" 
                             name="address" 
+                            className={styles.addressRadio}
                             checked={selectedAddressId === addr.id}
                             onChange={() => setSelectedAddressId(addr.id)}
-                            style={{marginRight: '1rem'}}
                           />
                           <div>
                             <strong>{addr.street}</strong><br/>
@@ -410,7 +407,7 @@ export default function LivraisonPage() {
                       ))}
                       <button 
                         className="btn btn-secondary btn-sm" 
-                        style={{marginTop: '1rem'}}
+                        style={{marginTop: '1rem', alignSelf: 'flex-start'}}
                         onClick={() => setIsAddingAddress(true)}
                       >
                         + Nouvelle adresse
@@ -419,8 +416,8 @@ export default function LivraisonPage() {
                   )}
 
                   {isAddingAddress && (
-                    <div style={{marginTop: '1rem', padding: '1rem', border: '1px solid #ddd', borderRadius: '8px'}}>
-                      <h4>Nouvelle adresse</h4>
+                    <div className={styles.newAddressContainer}>
+                      <h4 style={{ marginBottom: '1rem' }}>Nouvelle adresse</h4>
                       <AddressForm 
                         onSave={handleAddressAdded} 
                         onCancel={() => setIsAddingAddress(false)} 
@@ -434,8 +431,8 @@ export default function LivraisonPage() {
                   <h3>2. Choisir mon Point Relais</h3>
 
                   {addresses.length === 0 ? (
-                    <div style={{padding: '1rem', backgroundColor: '#fff3cd', border: '1px solid #ffeeba', borderRadius: '8px', marginBottom: '1rem'}}>
-                      <p style={{color: '#856404', marginBottom: '1rem'}}>
+                    <div className={styles.alertBox}>
+                      <p style={{ marginBottom: '1rem' }}>
                         <strong>Attention :</strong> Vous devez enregistrer une adresse personnelle (pour la facturation) avant de pouvoir choisir un point relais.
                       </p>
                       <AddressForm 
@@ -446,12 +443,12 @@ export default function LivraisonPage() {
                     </div>
                   ) : (
                     <>
-                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
+                      <div className={styles.relaySelectorHeader}>
                         <span>Pays du point relais :</span>
                         <select 
                           value={relayCountry} 
                           onChange={(e) => setRelayCountry(e.target.value)}
-                          style={{padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd'}}
+                          className={styles.countrySelect}
                         >
                           <option value="FR">France</option>
                           <option value="BE">Belgique</option>
@@ -462,34 +459,34 @@ export default function LivraisonPage() {
                         </select>
                       </div>
 
-                      <div style={{minHeight: '550px', width: '100%'}}>
-                        {/* Widget Container - Increased default size */}
+                      <div className={styles.widgetContainer}>
+                        {/* Widget Container */}
                         <div id="Zone_Widget" style={{width: '100%', height: '600px'}}></div>
                         <input type="hidden" id="Target_Widget" />
-                        
-                        {relayPoint && (
-                          <div style={{marginTop: '1rem', padding: '1rem', background: '#f0f9ff', border: '1px solid #0070f3', borderRadius: '8px'}}>
-                            <strong>Point Relais sélectionné :</strong><br/>
-                            {relayPoint.Nom}<br/>
-                            {relayPoint.Adresse1}<br/>
-                            {relayPoint.CP} {relayPoint.Ville}
-                          </div>
-                        )}
                       </div>
+                      
+                      {relayPoint && (
+                        <div className={styles.selectedRelayInfo}>
+                          <strong>Point Relais sélectionné :</strong><br/>
+                          {relayPoint.Nom}<br/>
+                          {relayPoint.Adresse1}<br/>
+                          {relayPoint.CP} {relayPoint.Ville}
+                        </div>
+                      )}
                     </>
                   )}
                 </>
               )}
             </section>
 
-            <section style={styles.section}>
+            <section className={styles.section}>
               <h3>3. Options</h3>
-              <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
+              <label className={styles.giftOption}>
                 <input 
                   type="checkbox" 
                   checked={isGift}
                   onChange={(e) => setIsGift(e.target.checked)}
-                  style={{width: '1.2rem', height: '1.2rem', marginRight: '0.8rem'}}
+                  className={styles.giftCheckbox}
                 />
                 <span>🎁 C'est pour un cadeau (Emballage soigné offert)</span>
               </label>
@@ -498,38 +495,37 @@ export default function LivraisonPage() {
           </div>
 
           {/* Right Column: Order Summary */}
-          <div style={styles.column}>
-            <div style={styles.summaryCard}>
+          <div className={styles.column}>
+            <div className={styles.summaryCard}>
               <h3>Résumé</h3>
-              <div style={styles.summaryRow}>
+              <div className={styles.summaryRow}>
                 <span>Sous-total</span>
                 <span>{cartTotal.toFixed(2)} €</span>
               </div>
-              <div style={styles.summaryRow}>
+              <div className={styles.summaryRow}>
                 <span>Livraison ({deliveryMode === 'home' ? 'Domicile' : 'Point Relais'})</span>
                 <span>{shippingCost.toFixed(2)} €</span>
               </div>
-              <div style={{...styles.summaryRow, fontWeight: 'bold', fontSize: '1.2rem', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #eee'}}>
+              <div className={styles.summaryTotal}>
                 <span>Total à payer</span>
                 <span>{totalWithShipping.toFixed(2)} €</span>
               </div>
 
-              <div style={{marginTop: '1rem', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#666', fontStyle: 'italic', backgroundColor: '#fff3cd', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ffeeba'}}>
+              <div className={styles.paymentInfo}>
                 💡 <strong>Info Paiement :</strong> Lors de la saisie de votre carte, merci d'indiquer l'année d'expiration à <strong>2 chiffres</strong> (ex: pour 2026, tapez <strong>26</strong>).
               </div>
 
               <button 
-                className="btn btn-primary" 
-                style={{width: '100%', marginTop: '1.5rem', padding: '1rem'}}
+                className={`btn btn-primary ${styles.payBtn}`}
                 onClick={handlePayment}
                 disabled={processingPayment || addresses.length === 0 || (deliveryMode === 'home' ? !selectedAddressId : !relayPoint)}
               >
                 {processingPayment ? 'Chargement...' : 'Payer maintenant'}
               </button>
               
-              {addresses.length === 0 && <p style={styles.errorMsg}>Adresse de facturation requise</p>}
-              {addresses.length > 0 && deliveryMode === 'home' && !selectedAddressId && <p style={styles.errorMsg}>Veuillez choisir une adresse</p>}
-              {addresses.length > 0 && deliveryMode === 'relay' && !relayPoint && <p style={styles.errorMsg}>Veuillez sélectionner un point relais</p>}
+              {addresses.length === 0 && <p className={styles.errorMsg}>Adresse de facturation requise</p>}
+              {addresses.length > 0 && deliveryMode === 'home' && !selectedAddressId && <p className={styles.errorMsg}>Veuillez choisir une adresse</p>}
+              {addresses.length > 0 && deliveryMode === 'relay' && !relayPoint && <p className={styles.errorMsg}>Veuillez sélectionner un point relais</p>}
             </div>
           </div>
         </div>
@@ -537,14 +533,3 @@ export default function LivraisonPage() {
     </>
   );
 }
-
-const styles = {
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' },
-  column: { display: 'flex', flexDirection: 'column' as 'column', gap: '1.5rem' },
-  section: { backgroundColor: '#fff', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', border: '1px solid #eee' },
-  addressList: { display: 'flex', flexDirection: 'column' as 'column', gap: '1rem' },
-  addressCard: { display: 'flex', alignItems: 'center', padding: '1rem', border: '1px solid #ddd', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s' },
-  summaryCard: { backgroundColor: '#f9f9f9', padding: '1.5rem', borderRadius: '8px', position: 'sticky' as 'sticky', top: '2rem' },
-  summaryRow: { display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' },
-  errorMsg: { color: 'red', fontSize: '0.9rem', marginTop: '0.5rem', textAlign: 'center' as 'center' }
-};

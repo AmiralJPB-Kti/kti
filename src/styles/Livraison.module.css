@@ -1,0 +1,256 @@
+/* Layout Principal */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 992px) {
+  .grid {
+    grid-template-columns: 2fr 1fr; /* 2/3 pour le contenu, 1/3 pour le résumé */
+  }
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Sections (Cartes Blanches) */
+.section {
+  background-color: var(--color-accent-white);
+  padding: 2rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  transition: var(--transition-base);
+}
+
+.section h3 {
+  font-family: var(--font-headings);
+  font-size: 1.5rem;
+  color: var(--color-accent-blue);
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--color-background);
+  padding-bottom: 0.5rem;
+}
+
+/* Boutons de choix de mode (Domicile / Relais) */
+.modeSelector {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.modeBtn {
+  flex: 1;
+  padding: 1rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-family: var(--font-body); /* On garde Lato pour la lisibilité ici */
+  font-weight: bold;
+  cursor: pointer;
+  transition: var(--transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.modeBtn:hover {
+  border-color: var(--color-accent-blue);
+  background-color: #f0f9ff;
+}
+
+.modeBtnActive {
+  border-color: var(--color-accent-blue);
+  background-color: var(--color-accent-blue);
+  color: white;
+}
+
+.modeBtnActive:hover {
+  background-color: #00417e;
+}
+
+/* Liste des Adresses */
+.addressList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.addressCard {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-base);
+  background-color: #fff;
+}
+
+.addressCard:hover {
+  border-color: var(--color-accent-blue);
+  box-shadow: var(--shadow-sm);
+}
+
+.addressCardSelected {
+  border-color: var(--color-accent-blue);
+  background-color: #f0f9ff;
+  box-shadow: var(--shadow-md);
+}
+
+.addressRadio {
+  margin-right: 1rem;
+  accent-color: var(--color-accent-blue);
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.newAddressContainer {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: #fafafa;
+}
+
+/* Point Relais */
+.relaySelectorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.countrySelect {
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  font-family: var(--font-body);
+}
+
+.widgetContainer {
+  width: 100%;
+  min-height: 600px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.selectedRelayInfo {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f0f9ff;
+  border: 1px solid var(--color-accent-blue);
+  border-radius: var(--radius-md);
+  color: var(--color-accent-blue);
+}
+
+/* Options (Cadeau) */
+.giftOption {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  transition: background 0.2s;
+}
+
+.giftOption:hover {
+  background-color: #f9f9f9;
+}
+
+.giftCheckbox {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-right: 0.8rem;
+  accent-color: var(--color-accent-blue);
+}
+
+/* Résumé de Commande (Colonne Droite) */
+.summaryCard {
+  background-color: var(--color-background); /* Un fond légèrement différent ou blanc */
+  padding: 2rem;
+  border-radius: var(--radius-md);
+  position: sticky;
+  top: 2rem;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+.summaryCard h3 {
+  font-family: var(--font-headings);
+  color: var(--color-accent-blue);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.summaryTotal {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+  font-weight: bold;
+  font-size: 1.4rem;
+  color: var(--color-accent-blue);
+  font-family: var(--font-headings);
+}
+
+.paymentInfo {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+  background-color: #fff3cd;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid #ffeeba;
+  line-height: 1.4;
+}
+
+.errorMsg {
+  color: var(--color-accent-red);
+  font-size: 0.9rem;
+  margin-top: 0.75rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+.payBtn {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 1rem;
+  font-size: 1.2rem;
+  box-shadow: var(--shadow-md);
+}
+
+.payBtn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.alertBox {
+  padding: 1rem;
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+  color: #856404;
+}

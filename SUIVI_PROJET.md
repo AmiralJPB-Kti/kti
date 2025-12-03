@@ -376,3 +376,32 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
     *   Maintien de l'effet "glassmorphism" avec `backdrop-filter: blur(10px)` et d'une ombre douce (`var(--shadow-sm)`) pour conserver l'aspect "adouci".
     *   Réajustement des couleurs de texte des liens en blanc (`var(--color-accent-white)`) pour la lisibilité sur ce fond sombre.
     *   Confirmation que les icônes (Panier, Recherche) s'adaptent automatiquement via `currentColor`.
+
+---
+
+## 11. Accomplissements du 03/12/2025 (Reporting & Automation)
+
+### F. Reporting Automatique des Ventes (Vercel Cron)
+*   **Objectif :** Recevoir un bilan quotidien des ventes sans action manuelle.
+*   **Implémentation Technique :**
+    *   **API Route :** Création de `src/pages/api/cron/daily-report.ts`.
+    *   **Logique :** Le script interroge Supabase pour les commandes du jour (00h00-23h59), calcule le CA total, et génère un rapport.
+    *   **Emailing :** Utilisation de Resend pour envoyer un email formaté (Template `dailyReportTemplate`) à l'administrateur (`kti@badie.eu`).
+*   **Configuration Vercel :** Ajout d'une entrée `crons` dans `vercel.json` programmée à `0 22 * * *` (22h00 UTC, soit fin de soirée en France).
+*   **État :** ✅ Déployé et validé. Le rapport est généré et envoyé correctement.
+
+---
+
+## 12. Accomplissements du 03/12/2025 (Refonte Design Panier & Livraison)
+
+### G. Harmonisation Visuelle du Tunnel d'Achat
+*   **Objectif :** Supprimer la rupture visuelle entre le site "vitrine" (très stylisé) et le tunnel d'achat (qui était resté brut).
+*   **Page Panier (`src/pages/panier.tsx`) :**
+    *   **Refonte CSS (`src/styles/Panier.module.css`) :** Adoption des variables globales (Ombres douces `--shadow-sm`, arrondis `--radius-md`, police `--font-headings` pour les titres).
+    *   **Cartes Produits :** Présentation en grille responsive (Image | Infos | Quantité | Prix).
+    *   **Résumé :** Bloc "sticky" (reste visible au défilement) avec un bouton d'action plus large et incitatif.
+*   **Page Livraison (`src/pages/livraison.tsx`) :**
+    *   **Nettoyage Technique :** Création d'un fichier `src/styles/Livraison.module.css` dédié et suppression de tous les styles "inline" (`style={{...}}`) qui rendaient le code illisible.
+    *   **Design "Cartes" :** Les sections (Choix du mode, Adresse, Options) sont désormais des blocs blancs distincts sur fond beige, améliorant la lisibilité.
+    *   **Ergonomie :** Les boutons de sélection (Domicile vs Point Relais) ont des états "Actif" clairs (changement de couleur/bordure).
+    *   **Cohérence :** Le widget Mondial Relay est intégré dans un conteneur aux bords arrondis pour ne pas "jurer" avec le reste.

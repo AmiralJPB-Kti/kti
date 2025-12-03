@@ -5,15 +5,14 @@ import Header from '@/components/Header'
 import { useCart } from '@/context/CartContext'
 import { urlFor } from '@/sanity/lib/image'
 import styles from '@/styles/Panier.module.css'
-import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { createClient } from '@/lib/supabase/client'
 
 export default function PanierPage() {
   const { cartItems, removeFromCart, updateItemQuantity, cartTotal, itemCount } = useCart();
   const router = useRouter();
+  
   const handleCheckout = async () => {
-    router.push('/livraison'); // Redirect to new delivery page
+    router.push('/livraison');
   };
 
   return (
@@ -31,15 +30,21 @@ export default function PanierPage() {
                 <div key={item._id} className={styles.cartItem}>
                   <div className={styles.itemImage}>
                     {item.image && (
-                      <Image src={urlFor(item.image).url()} alt={item.name} width={100} height={100} style={{objectFit: 'cover'}} />
+                      <Image 
+                        src={urlFor(item.image).url()} 
+                        alt={item.name} 
+                        fill
+                        sizes="100px"
+                        style={{objectFit: 'cover'}} 
+                      />
                     )}
                   </div>
                   <div className={styles.itemInfo}>
                     <Link href={`/produits/${item._id.replace('drafts.', '')}`}>
                       <h3>{item.name}</h3>
                     </Link>
-                    {item.reference && <p style={{ fontSize: '0.8em', color: '#888', margin: '0' }}>Réf: {item.reference}</p>}
-                    <p>{item.price.toFixed(2)} €</p>
+                    {item.reference && <p>Réf: {item.reference}</p>}
+                    <p className={styles.mobilePrice}>{item.price.toFixed(2)} €</p>
                   </div>
                   <div className={styles.itemQuantity}>
                     <button onClick={() => updateItemQuantity(item._id, item.quantity - 1)}>-</button>
@@ -50,7 +55,7 @@ export default function PanierPage() {
                     <p>{(item.price * item.quantity).toFixed(2)} €</p>
                   </div>
                   <div className={styles.itemRemove}>
-                    <button onClick={() => removeFromCart(item._id)}>×</button>
+                    <button onClick={() => removeFromCart(item._id)} aria-label="Supprimer">×</button>
                   </div>
                 </div>
               ))}
@@ -63,26 +68,25 @@ export default function PanierPage() {
               </div>
               <div className={styles.summaryLine}>
                 <span>Livraison</span>
-                <span>À calculer</span>
+                <span style={{ fontStyle: 'italic', fontSize: '0.9em' }}>Calculé à l'étape suivante</span>
               </div>
-              <div className={`${styles.summaryLine} ${styles.summaryTotal}`}>
+              <div className={styles.summaryTotal}>
                 <span>Total</span>
                 <span>{cartTotal.toFixed(2)} €</span>
               </div>
               <button 
-                className="btn btn-primary" 
-                style={{width: '100%', marginTop: '1rem'}}
+                className={`btn btn-primary ${styles.checkoutBtn}`}
                 onClick={handleCheckout}
               >
-                Passer la commande
+                Commander
               </button>
             </div>
           </div>
         ) : (
-          <div style={{textAlign: 'center'}}>
-            <p>Votre panier est vide.</p>
+          <div style={{textAlign: 'center', padding: '4rem 1rem'}}>
+            <p style={{ fontSize: '1.2rem', marginBottom: '2rem', color: '#666' }}>Votre panier est vide pour le moment.</p>
             <Link href="/produits" className="btn btn-primary">
-              Voir nos produits
+              Découvrir nos créations
             </Link>
           </div>
         )}
