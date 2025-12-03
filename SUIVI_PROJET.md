@@ -405,3 +405,32 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
     *   **Design "Cartes" :** Les sections (Choix du mode, Adresse, Options) sont désormais des blocs blancs distincts sur fond beige, améliorant la lisibilité.
     *   **Ergonomie :** Les boutons de sélection (Domicile vs Point Relais) ont des états "Actif" clairs (changement de couleur/bordure).
     *   **Cohérence :** Le widget Mondial Relay est intégré dans un conteneur aux bords arrondis pour ne pas "jurer" avec le reste.
+
+---
+
+## 13. Accomplissements du 03/12/2025 (Interface Admin & Facturation)
+
+### H. Backend & Base de Données
+*   **Schéma Supabase :**
+    *   Ajout des colonnes `invoice_number`, `source` (stripe/offline), `payment_method` à la table `orders`.
+    *   Création d'une table `invoice_sequences` et d'une fonction SQL `get_next_invoice_number` pour garantir une numérotation de facture séquentielle et sans doublons (ex: FAC-2025-00001).
+*   **API Admin :**
+    *   `POST /api/admin/offline-orders` : Permet de créer une commande "Salon" en base, en générant automatiquement la facture.
+    *   `GET /api/admin/orders` : Récupère la liste consolidée de toutes les commandes (Web + Salon).
+
+### I. Frontend Admin (Backoffice)
+*   **Sécurité :** Création d'un `AdminLayout` qui protège l'accès aux pages `/admin/*` (vérification que l'email est `kti@badie.eu`).
+*   **Tableau de Bord (`/admin`) :**
+    *   Liste toutes les commandes avec date, client, source, montant et statut.
+    *   Permet de visualiser rapidement l'activité globale.
+*   **Saisie Vente Offline (`/admin/offline-order`) :**
+    *   Formulaire optimisé pour la saisie rapide en salon (sur tablette ou PC).
+    *   Saisie libre des produits (Nom + Prix) pour une flexibilité maximale.
+    *   Choix du mode de paiement (TPE, Espèces, Chèque).
+
+### J. Génération de Factures (PDF)
+*   **Technologie :** Utilisation de `jspdf` et `jspdf-autotable` pour une génération instantanée côté client (sans surcharge serveur).
+*   **Fonctionnalité :**
+    *   Un bouton "📄 Facture" est disponible pour chaque commande dans le tableau de bord.
+    *   Le PDF généré est professionnel, incluant : Logo, Infos légales, Adresse Client, Détail des articles et Totaux.
+    *   Mention "TVA non applicable" incluse par défaut.
