@@ -115,3 +115,70 @@ export const passwordChangedTemplate = (email: string) => `
     <p>L'équipe Kt'i</p>
   </div>
 `;
+
+export const dailyReportTemplate = (date: string, orders: any[], totalRevenue: number) => {
+  if (orders.length === 0) {
+    return `
+      <div style="font-family: sans-serif; color: #333;">
+        <h1>Rapport du ${date}</h1>
+        <p>Aucune commande n'a été passée aujourd'hui.</p>
+        <p>À demain !</p>
+      </div>
+    `;
+  }
+
+  const ordersHtml = orders.map(order => {
+    const itemsList = order.order_items && order.order_items.length > 0
+      ? order.order_items.map((item: any) => `<li>${item.quantity}x ${item.product_name}</li>`).join('')
+      : '<li>Aucun article (Erreur ?)</li>';
+
+    return `
+      <tr style="border-bottom: 1px solid #eee;">
+        <td style="padding: 8px;">#${order.id.slice(0, 8)}...</td>
+        <td style="padding: 8px;">${order.shipping_city || 'N/A'}</td>
+        <td style="padding: 8px;">${order.amount_total.toFixed(2)} €</td>
+        <td style="padding: 8px;">
+            <ul style="margin: 0; padding-left: 15px; font-size: 0.9em;">
+                ${itemsList}
+            </ul>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <div style="font-family: sans-serif; color: #333; border: 2px solid #10B981; padding: 20px; border-radius: 10px;">
+      <h2 style="color: #10B981;">📊 Rapport Quotidien : ${date}</h2>
+      
+      <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+        <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; flex: 1; margin-right: 10px;">
+            <strong style="display: block; color: #15803d; font-size: 0.9em;">COMMANDES</strong>
+            <span style="font-size: 1.5em; font-weight: bold; color: #15803d;">${orders.length}</span>
+        </div>
+        <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; flex: 1;">
+            <strong style="display: block; color: #15803d; font-size: 0.9em;">CHIFFRE D'AFFAIRES</strong>
+            <span style="font-size: 1.5em; font-weight: bold; color: #15803d;">${totalRevenue.toFixed(2)} €</span>
+        </div>
+      </div>
+
+      <h3>Détail des commandes</h3>
+      <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+          <tr style="background: #f9f9f9;">
+            <th style="padding: 8px;">Réf</th>
+            <th style="padding: 8px;">Ville</th>
+            <th style="padding: 8px;">Montant</th>
+            <th style="padding: 8px;">Détail</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${ordersHtml}
+        </tbody>
+      </table>
+      
+      <p style="margin-top: 30px; font-size: 0.9em; color: #666;">
+        Ce rapport a été généré automatiquement par votre site Kti.
+      </p>
+    </div>
+  `;
+};

@@ -323,3 +323,10 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
     *   **Corps de texte :** Utilisation de **"Lato"** pour assurer une lisibilité optimale des descriptions et longs textes.
 *   **Implémentation :** Configuration globale dans `_app.tsx` et `globals.css`.
 *   **État :** En attente de validation par la cliente (sœur d'AmiralJP).
+
+### KK. Audit de Sécurité (Supabase)
+*   **Correction Critique (RLS) :** La table `login_attempts` était détectée comme publique et non sécurisée.
+    *   **Action :** Activation du Row Level Security (RLS) pour bloquer tout accès public. L'écriture continue de fonctionner via l'API (clé Service Role).
+*   **Correction Warning (Function Mutable) :** La fonction `handle_new_user` générait un avertissement de sécurité (`search_path` mutable).
+    *   **Action :** Fixation du `search_path` à `public` pour empêcher l'injection de tables malveillantes.
+*   **Limitation Plan Gratuit :** L'avertissement concernant la "Protection contre les mots de passe fuités" ne peut être résolu car il nécessite un plan Supabase Pro.
