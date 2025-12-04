@@ -10,7 +10,7 @@
 
 ---
 
-**Dernière mise à jour :** 03 Décembre 2025
+**Dernière mise à jour :** 04 Décembre 2025
 **État :** En Production (Entièrement Fonctionnel ✅)
 
 Ce document sert de point de repère pour reprendre le développement. Il résume les accomplissements techniques et l'état actuel du projet.
@@ -425,7 +425,7 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
     *   Permet de visualiser rapidement l'activité globale.
     *   **Correction :** Affichage des commandes Web sans erreur de récupération.
     *   **Amélioration Ergonomique :** Déplacement du bouton "Déconnexion" pour une meilleure accessibilité.
-*   **Saisie Vente Offline (`/admin/offline-order`) :**
+*   **Saisie Vente Offline (`/admin/offline-order`) :
     *   Formulaire optimisé pour la saisie rapide en salon (sur tablette ou PC).
     *   Saisie libre des produits (Nom + Prix) pour une flexibilité maximale.
     *   Choix du mode de paiement (TPE, Espèces, Chèque).
@@ -449,3 +449,23 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
     *   Ajustement de la page `/livraison` pour collecter/sélectionner cette adresse.
     *   Mise à jour du Webhook Stripe pour enregistrer ces nouvelles données.
     *   Modification du générateur de facture pour utiliser cette adresse de facturation si elle est disponible.
+
+## 14. Détails Techniques Complémentaires (Session du 03/12/2025)
+*Ces points ont été fusionnés depuis une session locale parallèle.*
+
+### LL. Correction Rapport Quotidien (Daily Report)
+*   **Bug :** Le script de rapport quotidien plantait avec l'erreur `a.id.slice is not a function`.
+*   **Cause :** Les IDs de commande sont numériques, et la méthode `.slice()` est réservée aux chaînes de caractères.
+*   **Fix :** Conversion explicite de l'ID en string (`String(order.id).slice(...)`) dans le template email (`src/lib/email-templates.ts`).
+*   **Résultat :** Le rapport est généré et envoyé correctement.
+
+### MM. Amélioration du Zoom Produit
+*   **Besoin :** Augmenter le facteur de grossissement de la loupe sur les fiches produits.
+*   **Action :** Modification de la propriété `background-size` de la classe `.loupe` dans `src/styles/ProductDetail.module.css`, passant de `200%` à **`300%`**.
+
+### NN. Fonction de Recherche (Search)
+*   **Besoin :** Permettre aux visiteurs de rechercher des produits par nom ou description.
+*   **Solution (Option "Loupe Extensible") :**
+    *   **Composant Header :** Ajout d'une icône "Loupe" (`src/components/SearchIcon.tsx`) à gauche du panier. Au clic, un champ de saisie s'ouvre avec une animation fluide.
+    *   **Page de Résultats :** Création de la page `src/pages/recherche.tsx` qui récupère le terme de recherche via l'URL (`?q=...`), effectue une requête GROQ sur Sanity (recherche partielle sur nom, description, référence), et affiche les résultats sous forme de grille.
+*   **Résultat :** Une recherche fonctionnelle et esthétique, intégrée sans surcharger visuellement le menu.
