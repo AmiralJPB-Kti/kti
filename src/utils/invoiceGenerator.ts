@@ -38,7 +38,7 @@ export const generateInvoice = (order: any) => {
     // Invoice Details (Right)
     doc.setFontSize(10);
     doc.setTextColor(44, 44, 44);
-    const invoiceNum = order.invoice_number || `PROVISOIRE-${order.id.substring(0, 8)}`;
+    const invoiceNum = order.invoice_number || `PROVISOIRE-${String(order.id || '').substring(0, 8)}`;
     const invoiceDate = order.created_at ? new Date(order.created_at).toLocaleDateString('fr-FR') : new Date().toLocaleDateString('fr-FR');
     
     // Align right side info
