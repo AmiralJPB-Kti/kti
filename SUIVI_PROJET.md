@@ -425,7 +425,7 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
     *   Permet de visualiser rapidement l'activité globale.
     *   **Correction :** Affichage des commandes Web sans erreur de récupération.
     *   **Amélioration Ergonomique :** Déplacement du bouton "Déconnexion" pour une meilleure accessibilité.
-*   **Saisie Vente Offline (`/admin/offline-order`) :
+*   **Saisie Vente Offline (`/admin/offline-order`) :**
     *   Formulaire optimisé pour la saisie rapide en salon (sur tablette ou PC).
     *   Saisie libre des produits (Nom + Prix) pour une flexibilité maximale.
     *   Choix du mode de paiement (TPE, Espèces, Chèque).
@@ -469,3 +469,18 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
     *   **Composant Header :** Ajout d'une icône "Loupe" (`src/components/SearchIcon.tsx`) à gauche du panier. Au clic, un champ de saisie s'ouvre avec une animation fluide.
     *   **Page de Résultats :** Création de la page `src/pages/recherche.tsx` qui récupère le terme de recherche via l'URL (`?q=...`), effectue une requête GROQ sur Sanity (recherche partielle sur nom, description, référence), et affiche les résultats sous forme de grille.
 *   **Résultat :** Une recherche fonctionnelle et esthétique, intégrée sans surcharger visuellement le menu.
+
+---
+
+## 15. Accomplissements du 04/12/2025 (Backoffice User-Friendly)
+
+### L. Refonte du Studio Sanity (Expérience "Zéro Stress")
+*   **Objectif :** Rendre l'interface d'administration (Sanity Studio) accessible, rassurante et intuitive pour une utilisatrice novice (la sœur), sans risque de "casser" le site.
+*   **Traduction Intégrale :** Remplacement de tout le jargon technique (Slug, Assets, Fieldset) par des termes français clairs (Lien unique, Galerie Photos, Inventaire).
+*   **Guidage "Pas à pas" :** Ajout de descriptions pédagogiques sous chaque champ pour expliquer quoi faire (ex: "Cliquez sur Generate pour créer le lien", "La première photo sera la principale").
+*   **Sécurité Renforcée :**
+    *   Validations bloquantes : Impossible de publier si le prix est oublié ou négatif, ou s'il manque une photo.
+    *   Unicité : Le système vérifie automatiquement si la référence saisie existe déjà.
+*   **Ergonomie :**
+    *   Utilisation de groupes repliables ("📏 Dimensions", "📦 Inventaire & Prix") pour ne pas surcharger l'écran.
+    *   Maintien de la compatibilité technique avec les données existantes (restauration de la structure objet pour `dimensions`).
