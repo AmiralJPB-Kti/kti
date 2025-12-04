@@ -132,6 +132,17 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
       return;
     }
 
+    // 0.5 Generate Invoice Number
+    const currentYear = new Date().getFullYear();
+    const { data: invoiceNumber, error: invoiceError } = await supabaseAdmin
+      .rpc('get_next_invoice_number', { current_year: currentYear });
+
+    if (invoiceError) {
+      console.error('❌ Error generating invoice number:', invoiceError);
+      // Fallback: proceeding without invoice number (will be null) to avoid blocking the order,
+      // but logging the error strongly.
+    }
+
     // 1. Create the order in the 'orders' table
     const { data: orderData, error: orderError } = await supabaseAdmin
       .from('orders')
@@ -146,6 +157,8 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
         shipping_postal_code: shippingPostalCode,
         shipping_country: shippingCountry,
         is_gift: isGift,
+        source: 'stripe', // Explicitly set source
+        invoice_number: invoiceNumber, // Add generated invoice number
       })
       .select()
       .single();

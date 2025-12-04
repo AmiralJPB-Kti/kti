@@ -51,29 +51,34 @@ export const generateInvoice = (order: any) => {
     doc.text(invoiceDate, 195, 28, { align: 'right' });
 
     if (order.source === 'stripe') {
-      doc.text(`Réf. Paiement :`, 140, 34);
-      doc.setFontSize(8);
-      doc.text(order.stripe_session_id ? (order.stripe_session_id.substring(0, 15) + '...') : '-', 195, 34, { align: 'right' });
-    }
-
-    // --- CLIENT INFO ---
-    const clientName = order.source === 'offline' 
-      ? (order.customer_name_offline || 'Client Comptoir')
-      : (order.shipping_street ? order.shipping_street.split('\n')[0] : 'Client Web');
-
-    // Safe access to email (order.user might be missing due to API optimization)
-    const clientEmail = order.source === 'offline'
-      ? (order.customer_email_offline || '')
-      : (order.user?.email || '');
-
-    const clientAddr = order.shipping_street 
-      ? [
-          order.shipping_street,
-          `${order.shipping_postal_code || ''} ${order.shipping_city || ''}`,
-          order.shipping_country || ''
-        ] 
-      : [];
-
+          doc.text(`Réf. Transaction Stripe :`, 140, 34);
+          doc.setFontSize(8);
+          doc.text(order.stripe_session_id ? (order.stripe_session_id.substring(0, 15) + '...') : '-', 195, 34, { align: 'right' });
+        }
+      
+        // --- CLIENT INFO ---
+        const clientName = order.source === 'offline' 
+          ? (order.customer_name_offline || 'Client Comptoir')
+          : (order.shipping_street ? order.shipping_street.split('\n')[0] : 'Client Web');
+      
+        // Safe access to email (order.user might be missing due to API optimization)
+        const clientEmail = order.source === 'offline'
+          ? (order.customer_email_offline || '')
+          : (order.user?.email || '');
+      
+        let clientAddr: string[] = [];
+        if (order.source === 'stripe' && order.shipping_street && order.shipping_street.includes('[Relais]')) {
+          // If it's a Stripe order delivered to a Relay, we intentionally skip the shipping address for "Facturé à"
+          // as it represents the delivery point, not the customer's billing address.
+          // In a future enhancement, we would store a separate billing address.
+          clientAddr = [];
+        } else if (order.shipping_street) {
+          clientAddr = [
+            order.shipping_street,
+            `${order.shipping_postal_code || ''} ${order.shipping_city || ''}`,
+            order.shipping_country || ''
+          ];
+        }
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 0, 0);
