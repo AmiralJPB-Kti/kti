@@ -2,12 +2,13 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 // Company Info
+// MODIFIEZ ICI LES INFOS DE VOTRE ENTREPRISE
 const COMPANY_NAME = "Kt'i - Créations Artisanales";
 const COMPANY_ADDRESS = [
-  "Mme Badie",
-  "Adresse de l'atelier",
-  "Code Postal Ville",
-  "SIRET: XXXXXXXXXXXXXX", // TODO: Replace with real SIRET
+  "Mme Katia Badie",           // Nom
+  "Lieu-dit La Vigerie",       // Adresse Ligne 1
+  "16290 Hiersac",             // Code Postal Ville
+  "SIRET: 802 662 324 00015",  // SIRET Réel (à vérifier)
   "Email: kti@badie.eu",
   "Site: https://kti.badie.eu"
 ];
@@ -38,18 +39,19 @@ export const generateInvoice = (order: any) => {
   const invoiceNum = order.invoice_number || `PROVISOIRE-${order.id.substring(0, 8)}`;
   const invoiceDate = new Date(order.created_at).toLocaleDateString('fr-FR');
   
+  // Align right side info
   doc.text(`FACTURE N° :`, 140, 22);
   doc.setFont("helvetica", "bold");
-  doc.text(invoiceNum, 170, 22);
+  doc.text(invoiceNum, 195, 22, { align: 'right' }); // Aligned to right margin
   
   doc.setFont("helvetica", "normal");
   doc.text(`Date :`, 140, 28);
-  doc.text(invoiceDate, 170, 28);
+  doc.text(invoiceDate, 195, 28, { align: 'right' });
 
   if (order.source === 'stripe') {
     doc.text(`Réf. Paiement :`, 140, 34);
     doc.setFontSize(8);
-    doc.text(order.stripe_session_id?.substring(0, 15) + '...', 170, 34);
+    doc.text(order.stripe_session_id?.substring(0, 15) + '...', 195, 34, { align: 'right' });
   }
 
   // --- CLIENT INFO ---
@@ -121,14 +123,16 @@ export const generateInvoice = (order: any) => {
 
   // --- TOTALS ---
   // @ts-ignore (autoTable adds lastAutoTable property)
-  const finalY = doc.lastAutoTable.finalY + 10;
+  const finalY = doc.lastAutoTable.finalY + 15; // A bit more margin
 
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "bold");
-  doc.text(`TOTAL À PAYER :`, 140, finalY);
   doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(44, 44, 44);
+  doc.text(`TOTAL À PAYER :`, 130, finalY); // Moved label left
+  
+  doc.setFontSize(14);
   doc.setTextColor(0, 85, 164); // Blue
-  doc.text(`${order.amount_total.toFixed(2)} €`, 170, finalY);
+  doc.text(`${order.amount_total.toFixed(2)} €`, 195, finalY, { align: 'right' }); // Aligned right
 
   // --- FOOTER / LEGAL ---
   doc.setFontSize(8);
