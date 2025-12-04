@@ -423,10 +423,13 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
 *   **Tableau de Bord (`/admin`) :**
     *   Liste toutes les commandes avec date, client, source, montant et statut.
     *   Permet de visualiser rapidement l'activité globale.
+    *   **Correction :** Affichage des commandes Web sans erreur de récupération.
+    *   **Amélioration Ergonomique :** Déplacement du bouton "Déconnexion" pour une meilleure accessibilité.
 *   **Saisie Vente Offline (`/admin/offline-order`) :**
     *   Formulaire optimisé pour la saisie rapide en salon (sur tablette ou PC).
     *   Saisie libre des produits (Nom + Prix) pour une flexibilité maximale.
     *   Choix du mode de paiement (TPE, Espèces, Chèque).
+    *   **Correction :** Permet désormais de créer des commandes sans utilisateur lié (`user_id` nullable en base).
 
 ### J. Génération de Factures (PDF)
 *   **Technologie :** Utilisation de `jspdf` et `jspdf-autotable` pour une génération instantanée côté client (sans surcharge serveur).
@@ -434,3 +437,15 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
     *   Un bouton "📄 Facture" est disponible pour chaque commande dans le tableau de bord.
     *   Le PDF généré est professionnel, incluant : Logo, Infos légales, Adresse Client, Détail des articles et Totaux.
     *   Mention "TVA non applicable" incluse par défaut.
+    *   **Correction :** Les commandes Web ont désormais un numéro de facture officiel.
+    *   **Correction :** Affichage "Facturé à" adapté pour les livraisons en Point Relais (Web), n'affichant que le nom/email du client (si disponible) sans l'adresse du relais.
+    *   **Amélioration :** La référence Stripe est maintenant affichée sur une ligne dédiée, sous son intitulé, pour éviter toute superposition.
+    *   **Correction :** Robusticité accrue face aux données manquantes ou aux ID numériques.
+
+### K. Prochaines Étapes : Adresses de Facturation Séparées
+*   **Objectif :** Stocker une adresse de facturation distincte de l'adresse de livraison pour les commandes Web, en particulier pour les livraisons en Point Relais.
+*   **Travaux à venir :**
+    *   Modification du schéma Supabase pour ajouter des colonnes spécifiques à l'adresse de facturation.
+    *   Ajustement de la page `/livraison` pour collecter/sélectionner cette adresse.
+    *   Mise à jour du Webhook Stripe pour enregistrer ces nouvelles données.
+    *   Modification du générateur de facture pour utiliser cette adresse de facturation si elle est disponible.
