@@ -31,7 +31,7 @@ export default function Home({ products, settings }: HomeProps) {
   return (
     <>
       <Head>
-        <title>{settings?.title || "Kt'i - Maroquinerie Artisanale"}</title>
+        <title>{`${settings?.title || "Kt'i - Maroquinerie Artisanale"}`}</title>
         <meta name="description" content={settings?.tagline || "Sacs et accessoires en cuir faits main."} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
