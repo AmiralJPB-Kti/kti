@@ -5,10 +5,11 @@ import autoTable from 'jspdf-autotable';
 // MODIFIEZ ICI LES INFOS DE VOTRE ENTREPRISE
 const COMPANY_NAME = "Kt'i - Créations Artisanales";
 const COMPANY_ADDRESS = [
-  "Mme Katia Badie",           // Nom
-  "Lieu-dit La Vigerie",       // Adresse Ligne 1
-  "16290 Hiersac",             // Code Postal Ville
-  "SIRET: 802 662 324 00015",  // SIRET Réel (à vérifier)
+  "Atelier Kt'i'",           // Nom
+  "57 CHALET DE TEYCHAN",       // Adresse Ligne 1
+  "60 AV DE LA LIBÉRATION",       // Adresse Ligne 2
+  "33138 LANTON",             // Code Postal Ville
+  "SIRET: 420 058 125 00030",  // SIRET Réel (à vérifier)
   "Email: kti@badie.eu",
   "Site: https://kti.badie.eu"
 ];
