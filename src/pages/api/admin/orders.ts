@@ -34,7 +34,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .from('orders')
       .select(`
         *,
-        user:user_id (email),
         order_items (*)
       `)
       .order('created_at', { ascending: false });
