@@ -9,6 +9,14 @@ import groq from 'groq';
 // Import dynamique de ReactPlayer avec SSR désactivé
 const ReactPlayer = dynamic(() => import('react-player'), { ssr: false });
 
+// Helper pour extraire l'ID YouTube
+const getYouTubeId = (url: string) => {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
 // Types
 interface VideoPost {
   _id: string;
@@ -36,9 +44,6 @@ const components = {
 };
 
 export default function AtelierPage({ videoPosts, storyContent, siteTitle }: AtelierPageProps) {
-  // État pour gérer les erreurs de lecture par vidéo (mapping par ID)
-  // Note: Dans une implémentation simple, on loggue juste l'erreur pour l'instant.
-  
   return (
     <>
       <Head>
@@ -73,46 +78,52 @@ export default function AtelierPage({ videoPosts, storyContent, siteTitle }: Ate
             <p className="text-center text-gray-500">Aucune vidéo pour le moment. Revenez bientôt !</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {videoPosts.map((video) => (
-                <div key={video._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
-                  {/* Conteneur Vidéo (Ratio 16:9) */}
-                  <div className="relative pt-[56.25%] bg-black">
-                    <ReactPlayer
-                      url={video.videoUrl}
-                      controls={true}
-                      width="100%"
-                      height="100%"
-                      className="absolute top-0 left-0"
-                      onError={(e) => console.error(`Erreur lecture vidéo [${video.title}]:`, e)}
-                    />
-                  </div>
-                  
-                  {/* Contenu Texte */}
-                  <div className="p-6 flex-grow flex flex-col">
-                    <h3 className="text-xl font-heading mb-2">{video.title}</h3>
-                    <p className="text-gray-500 text-xs mb-3 uppercase tracking-wide">
-                      {new Date(video.publishedAt).toLocaleDateString('fr-FR', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </p>
-                    {video.description && (
-                      <p className="text-gray-600 text-sm leading-relaxed flex-grow">
-                        {video.description}
+              {videoPosts.map((video) => {
+                const youtubeId = getYouTubeId(video.videoUrl);
+                
+                return (
+                  <div key={video._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
+                    {/* Conteneur Vidéo (Ratio 16:9) */}
+                    <div className="relative pt-[56.25%] bg-black">
+                      {youtubeId ? (
+                        <iframe
+                          src={`https://www.youtube.com/embed/${youtubeId}`}
+                          title={video.title}
+                          className="absolute top-0 left-0 w-full h-full"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                        />
+                      ) : (
+                        <ReactPlayer
+                          url={video.videoUrl}
+                          controls={true}
+                          width="100%"
+                          height="100%"
+                          className="absolute top-0 left-0"
+                        />
+                      )}
+                    </div>
+                    
+                    {/* Contenu Texte */}
+                    <div className="p-6 flex-grow flex flex-col">
+                      <h3 className="text-xl font-heading mb-2">{video.title}</h3>
+                      <p className="text-gray-500 text-xs mb-3 uppercase tracking-wide">
+                        {new Date(video.publishedAt).toLocaleDateString('fr-FR', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
                       </p>
-                    )}
-                    <a 
-                      href={video.videoUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-indigo-600 hover:text-indigo-800 text-sm mt-4 font-medium inline-flex items-center"
-                    >
-                      Voir la vidéo sur le site d'origine &rarr;
-                    </a>
+                      {video.description && (
+                        <p className="text-gray-600 text-sm leading-relaxed flex-grow">
+                          {video.description}
+                        </p>
+                      )}
+                                          </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>
