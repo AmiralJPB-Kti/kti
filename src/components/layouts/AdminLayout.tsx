@@ -63,22 +63,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/" style={{ color: '#aaa', textDecoration: 'none', padding: '0.5rem', marginTop: '2rem' }}>
             ← Retour au site
           </Link>
+          
+          <button 
+            onClick={handleLogout}
+            style={{ 
+              marginTop: '0.5rem', 
+              background: 'transparent', 
+              border: '1px solid #555', 
+              color: '#aaa', 
+              padding: '0.5rem', 
+              cursor: 'pointer',
+              borderRadius: '4px',
+              textAlign: 'left'
+            }}
+          >
+            Déconnexion
+          </button>
         </nav>
-
-        <button 
-          onClick={handleLogout}
-          style={{ 
-            marginTop: 'auto', 
-            background: 'transparent', 
-            border: '1px solid #555', 
-            color: 'white', 
-            padding: '0.5rem', 
-            cursor: 'pointer',
-            borderRadius: '4px'
-          }}
-        >
-          Déconnexion
-        </button>
       </aside>
 
       {/* Main Content */}
