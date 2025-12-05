@@ -106,6 +106,31 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
   const shippingCity = metadata?.shipping_city;
   const shippingPostalCode = metadata?.shipping_postal_code;
   const shippingCountry = metadata?.shipping_country;
+  // Billing Address
+  const billingStreet = metadata?.billing_address_line1;
+  const billingCity = metadata?.billing_city;
+  const billingPostalCode = metadata?.billing_postal_code;
+  const billingCountry = metadata?.billing_country;
+  
+  // Smart Billing Name Logic:
+  // 1. Priority: Name entered on Stripe Payment Form (customer_details.name)
+  // 2. Fallback: Name sent from Website (metadata.billing_name)
+  // 3. Fallback: Email (but we try to avoid this if possible)
+  let billingName = session.customer_details?.name;
+
+  // Check if Stripe name is missing or looks like an email (sometimes Stripe autofills name with email)
+  const stripeNameIsEmail = billingName && billingName.includes('@') && billingName === customerEmail;
+  
+  if (!billingName || stripeNameIsEmail) {
+      // If Stripe didn't give a good name, check metadata
+      if (metadata?.billing_name && metadata.billing_name !== 'N/A' && !metadata.billing_name.includes('@')) {
+          billingName = metadata.billing_name;
+      } else {
+          // Last resort: keep what we have (email or N/A) or use metadata even if it's an email
+          billingName = metadata?.billing_name || customerEmail; 
+      }
+  }
+
   const isGift = metadata?.is_gift === 'true';
   const customerEmail = customer_details?.email || session.customer_email;
 
@@ -156,6 +181,12 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
         shipping_city: shippingCity,
         shipping_postal_code: shippingPostalCode,
         shipping_country: shippingCountry,
+        // Billing Address Insertion
+        billing_address_line1: billingStreet,
+        billing_city: billingCity,
+        billing_postal_code: billingPostalCode,
+        billing_country: billingCountry,
+        billing_name: billingName,
         is_gift: isGift,
         source: 'stripe', // Explicitly set source
         invoice_number: invoiceNumber, // Add generated invoice number

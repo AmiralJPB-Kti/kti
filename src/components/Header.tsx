@@ -84,7 +84,7 @@ const Header: React.FC<HeaderProps> = ({ forceLoggedOut = false }) => {
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
             <li><Link href="/" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontFamily: 'var(--font-headings)', fontSize: '1.2rem', letterSpacing: '0.5px' }}>Accueil</Link></li>
             <li><Link href="/produits" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontFamily: 'var(--font-headings)', fontSize: '1.2rem', letterSpacing: '0.5px' }}>Produits</Link></li>
-            <li><Link href="/a-propos" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontFamily: 'var(--font-headings)', fontSize: '1.2rem', letterSpacing: '0.5px' }}>L'Atelier</Link></li>
+            <li><Link href="/atelier" style={{ textDecoration: 'none', color: 'var(--color-accent-white)', fontFamily: 'var(--font-headings)', fontSize: '1.2rem', letterSpacing: '0.5px' }}>L'Atelier</Link></li>
             
             {user && !forceLoggedOut ? (
               <>

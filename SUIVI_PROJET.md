@@ -10,7 +10,7 @@
 
 ---
 
-**Dernière mise à jour :** 03 Décembre 2025
+**Dernière mise à jour :** 04 Décembre 2025
 **État :** En Production (Entièrement Fonctionnel ✅)
 
 Ce document sert de point de repère pour reprendre le développement. Il résume les accomplissements techniques et l'état actuel du projet.
@@ -442,10 +442,74 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
     *   **Amélioration :** La référence Stripe est maintenant affichée sur une ligne dédiée, sous son intitulé, pour éviter toute superposition.
     *   **Correction :** Robusticité accrue face aux données manquantes ou aux ID numériques.
 
-### K. Prochaines Étapes : Adresses de Facturation Séparées
-*   **Objectif :** Stocker une adresse de facturation distincte de l'adresse de livraison pour les commandes Web, en particulier pour les livraisons en Point Relais.
-*   **Travaux à venir :**
-    *   Modification du schéma Supabase pour ajouter des colonnes spécifiques à l'adresse de facturation.
-    *   Ajustement de la page `/livraison` pour collecter/sélectionner cette adresse.
-    *   Mise à jour du Webhook Stripe pour enregistrer ces nouvelles données.
-    *   Modification du générateur de facture pour utiliser cette adresse de facturation si elle est disponible.
+---
+
+## 14. Détails Techniques Complémentaires (Session du 03/12/2025)
+*Ces points ont été fusionnés depuis une session locale parallèle.*
+
+### LL. Correction Rapport Quotidien (Daily Report)
+*   **Bug :** Le script de rapport quotidien plantait avec l'erreur `a.id.slice is not a function`.
+*   **Cause :** Les IDs de commande sont numériques, et la méthode `.slice()` est réservée aux chaînes de caractères.
+*   **Fix :** Conversion explicite de l'ID en string (`String(order.id).slice(...)`) dans le template email (`src/lib/email-templates.ts`).
+*   **Résultat :** Le rapport est généré et envoyé correctement.
+
+### MM. Amélioration du Zoom Produit
+*   **Besoin :** Augmenter le facteur de grossissement de la loupe sur les fiches produits.
+*   **Action :** Modification de la propriété `background-size` de la classe `.loupe` dans `src/styles/ProductDetail.module.css`, passant de `200%` à **`300%`**.
+
+### NN. Fonction de Recherche (Search)
+*   **Besoin :** Permettre aux visiteurs de rechercher des produits par nom ou description.
+*   **Solution (Option "Loupe Extensible") :**
+    *   **Composant Header :** Ajout d'une icône "Loupe" (`src/components/SearchIcon.tsx`) à gauche du panier. Au clic, un champ de saisie s'ouvre avec une animation fluide.
+    *   **Page de Résultats :** Création de la page `src/pages/recherche.tsx` qui récupère le terme de recherche via l'URL (`?q=...`), effectue une requête GROQ sur Sanity (recherche partielle sur nom, description, référence), et affiche les résultats sous forme de grille.
+*   **Résultat :** Une recherche fonctionnelle et esthétique, intégrée sans surcharger visuellement le menu.
+
+---
+
+## 15. Accomplissements du 04/12/2025 (Backoffice User-Friendly)
+
+### L. Refonte du Studio Sanity (Expérience "Zéro Stress")
+*   **Objectif :** Rendre l'interface d'administration (Sanity Studio) accessible, rassurante et intuitive pour une utilisatrice novice (la sœur), sans risque de "casser" le site.
+*   **Traduction Intégrale :** Remplacement de tout le jargon technique (Slug, Assets, Fieldset) par des termes français clairs (Lien unique, Galerie Photos, Inventaire).
+*   **Guidage "Pas à pas" :** Ajout de descriptions pédagogiques sous chaque champ pour expliquer quoi faire (ex: "Cliquez sur Generate pour créer le lien", "La première photo sera la principale").
+*   **Sécurité Renforcée :**
+    *   Validations bloquantes : Impossible de publier si le prix est oublié ou négatif, ou s'il manque une photo.
+    *   Unicité : Le système vérifie automatiquement si la référence saisie existe déjà.
+*   **Ergonomie :**
+    *   Utilisation de groupes repliables ("📏 Dimensions", "📦 Inventaire & Prix") pour ne pas surcharger l'écran.
+    *   Maintien de la compatibilité technique avec les données existantes (restauration de la structure objet pour `dimensions`).
+
+---
+
+## 16. Accomplissements du 04/12/2025 (Séparation Facturation/Livraison)
+
+### L. Séparation Adresses Facturation & Livraison
+*   **Objectif :** Permettre d'avoir une adresse de facturation distincte, indispensable pour les commandes en Point Relais (où l'adresse de livraison est celle du commerce) et pour les cadeaux.
+*   **Backend (Base de Données) :**
+    *   Création d'une migration SQL pour ajouter les colonnes `billing_name`, `billing_address_line1`, `billing_city`, `billing_postal_code`, `billing_country` à la table `orders`.
+*   **API & Stripe :**
+    *   Mise à jour de `checkout_sessions.ts` pour recevoir l'adresse de facturation distincte et la stocker dans les métadonnées Stripe. Correction d'un bug de `ReferenceError` en production.
+    *   Mise à jour du Webhook (`webhooks/stripe.ts`) pour extraire ces métadonnées et les sauvegarder en base, en priorisant le nom saisi sur le formulaire de paiement Stripe (`customer_details.name`) pour la facture finale.
+*   **Frontend (`livraison.tsx`) :**
+    *   **Mode Domicile :** Ajout d'une case à cocher "Adresse de facturation identique". Si décochée, l'utilisateur peut sélectionner une autre de ses adresses.
+    *   **Mode Point Relais :** Interface clarifiée. L'utilisateur choisit son Point Relais (Livraison) ET son adresse personnelle (Facturation) explicitement.
+    *   Le nom envoyé au backend est désormais pur (pas d'email par défaut), laissant le Webhook choisir la meilleure source de nom.
+*   **Générateur de Facture PDF (`invoiceGenerator.ts`) :**
+    *   Mise à jour de la logique pour utiliser prioritairement les champs `billing_...` dans la section "Facturé à".
+    *   Ajout d'une colonne "Livré à" pour afficher l'adresse de livraison.
+    *   Amélioration de l'affichage des adresses de Point Relais (suppression du `[Relais]`, nom du commerce sur une ligne, adresse sur la suivante).
+    *   Implémentation du "text wrapping" (retour à la ligne automatique) pour les adresses et la référence Stripe, évitant les débordements sur le PDF.
+*   **Tableau de Bord Admin (`admin/index.tsx`) :**
+    *   La logique d'affichage du nom du client a été mise à jour pour prioriser le `billing_name` ou un nom pertinent, évitant d'afficher le nom du point relais.
+*   **Design/UX (Panier) :**
+    *   Correction de l'alignement du total dans le résumé du panier (`Panier.module.css`).
+
+---
+
+## 17. Pour la prochaine fois
+
+**Priorités :**
+1.  **Tests & Recette Complète :** Valider le flux complet avec la nouvelle gestion d'adresse (cadeau, point relais, domicile) et s'assurer que tous les affichages sont corrects.
+2.  **Automatisation Reporting (Vercel Cron) :** Migrer le script de rapport quotidien vers Vercel Cron.
+3.  **Design & UX :** Le site est fonctionnel, mais le design (CSS) doit être revu (Page d'accueil, Fiches produits, Panier).
+4.  **Finalisation Contenu Pages Légales :** Rédiger et publier les textes définitifs des Mentions Légales et CGV dans Sanity.

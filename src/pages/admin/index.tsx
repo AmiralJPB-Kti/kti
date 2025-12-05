@@ -36,10 +36,26 @@ export default function AdminDashboard() {
   };
 
   const getClientName = (order: any) => {
+    // 1. Offline orders
     if (order.source === 'offline') {
       return order.customer_name_offline || 'Client Comptoir';
     }
-    return order.shipping_street ? order.shipping_street.split('\n')[0] : 'Client Web'; // Approximation
+    // 2. New Online Orders (with billing info)
+    if (order.billing_name) {
+      return order.billing_name;
+    }
+    // 3. Legacy / Fallback logic
+    if (order.shipping_street) {
+      // Check if it's a Relay address
+      if (order.shipping_street.includes('[Relais]')) {
+        // Do NOT show relay name as client name
+        return order.user?.email || 'Client Web (Relais)';
+      }
+      // Standard Home Delivery: First line of address is usually the name
+      return order.shipping_street.split('\n')[0];
+    }
+    
+    return 'Client Web';
   };
 
   const getClientEmail = (order: any) => {

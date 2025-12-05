@@ -66,7 +66,7 @@ const LegalPage = ({ page }: LegalPageProps) => {
   return (
     <>
       <Head>
-        <title>{page.title} | Kt'i</title>
+        <title>{`${page.title} | Kt'i`}</title>
       </Head>
       <Header />
       <main style={{ maxWidth: '800px', margin: '2rem auto', padding: '0 1rem', minHeight: '60vh' }}>

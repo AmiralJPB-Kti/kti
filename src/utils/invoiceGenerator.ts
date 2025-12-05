@@ -53,32 +53,62 @@ export const generateInvoice = (order: any) => {
     if (order.source === 'stripe') {
           doc.text(`Réf. Transaction Stripe :`, 140, 34);
           doc.setFontSize(8);
-          doc.text(order.stripe_session_id ? (order.stripe_session_id.substring(0, 15) + '...') : '-', 195, 34, { align: 'right' });
+          // Apply text wrapping to the long Stripe ID
+          const stripeId = order.stripe_session_id || '-';
+          const MAX_STRIPE_ID_WIDTH = 55; // Adjust as needed to fit the column
+          const wrappedStripeId = doc.splitTextToSize(stripeId, MAX_STRIPE_ID_WIDTH);
+          
+          let currentStripeIdY = 39; // Starting Y position below the label
+          wrappedStripeId.forEach(line => {
+              doc.text(line, 140, currentStripeIdY); // Align left with the label
+              currentStripeIdY += 3.5; // Increment Y for each wrapped line (smaller increment due to smaller font)
+          });
         }
       
         // --- CLIENT INFO ---
-        const clientName = order.source === 'offline' 
-          ? (order.customer_name_offline || 'Client Comptoir')
-          : (order.shipping_street ? order.shipping_street.split('\n')[0] : 'Client Web');
+        // Prioritize Billing Info if available (New System)
+        let clientName = order.billing_name;
+        let clientAddr: string[] = [];
+
+        if (clientName) {
+          // Case A: Billing Info Exists (New Orders)
+          clientAddr = [
+            order.billing_address_line1,
+            `${order.billing_postal_code || ''} ${order.billing_city || ''}`,
+            order.billing_country || ''
+          ].filter(Boolean); // Remove empty lines
+        } else {
+          // Case B: Legacy / Fallback / Offline
+          if (order.source === 'offline') {
+             clientName = order.customer_name_offline || 'Client Comptoir';
+          } else {
+             // Web Order Fallback
+             const shippingName = order.shipping_street ? order.shipping_street.split('\n')[0] : '';
+             
+             if (order.source === 'stripe' && order.shipping_street && order.shipping_street.includes('[Relais]')) {
+                // Relay delivery: The shipping_street starts with "[Relais] Name..."
+                // We MUST NOT use this as the Client Name on the invoice.
+                // Try to get a name from user metadata, email, or generic.
+                clientName = order.billing_name || (order.user?.email ? `Client (${order.user.email})` : 'Client Web');
+                clientAddr = []; // Do not show Relay address as billing address
+             } else {
+                // Standard Home Delivery
+                clientName = shippingName || 'Client Web';
+                if (order.shipping_street) {
+                  clientAddr = [
+                    order.shipping_street,
+                    `${order.shipping_postal_code || ''} ${order.shipping_city || ''}`,
+                    order.shipping_country || ''
+                  ];
+                }
+             }
+          }
+        }
       
         // Safe access to email (order.user might be missing due to API optimization)
         const clientEmail = order.source === 'offline'
           ? (order.customer_email_offline || '')
           : (order.user?.email || '');
-      
-        let clientAddr: string[] = [];
-        if (order.source === 'stripe' && order.shipping_street && order.shipping_street.includes('[Relais]')) {
-          // If it's a Stripe order delivered to a Relay, we intentionally skip the shipping address for "Facturé à"
-          // as it represents the delivery point, not the customer's billing address.
-          // In a future enhancement, we would store a separate billing address.
-          clientAddr = [];
-        } else if (order.shipping_street) {
-          clientAddr = [
-            order.shipping_street,
-            `${order.shipping_postal_code || ''} ${order.shipping_city || ''}`,
-            order.shipping_country || ''
-          ];
-        }
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 0, 0);
@@ -100,6 +130,58 @@ export const generateInvoice = (order: any) => {
       if (clientEmail) doc.text(clientEmail, 14, addrY);
     } else if (clientEmail) {
       doc.text(clientEmail, 14, yPos + 27);
+    }
+
+    // --- DELIVERY INFO (Right Column) ---
+    // Display shipping address if available (Home or Relay)
+    if (order.shipping_street) {
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(0, 0, 0);
+      doc.text("Livré à :", 110, yPos + 15); // Right column start
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(44, 44, 44);
+      
+      // 1. Prepare raw lines based on Relay or Home logic
+      let addressLines: string[] = [];
+      const rawStreet = order.shipping_street;
+
+      if (rawStreet.includes('[Relais]')) {
+          // Relay Logic: Clean tag and split Name / Address
+          const cleanStr = rawStreet.replace('[Relais]', '').trim();
+          // Usually format is "Shop Name - Address"
+          const parts = cleanStr.split(' - ');
+          if (parts.length >= 2) {
+              addressLines.push(parts[0].trim()); // Line 1: Shop Name
+              addressLines.push(parts.slice(1).join(' - ').trim()); // Line 2: Address
+          } else {
+              addressLines.push(cleanStr);
+          }
+      } else {
+          // Home Logic
+          addressLines.push(rawStreet);
+      }
+
+      // Add Standard City/Country lines
+      addressLines.push(`${order.shipping_postal_code || ''} ${order.shipping_city || ''}`);
+      if (order.shipping_country) addressLines.push(order.shipping_country);
+
+      addressLines = addressLines.filter(Boolean);
+
+      // 2. Render with Auto-Wrapping (max width ~85mm to stay on page)
+      const MAX_WIDTH = 85;
+      let dAddrY = yPos + 22;
+
+      addressLines.forEach(line => {
+        // Split long text into multiple lines that fit MAX_WIDTH
+        const wrappedLines = doc.splitTextToSize(line, MAX_WIDTH);
+        doc.text(wrappedLines, 110, dAddrY);
+        
+        // Increment Y based on how many lines were actually drawn
+        dAddrY += (wrappedLines.length * 5);
+      });
     }
 
 

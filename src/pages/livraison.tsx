@@ -25,6 +25,10 @@ export default function LivraisonPage() {
   const [user, setUser] = useState<any>(null);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
+  // Billing Address State
+  const [useBillingSameAsShipping, setUseBillingSameAsShipping] = useState(true);
+  const [selectedBillingAddressId, setSelectedBillingAddressId] = useState<number | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [isGift, setIsGift] = useState(false);
@@ -118,6 +122,7 @@ export default function LivraisonPage() {
         setAddresses(data);
         if (data.length > 0) {
           setSelectedAddressId(data[0].id);
+          setSelectedBillingAddressId(data[0].id); // Default billing to first address too
         }
       }
 
@@ -261,7 +266,13 @@ export default function LivraisonPage() {
       alert("Erreur lors de l'ajout de l'adresse.");
     } else {
       setAddresses([...addresses, data]);
-      setSelectedAddressId(data.id); // Select the new address
+      // Determine which address to update based on current mode/intent
+      // If user was adding an address while "billing different" was checked, they probably wanted that one.
+      // But simplistically, we just select it as primary for now, user can switch.
+      // Actually, let's stick to "select as main address" logic for now.
+      if (selectedAddressId === null) setSelectedAddressId(data.id);
+      if (selectedBillingAddressId === null) setSelectedBillingAddressId(data.id);
+
       setIsAddingAddress(false);
       // Also update relay country if needed since we just added an address
       if (data.country) {
@@ -273,6 +284,7 @@ export default function LivraisonPage() {
 
   const handlePayment = async () => {
     let finalShippingAddress;
+    let finalBillingAddress;
 
     if (deliveryMode === 'home') {
       if (!selectedAddressId) {
@@ -280,18 +292,50 @@ export default function LivraisonPage() {
         return;
       }
       finalShippingAddress = addresses.find(a => a.id === selectedAddressId);
+
+      // Logic for Billing Address in Home Mode
+      if (useBillingSameAsShipping) {
+        finalBillingAddress = finalShippingAddress;
+      } else {
+        if (!selectedBillingAddressId) {
+           alert('Veuillez sélectionner une adresse de facturation.');
+           return;
+        }
+        finalBillingAddress = addresses.find(a => a.id === selectedBillingAddressId);
+      }
+
     } else {
+      // RELAY MODE
       if (!relayPoint) {
         alert('Veuillez sélectionner un Point Relais sur la carte.');
         return;
       }
-      // Construct a "fake" address object from Relay data
+      // Construct a "fake" address object from Relay data for SHIPPING
       finalShippingAddress = {
         street: `[Relais] ${relayPoint.Nom} - ${relayPoint.Adresse1}`,
         city: relayPoint.Ville,
         postal_code: relayPoint.CP,
         country: relayPoint.Pays,
       };
+
+      // For Billing, user MUST have selected a personal address
+      // (We force this check in the UI, but double check here)
+      if (!selectedAddressId && !selectedBillingAddressId) {
+         // Fallback logic: In relay mode, the "selectedAddressId" (used to init the map) 
+         // is often considered the "User Address". We use that as billing by default.
+         alert('Veuillez sélectionner une adresse personnelle pour la facturation.');
+         return;
+      }
+      
+      // In Relay mode, we can explicitely ask for billing address, 
+      // OR use the one selected to initialize the map (selectedAddressId).
+      // Let's use selectedBillingAddressId if set, otherwise selectedAddressId.
+      const billingId = selectedBillingAddressId || selectedAddressId;
+      if (!billingId) {
+        alert('Adresse de facturation manquante.');
+        return;
+      }
+      finalBillingAddress = addresses.find(a => a.id === billingId);
     }
 
     setProcessingPayment(true);
@@ -309,6 +353,12 @@ export default function LivraisonPage() {
             isGift: isGift,
             mode: deliveryMode,
             relayId: relayPoint ? relayPoint.ID : null
+          },
+          billing: {
+            // Do NOT fallback to email here. If name is missing, let it be empty.
+            // The backend/webhook will pick up the name from Stripe input (Credit Card Name).
+            name: user.user_metadata?.full_name,
+            address: finalBillingAddress
           }
         }),
       });
@@ -415,6 +465,48 @@ export default function LivraisonPage() {
                     </div>
                   )}
 
+                  {/* Billing Address Logic for Home Delivery */}
+                  {addresses.length > 0 && !isAddingAddress && (
+                    <div style={{ marginTop: '2rem', borderTop: '1px solid #eee', paddingTop: '1.5rem' }}>
+                       <label className={styles.giftOption} style={{ marginBottom: '1rem' }}>
+                          <input 
+                            type="checkbox" 
+                            checked={useBillingSameAsShipping}
+                            onChange={(e) => setUseBillingSameAsShipping(e.target.checked)}
+                            className={styles.giftCheckbox}
+                          />
+                          <span>L'adresse de facturation est identique à l'adresse de livraison</span>
+                       </label>
+
+                       {!useBillingSameAsShipping && (
+                         <div className="animate-fade-in">
+                           <h4 style={{marginBottom: '1rem'}}>Adresse de facturation</h4>
+                           <div className={styles.addressList}>
+                            {addresses.map(addr => (
+                              <label 
+                                key={`billing-${addr.id}`} 
+                                className={`${styles.addressCard} ${selectedBillingAddressId === addr.id ? styles.addressCardSelected : ''}`}
+                              >
+                                <input 
+                                  type="radio" 
+                                  name="billingAddress" 
+                                  className={styles.addressRadio}
+                                  checked={selectedBillingAddressId === addr.id}
+                                  onChange={() => setSelectedBillingAddressId(addr.id)}
+                                />
+                                <div>
+                                  <strong>{addr.street}</strong><br/>
+                                  {addr.postal_code} {addr.city}<br/>
+                                  {addr.country}
+                                </div>
+                              </label>
+                            ))}
+                           </div>
+                         </div>
+                       )}
+                    </div>
+                  )}
+
                   {isAddingAddress && (
                     <div className={styles.newAddressContainer}>
                       <h4 style={{ marginBottom: '1rem' }}>Nouvelle adresse</h4>
@@ -430,10 +522,11 @@ export default function LivraisonPage() {
                 <>
                   <h3>2. Choisir mon Point Relais</h3>
 
+                  {/* In Relay mode, we MUST have a personal address for Billing */}
                   {addresses.length === 0 ? (
                     <div className={styles.alertBox}>
                       <p style={{ marginBottom: '1rem' }}>
-                        <strong>Attention :</strong> Vous devez enregistrer une adresse personnelle (pour la facturation) avant de pouvoir choisir un point relais.
+                        <strong>Attention :</strong> Vous devez enregistrer une adresse personnelle (pour la <strong>facturation</strong>) avant de pouvoir choisir un point relais.
                       </p>
                       <AddressForm 
                         onSave={handleAddressAdded} 
@@ -443,6 +536,30 @@ export default function LivraisonPage() {
                     </div>
                   ) : (
                     <>
+                      {/* Selector for billing address in Relay mode (often just one, but let's be clean) */}
+                      <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#fff', borderRadius: 'var(--radius-md)', border: '1px solid #eee' }}>
+                        <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Adresse de facturation :</h4>
+                        <select 
+                          className="form-control" 
+                          style={{ width: '100%', padding: '0.5rem' }}
+                          value={selectedBillingAddressId || selectedAddressId || ''}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            setSelectedBillingAddressId(val);
+                            setSelectedAddressId(val); // Sync both for now to keep widget logic simple (country detection)
+                          }}
+                        >
+                          {addresses.map(addr => (
+                            <option key={addr.id} value={addr.id}>
+                              {addr.street}, {addr.postal_code} {addr.city} ({addr.country})
+                            </option>
+                          ))}
+                        </select>
+                        <small style={{ color: '#666', display: 'block', marginTop: '0.5rem' }}>
+                          (Cette adresse détermine aussi le pays de recherche par défaut)
+                        </small>
+                      </div>
+                      
                       <div className={styles.relaySelectorHeader}>
                         <span>Pays du point relais :</span>
                         <select 

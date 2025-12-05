@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // apiVersion: '2024-06-20', // Optional: lock version
       });
 
-      const { cartItems, user, shipping } = req.body;
+      const { cartItems, user, shipping, billing } = req.body;
 
       if (!cartItems || cartItems.length === 0) {
         return res.status(400).json({ error: 'Le panier est vide.' });
@@ -66,6 +66,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const cancel_url = `${origin}/panier`; // Redirect back to cart on cancellation
 
       console.log("Creating Stripe Session for user:", user?.email);
+      console.log("DEBUG: Billing Payload:", JSON.stringify(billing));
+      console.log("DEBUG: Delivery Mode:", shipping?.mode);
+
+      // Helper to safe string
+      const safeStr = (val: any) => String(val || '');
+      const isRelay = shipping?.mode === 'relay';
+
+      // Billing Address Logic
+      // If Relay, we strictly use billing info (Personal Address). If missing, we fallback to 'N/A' but NEVER the relay address.
+      // If Home, we can fallback to shipping address (since it's the default).
+      const billingStreet = isRelay 
+        ? safeStr(billing?.address?.street || 'N/A') 
+        : safeStr(billing?.address?.street || shipping?.address?.street || 'N/A');
+        
+      const billingCity = isRelay
+        ? safeStr(billing?.address?.city || 'N/A')
+        : safeStr(billing?.address?.city || shipping?.address?.city || 'N/A');
+
+      const billingZip = isRelay
+        ? safeStr(billing?.address?.postal_code || 'N/A')
+        : safeStr(billing?.address?.postal_code || shipping?.address?.postal_code || 'N/A');
+
+      const billingCountry = isRelay
+        ? safeStr(billing?.address?.country || 'N/A')
+        : safeStr(billing?.address?.country || shipping?.address?.country || 'N/A');
+
+      const billingName = String(billing?.name || user?.user_metadata?.full_name || user?.email || 'N/A');
 
       // Create a new checkout session with the Stripe API
       const session = await stripe.checkout.sessions.create({
@@ -85,8 +112,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           is_gift: shipping?.isGift ? 'true' : 'false',
           delivery_mode: String(shipping?.mode || 'home'),
           relay_id: String(shipping?.relayId || ''),
+          // Billing Address Metadata (Computed above)
+          billing_address_line1: billingStreet,
+          billing_city: billingCity,
+          billing_postal_code: billingZip,
+          billing_country: billingCountry,
+          billing_name: String(billing?.name || user?.user_metadata?.full_name || user?.email || 'N/A'),
         },
       });
+
 
       if (!session.url) {
         throw new Error('Stripe Checkout session URL not found.');

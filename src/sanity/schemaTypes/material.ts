@@ -2,29 +2,31 @@ import {defineField, defineType} from 'sanity'
 
 export default defineType({
   name: 'material',
-  title: 'Matériau',
+  title: 'Matériaux',
   type: 'document',
   fields: [
     defineField({
       name: 'name',
       title: 'Nom du matériau',
+      description: 'Ex: Cuir de vachette, Lin lavé, Laiton...',
       type: 'string',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().error('Le nom du matériau est obligatoire.'),
     }),
     defineField({
       name: 'category',
-      title: 'Catégorie',
+      title: 'Type de matière',
+      description: 'Cela permet de classer les matériaux.',
       type: 'string',
       options: {
         list: [
-          {title: 'Cuir', value: 'cuir'},
-          {title: 'Tissu', value: 'tissu'},
-          {title: 'Métal', value: 'metal'},
-          {title: 'Autre', value: 'autre'},
+          {title: '🐮 Cuir / Peau', value: 'cuir'},
+          {title: '🧶 Tissu / Textile', value: 'tissu'},
+          {title: '🔗 Métal / Bouclerie', value: 'metal'},
+          {title: '✨ Autre', value: 'autre'},
         ],
         layout: 'radio',
       },
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().error('Veuillez choisir une catégorie.'),
     }),
   ],
   preview: {

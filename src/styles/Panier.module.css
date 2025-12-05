@@ -153,6 +153,8 @@
 }
 
 .summaryTotal {
+  display: flex; /* Make it a flex container */
+  justify-content: space-between; /* Space out its direct children (the two spans) */
   font-weight: bold;
   font-size: 1.4rem;
   border-top: 1px solid var(--color-border);

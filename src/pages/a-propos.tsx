@@ -23,7 +23,7 @@ export default function AboutPage({ storyContent, siteTitle }: StoryPageProps) {
   return (
     <>
       <Head>
-        <title>Mon Histoire | {siteTitle || "Kt'i"}</title>
+        <title>{`Mon Histoire | ${siteTitle || "Kt'i"}`}</title>
         <meta name="description" content="L'histoire de la création de Kt'i, maroquinerie artisanale." />
         <link rel="icon" href="/favicon.ico" />
       </Head>
