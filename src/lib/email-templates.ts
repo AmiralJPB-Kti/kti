@@ -1,3 +1,59 @@
+export const newsletterWelcomeTemplate = (email: string, subscriberId: string) => `
+  <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+    <h1 style="color: #1F2937;">Bienvenue dans l'univers Kt'i !</h1>
+    <p>Bonjour,</p>
+    <p>Votre inscription à la newsletter est confirmée.</p>
+    <p>Vous recevrez désormais en avant-première :</p>
+    <ul>
+      <li>Les nouvelles créations de l'atelier</li>
+      <li>Les dates de mes prochaines expositions</li>
+      <li>Des invitations privées</li>
+    </ul>
+    
+    <p>Merci de votre intérêt pour mon travail artisanal.</p>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="https://kti.badie.eu" style="background-color: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Visiter la boutique</a>
+    </div>
+
+    <p>À très bientôt,</p>
+    <p><strong>L'équipe Kt'i</strong></p>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
+    
+    <p style="font-size: 0.8em; color: #666; text-align: center;">
+      Vous recevez cet email car vous vous êtes inscrit sur kti.badie.eu.<br/>
+      Si vous souhaitez vous désinscrire, vous pouvez le faire à tout moment en cliquant ici :<br/>
+      <a href="https://kti.badie.eu/newsletter/unsubscribe?id=${subscriberId}" style="color: #666; text-decoration: underline;">Se désinscrire de la liste</a>
+    </p>
+  </div>
+`;
+
+export const newsletterReactivationTemplate = (email: string, subscriberId: string) => `
+  <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+    <h1 style="color: #1F2937;">Quel plaisir de vous revoir !</h1>
+    <p>Bonjour,</p>
+    <p>Nous avons bien noté votre ré-inscription à la newsletter Kt'i.</p>
+    <p>C'est un bonheur de vous compter à nouveau parmi nos abonnés privilégiés.</p>
+    
+    <p>Vous recevrez à nouveau nos actualités et invitations.</p>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="https://kti.badie.eu" style="background-color: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Redécouvrir la boutique</a>
+    </div>
+
+    <p>À très vite,</p>
+    <p><strong>L'équipe Kt'i</strong></p>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
+    
+    <p style="font-size: 0.8em; color: #666; text-align: center;">
+      Si vous avez changé d'avis, vous pouvez vous désinscrire à tout moment :<br/>
+      <a href="https://kti.badie.eu/newsletter/unsubscribe?id=${subscriberId}" style="color: #666; text-decoration: underline;">Se désinscrire</a>
+    </p>
+  </div>
+`;
+
 export const welcomeEmailTemplate = (email: string) => `
   <div style="font-family: sans-serif; color: #333;">
     <h1>Bienvenue chez Kt'i !</h1>

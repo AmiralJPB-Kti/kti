@@ -5,6 +5,8 @@ import {
   SUPABASE_SERVICE_ROLE_KEY_PART_1, 
   SUPABASE_SERVICE_ROLE_KEY_PART_2 
 } from '../../../lib/stripe-config';
+import { resend } from '../../../lib/resend';
+import { newsletterWelcomeTemplate, newsletterReactivationTemplate } from '../../../lib/email-templates';
 
 // Initialisation du client Supabase avec la configuration robuste (Split Key)
 // On utilise la clé Service Role pour garantir l'accès backend
@@ -28,17 +30,65 @@ export default async function handler(
   }
 
   try {
-    // Insertion dans Supabase
-    const { error } = await supabase
+    // 1. Vérifier si l'email existe déjà (y compris inactif)
+    const { data: existingUser, error: searchError } = await supabase
       .from('newsletter_subscribers')
-      .insert([{ email }]);
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    // Si une erreur autre que "No rows found" survient
+    if (searchError && searchError.code !== 'PGRST116') {
+        throw searchError;
+    }
+
+    if (existingUser) {
+        // CAS A : L'utilisateur existe déjà
+        if (existingUser.is_active) {
+            // Déjà inscrit et actif
+            return res.status(409).json({ message: 'Vous êtes déjà inscrit !' });
+        } else {
+            // CAS B : Réinscription (était inactif) -> On réactive
+            const { data: reactivatedUser, error: updateError } = await supabase
+                .from('newsletter_subscribers')
+                .update({ is_active: true, subscribed_at: new Date().toISOString() }) // On met à jour la date aussi
+                .eq('id', existingUser.id)
+                .select()
+                .single();
+            
+            if (updateError) throw updateError;
+
+            // Envoi Email "Bon retour"
+            await resend.emails.send({
+                from: 'Atelier Kt\'i <contact@badie.eu>',
+                to: [email],
+                subject: 'Ravi de vous revoir chez Kt\'i !',
+                html: newsletterReactivationTemplate(email, existingUser.id),
+            });
+
+            return res.status(200).json({ message: 'Bon retour parmi nous !' });
+        }
+    }
+
+    // CAS C : Nouvel utilisateur (N'existe pas en base)
+    const { data, error } = await supabase
+      .from('newsletter_subscribers')
+      .insert([{ email }])
+      .select() 
+      .single();
 
     if (error) {
-      // Gestion du cas "Email déjà enregistré" (code erreur unique constraint violation)
-      if (error.code === '23505') {
-        return res.status(409).json({ message: 'Vous êtes déjà inscrit !' });
-      }
       throw error;
+    }
+
+    // Envoi Email Bienvenue (Standard)
+    if (data) {
+      await resend.emails.send({
+        from: 'Atelier Kt\'i <contact@badie.eu>',
+        to: [email],
+        subject: 'Bienvenue à l\'Atelier Kt\'i !',
+        html: newsletterWelcomeTemplate(email, data.id),
+      });
     }
 
     return res.status(200).json({ message: 'Inscription réussie !' });
