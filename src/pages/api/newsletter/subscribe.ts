@@ -1,11 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
+import { 
+  SUPABASE_URL, 
+  SUPABASE_SERVICE_ROLE_KEY_PART_1, 
+  SUPABASE_SERVICE_ROLE_KEY_PART_2 
+} from '../../../lib/stripe-config';
 
-// Initialisation du client Supabase
-// On utilise les clés publiques car on a autorisé l'INSERT public dans la table via RLS
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://votre-projet.supabase.co';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'votre-cle-publique';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Initialisation du client Supabase avec la configuration robuste (Split Key)
+// On utilise la clé Service Role pour garantir l'accès backend
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || (SUPABASE_SERVICE_ROLE_KEY_PART_1 + SUPABASE_SERVICE_ROLE_KEY_PART_2);
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(
   req: NextApiRequest,
