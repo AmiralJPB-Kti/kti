@@ -442,8 +442,6 @@ Suite aux premiers retours des testeurs (notamment sur mobile Android), nous avo
     *   **Amélioration :** La référence Stripe est maintenant affichée sur une ligne dédiée, sous son intitulé, pour éviter toute superposition.
     *   **Correction :** Robusticité accrue face aux données manquantes ou aux ID numériques.
 
----
-
 ## 14. Détails Techniques Complémentaires (Session du 03/12/2025)
 *Ces points ont été fusionnés depuis une session locale parallèle.*
 
