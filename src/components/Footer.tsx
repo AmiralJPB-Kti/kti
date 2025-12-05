@@ -18,7 +18,9 @@ const Footer = () => {
     // Récupération des données Footer uniquement
     const fetchSettings = async () => {
       try {
-        const query = `*[_type == "siteSettings"][0]{
+        // On cherche spécifiquement le document singleton 'siteSettings'
+        // Si on ne précise pas l'ID, on risque de récupérer un vieux document orphelin
+        const query = `*[_type == "siteSettings" && _id == "siteSettings"][0]{
           footerText,
           contactEmail,
           instagramLink,
