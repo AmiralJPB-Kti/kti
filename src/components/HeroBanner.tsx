@@ -7,6 +7,7 @@ interface HeroBannerProps {
   settings: {
     tagline?: string;
     heroImage?: any;
+    overlayOpacity?: number; // Nouveau champ
     callToActionText?: string;
     callToActionLink?: string;
   };
@@ -14,6 +15,11 @@ interface HeroBannerProps {
 
 const HeroBanner: React.FC<HeroBannerProps> = ({ settings }) => {
   if (!settings) return null;
+
+  // Calcul de l'opacité : valeur Sanity (0-100) / 100, ou 0.3 par défaut
+  const overlayOpacity = settings?.overlayOpacity !== undefined 
+    ? settings.overlayOpacity / 100 
+    : 0.3;
 
   // Define the keyframes for the text animation (optimized to only animate opacity)
   const animationKeyframes = `
@@ -49,13 +55,15 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ settings }) => {
           priority
         />
       )}
+      {/* Overlay (Voile noir) ajustable */}
       <div style={{
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.1)', // Opacité encore réduite pour plus de clarté
+        backgroundColor: 'rgba(0, 0, 0, 1)', // Changed to full black, opacity handled by style prop
+        opacity: overlayOpacity, // New line for opacity
         zIndex: -1,
       }} />
       <div style={{ zIndex: 0 }}>

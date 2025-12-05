@@ -72,6 +72,7 @@ export async function getStaticProps() {
       title,
       tagline,
       heroImage,
+      overlayOpacity,
       callToActionText,
       callToActionLink
     }

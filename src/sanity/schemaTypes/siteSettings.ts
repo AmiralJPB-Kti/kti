@@ -19,6 +19,10 @@ export default defineType({
       name: 'shipping',
       title: '🚚 Frais de Livraison',
     },
+    {
+      name: 'communication',
+      title: '📧 Communication & Footer',
+    },
   ],
   fields: [
     defineField({
@@ -46,6 +50,18 @@ export default defineType({
         hotspot: true,
       },
       group: 'general',
+    }),
+    defineField({
+        name: 'overlayOpacity',
+        title: 'Assombrissement de la bannière (%)',
+        description: "Règle l'intensité du filtre noir sur l'image pour rendre le texte plus lisible. 0 = Transparent, 100 = Tout noir.",
+        type: 'number',
+        validation: (Rule) => Rule.min(0).max(100),
+        options: {
+            range: { min: 0, max: 100, step: 10 }
+        },
+        initialValue: 30, // Valeur par défaut équilibrée
+        group: 'general',
     }),
     defineField({
       name: 'callToActionText',
@@ -87,6 +103,33 @@ export default defineType({
       ],
       description: 'Rédigez ici le texte de présentation de votre atelier.',
       group: 'story',
+    }),
+    // --- Champs Communication ---
+    defineField({
+        name: 'footerText',
+        title: 'Texte Pied de Page',
+        description: "Petit texte court sous 'L\'Atelier Kt\'i' en bas de chaque page.",
+        type: 'text',
+        rows: 3,
+        group: 'communication',
+    }),
+    defineField({
+        name: 'contactEmail',
+        title: 'Email de Contact Public',
+        type: 'string',
+        group: 'communication',
+    }),
+    defineField({
+        name: 'instagramLink',
+        title: 'Lien Instagram',
+        type: 'url',
+        group: 'communication',
+    }),
+    defineField({
+        name: 'facebookLink',
+        title: 'Lien Facebook',
+        type: 'url',
+        group: 'communication',
     }),
     // --- Champs Livraison ---
     defineField({
