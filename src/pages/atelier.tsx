@@ -9,10 +9,10 @@ import groq from 'groq';
 // Import dynamique de ReactPlayer avec SSR désactivé
 const ReactPlayer = dynamic(() => import('react-player'), { ssr: false });
 
-// Helper pour extraire l'ID YouTube
+// Helper pour extraire l'ID YouTube (Supporte standards, short URLs, embeds, et Shorts)
 const getYouTubeId = (url: string) => {
   if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
   const match = url.match(regExp);
   return (match && match[2].length === 11) ? match[2] : null;
 };
@@ -135,8 +135,9 @@ export default function AtelierPage({ videoPosts, storyContent, siteTitle }: Ate
 
 export const getStaticProps: GetStaticProps<AtelierPageProps> = async () => {
   // Requête combinée pour récupérer les Settings (Histoire) ET les Vidéos
+  // FIX: Ciblage précis de l'ID "siteSettings"
   const query = groq`{
-    "settings": *[_type == "siteSettings"][0]{
+    "settings": *[_type == "siteSettings" && _id == "siteSettings"][0]{
       myStoryContent,
       "siteTitle": title
     },
