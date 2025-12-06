@@ -109,6 +109,7 @@ export default function AtelierPage({ videoPosts, storyContent, siteTitle }: Ate
                           src={`https://player.vimeo.com/video/${vimeoId}?title=0&byline=0&portrait=0`}
                           title={video.title}
                           className="absolute top-0 left-0 w-full h-full"
+                          style={{ width: '100%', height: '100%' }}
                           frameBorder="0"
                           allow="autoplay; fullscreen; picture-in-picture"
                           allowFullScreen
