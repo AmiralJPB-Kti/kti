@@ -60,6 +60,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/offline-order" style={{ color: 'white', textDecoration: 'none', padding: '0.5rem', borderRadius: '4px', backgroundColor: router.pathname === '/admin/offline-order' ? '#0055A4' : 'transparent' }}>
             📝 Saisie Vente (Salon)
           </Link>
+          <Link href="/admin/newsletter" style={{ color: 'white', textDecoration: 'none', padding: '0.5rem', borderRadius: '4px', backgroundColor: router.pathname === '/admin/newsletter' ? '#0055A4' : 'transparent' }}>
+            📢 Newsletter
+          </Link>
           <Link href="/" style={{ color: '#aaa', textDecoration: 'none', padding: '0.5rem', marginTop: '2rem' }}>
             ← Retour au site
           </Link>

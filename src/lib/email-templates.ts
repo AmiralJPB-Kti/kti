@@ -238,3 +238,42 @@ export const dailyReportTemplate = (date: string, orders: any[], totalRevenue: n
     </div>
   `;
 };
+
+export const manualNewsletterTemplate = (
+    title: string,
+    message: string,
+    imageUrl: string | null,
+    buttonText: string,
+    buttonLink: string,
+    subscriberId: string
+  ) => `
+    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+      ${imageUrl ? `<img src="${imageUrl}" alt="Image Newsletter" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 20px;" />` : ''}
+      
+      <h1 style="color: #1F2937; text-align: center; margin-bottom: 20px;">${title}</h1>
+      
+      <div style="font-size: 16px; line-height: 1.6; color: #4B5563; white-space: pre-line;">
+        ${message}
+      </div>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${buttonLink}" style="background-color: #000; color: #fff; padding: 14px 28px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; display: inline-block;">
+          ${buttonText}
+        </a>
+      </div>
+  
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;" />
+      
+      <div style="text-align: center;">
+        <p style="font-size: 14px; color: #666;">
+          <strong>Kt'i - Créations artisanales</strong><br/>
+          Retrouvez toutes nos nouveautés sur <a href="https://kti.badie.eu" style="color: #666; text-decoration: underline;">kti.badie.eu</a>
+        </p>
+        
+        <p style="font-size: 12px; color: #999; margin-top: 20px;">
+          Vous recevez cet email car vous êtes abonné à la newsletter Kt'i.<br/>
+          <a href="https://kti.badie.eu/newsletter/unsubscribe?id=${subscriberId}" style="color: #999; text-decoration: underline;">Se désinscrire</a>
+        </p>
+      </div>
+    </div>
+  `;
