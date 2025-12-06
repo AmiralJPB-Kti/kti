@@ -17,6 +17,15 @@ const getYouTubeId = (url: string) => {
   return (match && match[2].length === 11) ? match[2] : null;
 };
 
+// Helper pour extraire l'ID Vimeo
+const getVimeoId = (url: string) => {
+  if (!url) return null;
+  // Regex simple pour Vimeo (gère https://vimeo.com/123456)
+  const regExp = /vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|video\/|)(\d+)(?:|\/\?)/;
+  const match = url.match(regExp);
+  return match ? match[1] : null;
+};
+
 // Types
 interface VideoPost {
   _id: string;
@@ -80,6 +89,7 @@ export default function AtelierPage({ videoPosts, storyContent, siteTitle }: Ate
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {videoPosts.map((video) => {
                 const youtubeId = getYouTubeId(video.videoUrl);
+                const vimeoId = getVimeoId(video.videoUrl);
                 
                 return (
                   <div key={video._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
@@ -92,6 +102,15 @@ export default function AtelierPage({ videoPosts, storyContent, siteTitle }: Ate
                           className="absolute top-0 left-0 w-full h-full"
                           frameBorder="0"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                        />
+                      ) : vimeoId ? (
+                         <iframe
+                          src={`https://player.vimeo.com/video/${vimeoId}?title=0&byline=0&portrait=0`}
+                          title={video.title}
+                          className="absolute top-0 left-0 w-full h-full"
+                          frameBorder="0"
+                          allow="autoplay; fullscreen; picture-in-picture"
                           allowFullScreen
                         />
                       ) : (
