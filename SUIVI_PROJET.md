@@ -91,3 +91,14 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
     *   Mise à jour du script de linting (`npm run lint` exécute désormais `eslint .`).
     *   Exclusion du dossier `.sanity/runtime/` pour corriger les erreurs de parsing.
 *   **Validation :** `npm run build` passe avec succès. `npm run lint` est fonctionnel et remonte les avertissements de qualité de code (à traiter ultérieurement).
+
+### D. Améliorations & Corrections Diverses
+*   **Corrections Typographiques :** Uniformisation des apostrophes (d\' vers d') dans le composant Newsletter (`src/components/Newsletter.tsx`) et dans l'interface d'administration de la newsletter (`src/pages/admin/newsletter.tsx`).
+*   **Fiabilisation du Rapport Quotidien (CRON) :**
+    *   Diagnostic du problème de non-envoi du rapport des commandes journalières via Vercel CRON.
+    *   Ajout de logs détaillés et assouplissement temporaire de la vérification de sécurité (`CRON_SECRET`) dans `/api/cron/daily-report.ts` pour faciliter le débogage sur Vercel.
+    *   Validation du fonctionnement du script via un test local (envoi d'email et récupération des commandes).
+*   **Correctif Widget Mondial Relay :** Résolution du problème d'affichage intermittent de la carte "Point Relais" sur la page de livraison (`src/pages/livraison.tsx`) en ajoutant un délai et une vérification de présence DOM lors de l'initialisation du widget.
+*   **Standardisation des Adresses :**
+    *   Implémentation de la conversion automatique en majuscules pour les champs `rue`, `ville`, `code postal` et `pays` dans le formulaire d'adresse (`src/components/AddressForm.tsx`) côté frontend.
+    *   Fourniture d'un script SQL (`force_uppercase_address_trigger.sql`) pour créer un trigger Supabase garantissant que ces mêmes champs sont toujours stockés en majuscules dans la base de données, assurant une cohérence maximale.
