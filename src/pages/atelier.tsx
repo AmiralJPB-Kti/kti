@@ -135,9 +135,9 @@ export default function AtelierPage({ videoPosts, storyContent, siteTitle }: Ate
 
 export const getStaticProps: GetStaticProps<AtelierPageProps> = async () => {
   // Requête combinée pour récupérer les Settings (Histoire) ET les Vidéos
-  // FIX: Ciblage précis de l'ID "siteSettings"
+  // REVERT TEMPORAIRE : On remet la requête permissive pour récupérer le contenu perdu
   const query = groq`{
-    "settings": *[_type == "siteSettings" && _id == "siteSettings"][0]{
+    "settings": *[_type == "siteSettings"][0]{
       myStoryContent,
       "siteTitle": title
     },
