@@ -57,3 +57,28 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 1.  **Tests & Recette Complète :** Valider le flux complet avec la nouvelle gestion d'adresse et les emails newsletter.
 2.  **Design & UX :** Le site est fonctionnel, mais le design (CSS) doit être peaufiné (Page d'accueil, Fiches produits, Panier).
 3.  **Finalisation Contenu Pages Légales :** Rédiger et publier les textes définitifs des Mentions Légales et CGV dans Sanity.
+
+---
+
+## 4. Accomplissements de la session du 06/12/2025 (Générateur de Newsletter Simplifié)
+
+### A. Outil "Générateur de Newsletter" pour Administrateurs
+*   **Objectif :** Permettre l'envoi facile et autonome de newsletters formatées, sans compétence technique (HTML/CSS), à tous les abonnés.
+*   **Interface Utilisateur (`/admin/newsletter`) :**
+    *   Formulaire guidé avec des champs clairs : Sujet, Titre, Message, URL d'Image (pour images uniquement), Texte du Bouton, Lien du Bouton.
+    *   Prévisualisation en temps réel (approximative) du rendu de l'email.
+    *   Boutons d'action sécurisés : "M'envoyer un TEST" (pour vérifier le rendu) et "ENVOYER À TOUS LES ABONNÉS" (avec double confirmation pour éviter les erreurs).
+    *   Ajout d'un lien direct dans le menu de l'interface Admin pour un accès rapide.
+*   **Fonctionnalités Backend (`/api/admin/newsletter/send`) :**
+    *   API sécurisée pour l'envoi.
+    *   Récupère la liste des abonnés actifs depuis Supabase.
+    *   Utilise un template d'email responsive et professionnel, incluant le logo Kt'i et un lien de désinscription personnalisé pour chaque abonné.
+    *   Prend en charge l'envoi de tests individuels et la diffusion massive.
+    *   Le processus d'envoi de masse est optimisé pour éviter les timeouts et gérer les limites de l'API Resend en envoyant par petits lots (chunks).
+*   **Amélioration des Templates Emails :**
+    *   Création d'un `manualNewsletterTemplate` réutilisable et personnalisable.
+
+### B. Précision sur l'utilisation des images
+*   Le champ "URL Image" est strictement destiné à des liens d'images (JPG, PNG, GIF).
+*   Pour intégrer du contenu vidéo, la recommandation est d'utiliser une vignette (image) de la vidéo, puis de rendre cette vignette (ou un bouton dédié) cliquable vers la plateforme hébergeant la vidéo (YouTube, Vimeo, Facebook, etc.).
+
