@@ -10,7 +10,7 @@
 
 ---
 
-**Dernière mise à jour :** 05 Décembre 2025
+**Dernière mise à jour :** 06 Décembre 2025
 **État :** En Production (Entièrement Fonctionnel ✅)
 
 Ce document sert de point de repère pour reprendre le développement. Il résume les accomplissements techniques et l'état actuel du projet.
@@ -60,7 +60,7 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 
 ---
 
-## 4. Accomplissements de la session du 06/12/2025 (Générateur de Newsletter Simplifié)
+## 4. Accomplissements de la session du 06/12/2025
 
 ### A. Outil "Générateur de Newsletter" pour Administrateurs
 *   **Objectif :** Permettre l'envoi facile et autonome de newsletters formatées, sans compétence technique (HTML/CSS), à tous les abonnés.
@@ -82,3 +82,12 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 *   Le champ "URL Image" est strictement destiné à des liens d'images (JPG, PNG, GIF).
 *   Pour intégrer du contenu vidéo, la recommandation est d'utiliser une vignette (image) de la vidéo, puis de rendre cette vignette (ou un bouton dédié) cliquable vers la plateforme hébergeant la vidéo (YouTube, Vimeo, Facebook, etc.).
 
+### C. Maintenance & Sécurité (Next.js & ESLint)
+*   **Mise à jour Critique (CVE-2025-55182) :** Passage de Next.js `15.1.9` à `15.5.7` suite à une alerte de sécurité RCE (Remote Code Execution) de Vercel.
+*   **Correction Configuration ESLint :**
+    *   Migration de la configuration ESLint pour la rendre compatible avec ESLint 9 et le nouveau format "Flat Config".
+    *   Utilisation de `FlatCompat` pour assurer la compatibilité avec `eslint-config-next`.
+    *   Installation des dépendances manquantes (`typescript-eslint`, `@eslint/eslintrc`, etc.).
+    *   Mise à jour du script de linting (`npm run lint` exécute désormais `eslint .`).
+    *   Exclusion du dossier `.sanity/runtime/` pour corriger les erreurs de parsing.
+*   **Validation :** `npm run build` passe avec succès. `npm run lint` est fonctionnel et remonte les avertissements de qualité de code (à traiter ultérieurement).

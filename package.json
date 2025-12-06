@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@portabletext/react": "^5.0.0",
@@ -21,7 +21,7 @@
     "jspdf": "^3.0.4",
     "jspdf-autotable": "^5.0.2",
     "micro": "^10.0.1",
-    "next": "^15.1.9",
+    "next": "^15.5.7",
     "next-sanity": "^9.12.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
@@ -33,12 +33,16 @@
     "styled-components": "^6.1.19"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@typescript-eslint/eslint-plugin": "^8.48.1",
+    "@typescript-eslint/parser": "^8.48.1",
     "eslint": "^9",
     "eslint-config-next": "^15.5.7",
     "ngrok": "^5.0.0-beta.2",
-    "typescript": "^5"
+    "typescript": "^5",
+    "typescript-eslint": "^8.48.1"
   }
 }
