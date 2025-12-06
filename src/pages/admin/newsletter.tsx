@@ -109,7 +109,7 @@ export default function AdminNewsletter() {
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>Sujet de l\'email (Vu dans la boîte de réception)</label>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>Sujet de l'email (Vu dans la boîte de réception)</label>
                 <input 
                   type="text" 
                   name="subject"
@@ -120,7 +120,7 @@ export default function AdminNewsletter() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>Grand Titre (Dans l\'email)</label>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>Grand Titre (Dans l'email)</label>
                 <input 
                   type="text" 
                   name="title"
@@ -191,7 +191,7 @@ export default function AdminNewsletter() {
             </div>
 
             <div style={{ backgroundColor: '#fff', padding: '2rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', border: '2px solid #E5E7EB' }}>
-               <h2 style={{ marginTop: 0, marginBottom: '1rem', color: '#DC2626' }}>3. Zone d\'Envoi</h2>
+               <h2 style={{ marginTop: 0, marginBottom: '1rem', color: '#DC2626' }}>3. Zone d'Envoi</h2>
                
                {status.message && (
                  <div style={{ 

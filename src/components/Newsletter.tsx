@@ -35,7 +35,7 @@ export default function Newsletter() {
     <div className="pt-2">
       <h3 className="text-lg font-heading text-white mb-4">Restons en contact</h3>
       <p className="text-gray-300 text-sm mb-4">
-        Inscrivez-vous pour découvrir les prochaines créations et les lieux d\'exposition.
+        Inscrivez-vous pour découvrir les prochaines créations et les lieux d'exposition.
       </p>
 
       {status === 'success' ? (
