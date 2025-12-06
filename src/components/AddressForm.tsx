@@ -13,10 +13,10 @@ const AddressForm = ({ address, onSave, onCancel, saving }: AddressFormProps) =>
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const data: Partial<Address> = {
-      street: formData.get('street') as string,
-      city: formData.get('city') as string,
-      postal_code: formData.get('postalCode') as string,
-      country: formData.get('country') as string,
+      street: (formData.get('street') as string).toUpperCase(),
+      city: (formData.get('city') as string).toUpperCase(),
+      postal_code: (formData.get('postalCode') as string).toUpperCase(),
+      country: (formData.get('country') as string).toUpperCase(),
     };
     if (address?.id) {
       data.id = address.id;
