@@ -202,11 +202,22 @@ export default function LivraisonPage() {
   // Initialize Widget when mode changes to relay OR country/postcode changes
   useEffect(() => {
     if (deliveryMode === 'relay' && window.$ && window.$.fn.MR_ParcelShopPicker) {
-      initWidget();
+      // Small delay to ensure the DOM element #Zone_Widget is rendered by React
+      const timer = setTimeout(() => {
+        initWidget();
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [deliveryMode, relayCountry, relayPostCode]);
 
   const initWidget = () => {
+    // Safety check: Element existence
+    if (!document.getElementById('Zone_Widget')) {
+       console.warn('Zone_Widget not found in DOM yet. Retrying in 500ms...');
+       setTimeout(initWidget, 500);
+       return;
+    }
+
     // Use state-managed postcode (derived from selected address)
     // If no address selected, fallback to empty (shows whole country)
     const targetPostCode = relayPostCode || "";
