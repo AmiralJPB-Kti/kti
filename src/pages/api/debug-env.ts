@@ -10,8 +10,15 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     GOOGLE_GEMINI_API_KEY: process.env.GOOGLE_GEMINI_API_KEY ? 'PRESENT' : 'MISSING',
   };
 
+  const context = {
+    Project: process.env.VERCEL_PROJECT_NAME || 'Unknown',
+    Environment: process.env.VERCEL_ENV || 'Unknown',
+    URL: process.env.VERCEL_URL || 'Unknown'
+  };
+
   res.status(200).json({
     debug: 'Verifying ALL Env Vars',
+    context: context,
     specificChecks: stripeDetails,
     availableEnvVars: allKeys, // List of all keys available to the process
   });
