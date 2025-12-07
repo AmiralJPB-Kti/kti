@@ -72,7 +72,7 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 *   **Fonctionnalités Backend (`/api/admin/newsletter/send`) :**
     *   API sécurisée pour l'envoi.
     *   Récupère la liste des abonnés actifs depuis Supabase.
-    *   Utilise un template d'email responsive et professionnel, incluant le logo Kt'i et un lien de désinscription personnalisé pour chaque abonné.
+    *   Utilise un template d'email responsive et professionnel, inclus le logo Kt'i et un lien de désinscription personnalisé pour chaque abonné.
     *   Prend en charge l'envoi de tests individuels et la diffusion massive.
     *   Le processus d'envoi de masse est optimisé pour éviter les timeouts et gérer les limites de l'API Resend en envoyant par petits lots (chunks).
 *   **Amélioration des Templates Emails :**
@@ -127,3 +127,18 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 *   **Backend (`/api/admin/assistant/generate`) :** Nouvelle route API qui adapte l'instruction à l'IA en fonction du mode choisi.
 *   **Mise à jour du Menu Admin :** Ajout d'un lien "🧠 Assistant IA" dans le menu de gauche de l'administration pour un accès facile.
 *   **⚠️ Déploiement Vercel (Rappel Important) :** Comme pour l'assistant newsletter, l'Assistant Intelligent dépend de la variable d'environnement `GOOGLE_GEMINI_API_KEY`. Assurez-vous qu'elle est bien configurée sur Vercel.
+
+---
+
+## 6. Idées & Évolutions Futures (Roadmap)
+
+### A. Secrétaire Virtuelle IA (Projet "Boîte Mail Intelligente")
+*   **Concept :** Le site se connecte à la boîte mail pro (OVH, Gmail, etc.) via IMAP.
+*   **Fonctionnement :**
+    *   Surveillance périodique des nouveaux messages.
+    *   Analyse par l'IA (Gemini) : Résumé du contenu + Détection de l'intention (Devis, SAV, Spam...).
+    *   Proposition automatique d'un brouillon de réponse.
+*   **Interface Admin :** Tableau de bord pour valider/modifier/envoyer les réponses pré-générées.
+*   **Gestion Multi-Comptes & Gmail :**
+    *   Implémentation d'une gestion sécurisée pour plusieurs comptes de messagerie (ex: OVH et Gmail).
+    *   Pour Gmail, utilisation des "Mots de passe d'application" (sécurité Google) à la place du mot de passe principal du compte. La logique IMAP reste la même pour les différents services.
