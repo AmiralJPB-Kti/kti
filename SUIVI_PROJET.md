@@ -109,9 +109,21 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 
 ### A. Assistant de Rédaction IA (Newsletter)
 *   **Objectif :** Faciliter la rédaction des newsletters pour les administrateurs en proposant des corrections de style et des idées de sujets.
-*   **Technologie :** Intégration de l'API Google Gemini (`gemini-1.5-flash`) via la librairie `@google/generative-ai`.
+*   **Technologie :** Intégration de l'API Google Gemini (`gemini-2.5-flash`) via la librairie `@google/generative-ai`.
 *   **Nouvelles Fonctionnalités (`/admin/newsletter`) :**
     *   **Bouton "💡 Idées IA" :** Suggère 3 objets d'email percutants basés sur le contenu du message.
     *   **Bouton "✨ Améliorer avec l'IA" :** Réécrit le brouillon du message pour le rendre plus professionnel, chaleureux et sans fautes.
 *   **Backend (`/api/admin/newsletter/generate`) :** Nouvelle route API sécurisée qui agit comme interface entre le site et l'IA de Google.
-*   **⚠️ Déploiement Vercel :** La variable d'environnement `GOOGLE_GEMINI_API_KEY` a été ajoutée localement (`.env.local`). **Elle doit impérativement être ajoutée manuellement dans les réglages du projet sur Vercel** pour que la fonctionnalité marche en production.
+*   **⚠️ Déploiement Vercel (Rappel Important) :** La variable d'environnement `GOOGLE_GEMINI_API_KEY` a été ajoutée localement (`.env.local`). **Elle doit impérativement être ajoutée manuellement dans les réglages du projet sur Vercel** pour que la fonctionnalité marche en production.
+
+### B. Assistant Intelligent Polyvalent
+*   **Objectif :** Créer un outil centralisé pour générer divers types de contenu textuel (relances de paiement, commandes fournisseurs, posts réseaux sociaux, réponses SAV, corrections).
+*   **Technologie :** Utilise également l'API Google Gemini (`gemini-2.5-flash`) avec des "personnalités" (prompts système) adaptées à chaque besoin.
+*   **Nouvelle Interface (`/admin/assistant`) :**
+    *   Permet de choisir le "Type de message" via un menu déroulant.
+    *   Un champ "Contexte" pour donner les idées en vrac à l'IA.
+    *   Bouton "✨ Générer le texte" pour lancer la rédaction.
+    *   Zone "Résultat" avec bouton "📋 Copier" pour réutiliser facilement le texte.
+*   **Backend (`/api/admin/assistant/generate`) :** Nouvelle route API qui adapte l'instruction à l'IA en fonction du mode choisi.
+*   **Mise à jour du Menu Admin :** Ajout d'un lien "🧠 Assistant IA" dans le menu de gauche de l'administration pour un accès facile.
+*   **⚠️ Déploiement Vercel (Rappel Important) :** Comme pour l'assistant newsletter, l'Assistant Intelligent dépend de la variable d'environnement `GOOGLE_GEMINI_API_KEY`. Assurez-vous qu'elle est bien configurée sur Vercel.
