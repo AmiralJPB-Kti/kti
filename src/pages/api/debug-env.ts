@@ -12,6 +12,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const context = {
     Project: process.env.VERCEL_PROJECT_NAME || 'Unknown',
+    ProjectID: process.env.VERCEL_PROJECT_ID || 'Unknown', // <--- L'info cruciale
+    RepoOwner: process.env.VERCEL_GIT_REPO_OWNER || 'Unknown',
+    RepoSlug: process.env.VERCEL_GIT_REPO_SLUG || 'Unknown',
     Environment: process.env.VERCEL_ENV || 'Unknown',
     URL: process.env.VERCEL_URL || 'Unknown'
   };

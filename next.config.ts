@@ -1,10 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  env: {
-    // Force cache invalidation: 1
-    BUILD_ID: 'force_rebuild_001', 
-  },
   /* config options here */
   reactStrictMode: true,
   eslint: {
