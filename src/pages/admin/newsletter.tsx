@@ -14,10 +14,85 @@ export default function AdminNewsletter() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState<{ field: 'message' | 'subject' | null }>({ field: null });
   const [status, setStatus] = useState<{ type: 'success' | 'error' | null, message: string }>({ type: null, message: '' });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSuggestSubject = async () => {
+    if (!formData.message && !formData.title) {
+      alert("Écrivez d'abord un petit message ou un titre pour que je puisse suggérer un sujet pertinent !");
+      return;
+    }
+
+    setGenerating({ field: 'subject' });
+    try {
+      const res = await fetch('/api/admin/newsletter/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: `Titre: ${formData.title}\nMessage: ${formData.message}`,
+          type: 'subject'
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Erreur IA');
+      
+      // On propose les choix à l'utilisateur
+      const choices = data.generatedText.split('\n').filter((l: string) => l.trim().length > 0);
+      const choice = prompt(
+        "Voici 3 idées de sujets générées par l'IA.\nCopiez celui qui vous plait ou tapez le numéro (1-3) pour l'appliquer automatiquement :\n\n" + 
+        choices.map((c: string, i: number) => `${i + 1}. ${c}`).join('\n')
+      );
+
+      if (choice) {
+        const index = parseInt(choice) - 1;
+        if (!isNaN(index) && choices[index]) {
+            setFormData(prev => ({ ...prev, subject: choices[index].replace(/^\d+\.\s*/, '').replace(/^-\s*/, '') }));
+        } else if (choice.length > 3) {
+            setFormData(prev => ({ ...prev, subject: choice }));
+        }
+      }
+
+    } catch (error: any) {
+      alert("Erreur IA : " + error.message);
+    } finally {
+      setGenerating({ field: null });
+    }
+  };
+
+  const handleGenerateMessage = async () => {
+    if (!formData.message || formData.message.length < 5) {
+      alert("Écrivez quelques mots en vrac dans la zone de message pour donner une base à l'IA.");
+      return;
+    }
+
+    setGenerating({ field: 'message' });
+    try {
+      const res = await fetch('/api/admin/newsletter/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: formData.message,
+          type: 'message'
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Erreur IA');
+
+      if (confirm("L'IA a proposé une nouvelle version. Voulez-vous remplacer votre texte actuel ?\n\n(Annuler pour garder votre texte)")) {
+        setFormData(prev => ({ ...prev, message: data.generatedText }));
+      }
+
+    } catch (error: any) {
+      alert("Erreur IA : " + error.message);
+    } finally {
+      setGenerating({ field: null });
+    }
   };
 
   const handleSendTest = async () => {
@@ -109,7 +184,25 @@ export default function AdminNewsletter() {
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>Sujet de l'email (Vu dans la boîte de réception)</label>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                  Sujet de l'email (Vu dans la boîte de réception)
+                  <button 
+                    onClick={handleSuggestSubject}
+                    disabled={generating.field === 'subject'}
+                    style={{ 
+                      marginLeft: '10px', 
+                      fontSize: '0.8rem', 
+                      padding: '2px 8px', 
+                      cursor: 'pointer',
+                      backgroundColor: '#EEF2FF',
+                      border: '1px solid #6366F1',
+                      color: '#4338CA',
+                      borderRadius: '12px'
+                    }}
+                  >
+                    {generating.field === 'subject' ? 'Thinking...' : '💡 Idées IA'}
+                  </button>
+                </label>
                 <input 
                   type="text" 
                   name="subject"
@@ -131,7 +224,27 @@ export default function AdminNewsletter() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>Votre Message</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                    <label style={{ fontWeight: 'bold' }}>Votre Message</label>
+                    <button 
+                        onClick={handleGenerateMessage}
+                        disabled={generating.field === 'message'}
+                        style={{ 
+                        fontSize: '0.85rem', 
+                        padding: '4px 10px', 
+                        cursor: 'pointer',
+                        backgroundColor: '#F0FDF4', // Vert très clair
+                        border: '1px solid #16A34A', // Vert
+                        color: '#15803D',
+                        borderRadius: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px'
+                        }}
+                    >
+                        {generating.field === 'message' ? 'Réécriture...' : '✨ Améliorer avec l\'IA'}
+                    </button>
+                </div>
                 <textarea 
                   name="message"
                   value={formData.message}

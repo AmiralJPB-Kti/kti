@@ -10,7 +10,7 @@
 
 ---
 
-**Dernière mise à jour :** 06 Décembre 2025
+**Dernière mise à jour :** 07 Décembre 2025
 **État :** En Production (Entièrement Fonctionnel ✅)
 
 Ce document sert de point de repère pour reprendre le développement. Il résume les accomplissements techniques et l'état actuel du projet.
@@ -102,3 +102,16 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 *   **Standardisation des Adresses :**
     *   Implémentation de la conversion automatique en majuscules pour les champs `rue`, `ville`, `code postal` et `pays` dans le formulaire d'adresse (`src/components/AddressForm.tsx`) côté frontend.
     *   Fourniture d'un script SQL (`force_uppercase_address_trigger.sql`) pour créer un trigger Supabase garantissant que ces mêmes champs sont toujours stockés en majuscules dans la base de données, assurant une cohérence maximale.
+
+---
+
+## 5. Accomplissements de la session du 07/12/2025
+
+### A. Assistant de Rédaction IA (Newsletter)
+*   **Objectif :** Faciliter la rédaction des newsletters pour les administrateurs en proposant des corrections de style et des idées de sujets.
+*   **Technologie :** Intégration de l'API Google Gemini (`gemini-1.5-flash`) via la librairie `@google/generative-ai`.
+*   **Nouvelles Fonctionnalités (`/admin/newsletter`) :**
+    *   **Bouton "💡 Idées IA" :** Suggère 3 objets d'email percutants basés sur le contenu du message.
+    *   **Bouton "✨ Améliorer avec l'IA" :** Réécrit le brouillon du message pour le rendre plus professionnel, chaleureux et sans fautes.
+*   **Backend (`/api/admin/newsletter/generate`) :** Nouvelle route API sécurisée qui agit comme interface entre le site et l'IA de Google.
+*   **⚠️ Déploiement Vercel :** La variable d'environnement `GOOGLE_GEMINI_API_KEY` a été ajoutée localement (`.env.local`). **Elle doit impérativement être ajoutée manuellement dans les réglages du projet sur Vercel** pour que la fonctionnalité marche en production.
