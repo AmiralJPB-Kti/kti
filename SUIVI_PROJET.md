@@ -72,7 +72,31 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 
 ---
 
-## 6. Idées & Évolutions Futures (Roadmap)
+## 6. Accomplissements de la session du 08/12/2025
+
+### A. Renforcement de la Sécurité & Gestion centralisée des Administrateurs
+
+*   **Contrôle d'accès strict pour les zones administratives (`/studio` et `/admin`) :**
+    *   Un nouveau `middleware.ts` a été mis en place pour s'assurer que seuls les utilisateurs *authentifiés* et *reconnus comme administrateurs* (via leur adresse e-mail) peuvent accéder aux tableaux de bord Sanity (`/studio`) et aux pages d'administration (`/admin`).
+    *   Toute tentative d'accès non autorisé redirige l'utilisateur vers la page de connexion (`/login`).
+*   **Gestion centralisée des adresses e-mail des administrateurs :**
+    *   La liste des adresses e-mail des administrateurs est désormais gérée via la variable d'environnement `NEXT_PUBLIC_ADMIN_EMAILS`. Cela permet d'ajouter ou de supprimer facilement des administrateurs sans modifier le code, juste en ajustant cette variable sur la plateforme de déploiement (Vercel) ou dans le fichier `.env.local` pour le développement.
+    *   Les composants (`src/pages/login.tsx`, `src/components/layouts/AdminLayout.tsx`) et le `middleware.ts` ont été mis à jour pour utiliser cette variable centralisée.
+*   **Redirection intelligente après connexion pour les administrateurs :**
+    *   Lorsqu'un administrateur se connecte, il est maintenant redirigé directement vers le tableau de bord `/admin`.
+
+### B. Amélioration de l'Expérience Utilisateur du Formulaire de Contact
+
+*   **Champs de nom détaillés :**
+    *   Le formulaire de contact (`src/pages/contact.tsx`) a été enrichi avec deux champs distincts : "Votre prénom" et "Votre nom de famille", améliorant la précision des informations recueillies.
+*   **Message de succès personnalisé :**
+    *   Après l'envoi réussi du formulaire, un message de confirmation personnalisé apparaît, incluant le prénom de l'utilisateur (par exemple : "Merci [Prénom] pour votre message ! Nous vous répondrons au plus vite.").
+*   **Mise à jour de l'API d'envoi d'e-mails :**
+    *   L'API (`src/pages/api/send-email.ts`) a été adaptée pour collecter et utiliser les informations de prénom et nom de famille dans les e-mails de notification (pour l'administrateur) et de confirmation (pour l'utilisateur).
+
+---
+
+## 7. Idées & Évolutions Futures (Roadmap)
 
 ### A. Secrétaire Virtuelle IA (Projet "Boîte Mail Intelligente")
 *   **Concept :** Le site se connecte à la boîte mail pro (OVH, Gmail, etc.) via IMAP.
