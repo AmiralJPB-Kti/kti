@@ -5,7 +5,8 @@ import { useRouter } from 'next/router';
 
 const ContactPage = () => {
   const router = useRouter();
-  const [name, setName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -29,12 +30,18 @@ const ContactPage = () => {
     setStatusMessage(null);
 
     try {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSubmitting(true);
+    setStatusMessage(null);
+
+    try {
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email, message }),
+        body: JSON.stringify({ lastName, firstName, email, message }), // Use firstName and lastName here
       });
 
       let data;
@@ -43,7 +50,6 @@ const ContactPage = () => {
       if (contentType && contentType.indexOf("application/json") !== -1) {
         data = await response.json();
       } else {
-        // Si la réponse n'est pas du JSON (ex: erreur 500 serveur brut), on lit le texte
         const text = await response.text();
         console.error("Non-JSON response:", text);
         throw new Error(response.statusText || "Une erreur inconnue est survenue serveur.");
@@ -53,9 +59,9 @@ const ContactPage = () => {
         throw new Error(data.error || 'Une erreur est survenue.');
       }
 
-      setStatusMessage({ type: 'success', text: 'Merci pour votre message ! Nous vous répondrons bientôt.' });
-      // Reset form
-      setName('');
+      setStatusMessage({ type: 'success', text: `Merci ${firstName} pour votre message ! Nous vous répondrons au plus vite.` });
+      setLastName('');
+      setFirstName('');
       setEmail('');
       setMessage('');
 
@@ -80,12 +86,23 @@ const ContactPage = () => {
         </p>
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
-            <label htmlFor="name">Votre nom</label>
+            <label htmlFor="firstName">Votre prénom</label>
             <input
               type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              id="firstName"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              required
+              style={styles.input}
+            />
+          </div>
+          <div style={styles.formGroup}>
+            <label htmlFor="lastName">Votre nom de famille</label>
+            <input
+              type="text"
+              id="lastName"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
               required
               style={styles.input}
             />

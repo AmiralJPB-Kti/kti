@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import Head from 'next/head';
 
-const ADMIN_EMAIL = 'kti@badie.eu';
+const ADMIN_EMAILS = process.env.NEXT_PUBLIC_ADMIN_EMAILS ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(',') : [];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
@@ -16,7 +16,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (!user || user.email !== ADMIN_EMAIL) {
+      if (!user || !ADMIN_EMAILS.includes(user.email || '')) {
         // Not admin
         router.push('/login');
       } else {

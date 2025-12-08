@@ -3,9 +3,9 @@ import { resend } from '../../lib/resend';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { name, email, message } = req.body;
+    const { firstName, lastName, email, message } = req.body;
 
-    if (!name || !email || !message) {
+    if (!firstName || !lastName || !email || !message) {
       return res.status(400).json({ error: 'Tous les champs sont requis.' });
     }
 
@@ -15,10 +15,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         from: 'contact@badie.eu',
         to: 'kti@badie.eu',
         replyTo: email, // Allow admin to reply directly to user
-        subject: `Nouveau message de contact de ${name}`,
+        subject: `Nouveau message de contact de ${firstName} ${lastName}`,
         html: `
           <h3>Nouveau message via le formulaire de contact</h3>
-          <p><strong>Nom:</strong> ${name}</p>
+          <p><strong>Prénom:</strong> ${firstName}</p>
+          <p><strong>Nom:</strong> ${lastName}</p>
           <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
           <hr />
           <p><strong>Message:</strong></p>
@@ -32,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         to: email,
         subject: `Nous avons bien reçu votre message - Kt'i`,
         html: `
-          <p>Bonjour ${name},</p>
+          <p>Bonjour ${firstName},</p>
           <p>Nous avons bien reçu votre message et nous vous en remercions.</p>
           <p>Nous traiterons votre demande dans les plus brefs délais.</p>
           <hr />

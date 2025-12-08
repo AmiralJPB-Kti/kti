@@ -5,6 +5,8 @@ import Header from '@/components/Header';
 import Head from 'next/head';
 import Link from 'next/link';
 
+const ADMIN_EMAILS = process.env.NEXT_PUBLIC_ADMIN_EMAILS ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(',') : [];
+
 const LoginPage = () => {
   const supabase = createClient();
   const router = useRouter();
@@ -49,8 +51,14 @@ const LoginPage = () => {
       // On successful login, Supabase client handles the session.
       // The onAuthStateChange listener elsewhere will pick it up.
       // We just need to redirect the user.
-      const redirectPath = router.query.redirect || '/mon-compte';
-      router.push(redirectPath as string);
+      const { data: { user } } = await supabase.auth.getUser(); // Fetch user after login
+
+      if (user && ADMIN_EMAILS.includes(user.email || '')) {
+        router.push('/admin');
+      } else {
+        const redirectPath = router.query.redirect || '/mon-compte';
+        router.push(redirectPath as string);
+      }
     }
 
     setLoading(false);
