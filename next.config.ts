@@ -5,6 +5,7 @@ console.log("--- DIAGNOSTIC VERCEL ---");
 console.log("VERCEL_ENV:", process.env.VERCEL_ENV);
 console.log("GOOGLE_GEMINI_API_KEY présente ?", !!process.env.GOOGLE_GEMINI_API_KEY ? "OUI" : "NON");
 console.log("STRIPE_SECRET_KEY présente ?", !!process.env.STRIPE_SECRET_KEY ? "OUI" : "NON");
+console.log("TEST_VAR présente ?", !!process.env.TEST_VAR ? "OUI (" + process.env.TEST_VAR + ")" : "NON");
 console.log("-------------------------");
 
 const nextConfig: NextConfig = {
