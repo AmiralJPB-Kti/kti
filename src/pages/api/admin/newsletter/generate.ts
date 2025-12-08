@@ -27,23 +27,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Configuration du modèle
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    // Configuration du modèle (aligné sur l'Assistant IA qui fonctionne)
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     let systemInstruction = '';
     
     if (type === 'subject') {
       systemInstruction = `
-        Tu es un expert en marketing digital spécialisé dans l\'e-commerce familial et artisanal.
-        Ta mission : Rédiger 3 propositions de sujets d\'email (Objet) percutants, courts et chaleureux basés sur le texte fourni.
+        Tu es un expert en marketing digital spécialisé dans l'e-commerce familial et artisanal.
+        Ta mission : Rédiger 3 propositions de sujets d'email (Objet) percutants, courts et chaleureux basés sur le texte fourni.
         Le ton doit être : Amical, enthousiaste, mais professionnel.
         Important : Utilise des émojis avec parcimonie mais efficacité.
-        Format de réponse : Renvoie UNIQUEMENT les 3 propositions séparées par un saut de ligne, sans texte d\'introduction.
+        Format de réponse : Renvoie UNIQUEMENT les 3 propositions séparées par un saut de ligne, sans texte d'introduction.
       `;
     } else {
       // Default: Amélioration du corps du message
       systemInstruction = `
-        Tu es un assistant de rédaction pour "Kt'i", une boutique familiale d\'objets déco et pratiques.
+        Tu es un assistant de rédaction pour "Kt'i", une boutique familiale d'objets déco et pratiques.
         Ta mission : Réécrire et améliorer le brouillon de newsletter suivant.
         
         Consignes de style :
@@ -55,14 +55,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         Texte brouillon à améliorer :
         "${prompt}"
         
-        Format de réponse : Renvoie UNIQUEMENT le texte amélioré, prêt à être collé dans l\'éditeur.
+        Format de réponse : Renvoie UNIQUEMENT le texte amélioré, prêt à être collé dans l'éditeur.
       `;
     }
 
-    const result = await model.generateContent([
-      systemInstruction, 
-      type === 'subject' ? `Texte de base : ${prompt}` : '' // Le prompt est déjà dans l'instruction pour le message
-    ]);
+    // Construction d'une instruction unique (comme dans l'Assistant IA)
+    const promptFinal = type === 'subject' 
+      ? `${systemInstruction}\n\nTexte de base : "${prompt}"`
+      : systemInstruction;
+
+    const result = await model.generateContent(promptFinal);
     
     const response = await result.response;
     const text = response.text();
@@ -71,6 +73,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   } catch (error: any) {
     console.error('Erreur Gemini:', error);
-    res.status(500).json({ message: 'Erreur lors de la génération du texte via l\'IA.' });
+    // Renvoie le message d'erreur détaillé pour le débogage
+    res.status(500).json({ 
+      message: 'Erreur IA : ' + (error.message || 'Erreur inconnue lors de la génération.') 
+    });
   }
 }
