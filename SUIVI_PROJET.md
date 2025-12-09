@@ -101,6 +101,24 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
     *   `toLowerCase()` : Conversion en minuscules pour une comparaison insensible à la casse.
 *   **Résultat :** Tous les administrateurs configurés peuvent désormais accéder aux zones protégées, quelle que soit la façon dont leur adresse e-mail est formatée dans la variable d'environnement.
 
+### D. Résolution des erreurs de déploiement Vercel (`500: MIDDLEWARE_INVOCATION_FAILED`)
+*   **Problème :** Après les modifications récentes, le déploiement sur Vercel échouait avec une erreur `500: MIDDLEWARE_INVOCATION_FAILED` lors de l'accès aux routes protégées.
+*   **Diagnostic :** Une combinaison de deux facteurs :
+    1.  Une erreur de syntaxe dans `src/pages/contact.tsx` (duplication de fonction et caractère HTML non échappé) qui a causé l'échec de la compilation.
+    2.  L'absence des variables d'environnement `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY` dans les réglages de déploiement sur Vercel. Le `middleware.ts` était trop strict lors de l'initialisation du client Supabase et provoquait un crash.
+*   **Solution :**
+    1.  Correction de la syntaxe dans `src/pages/contact.tsx` et échappement des caractères HTML.
+    2.  Renforcement de la robustesse du `src/middleware.ts` avec :
+        *   Une vérification explicite de la présence des variables Supabase avant l'initialisation du client.
+        *   L'encapsulation de toute la logique du middleware dans un bloc `try/catch` pour intercepter les erreurs et rediriger proprement au lieu de provoquer un `500`.
+    3.  Création d'une page de diagnostic temporaire (`/test-config`) pour valider la présence des variables d'environnement sur le déploiement Vercel.
+    4.  **Action Requise par l'utilisateur :** Ajout manuel des variables `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY` dans les Environment Variables du projet Vercel (pour les environnements "Production", "Preview" et "Development").
+
+### E. Clarification sur la gestion des variables d'environnement (NEXT_PUBLIC_ vs Secrètes)
+*   **Clarification :** Il est essentiel de distinguer les variables d'environnement "publiques" (`NEXT_PUBLIC_...`) et "secrètes".
+    *   Les variables `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY` sont intentionnellement "publiques" et doivent être définies sur Vercel pour que le front-end du site puisse interagir avec Supabase. Leur sécurité est gérée par les RLS (Row Level Security) de Supabase.
+    *   Les variables secrètes (sans `NEXT_PUBLIC_`), telles que `SUPABASE_SERVICE_ROLE_KEY`, doivent rester côté serveur et ne jamais être exposées au navigateur.
+
 ---
 
 ## 7. Idées & Évolutions Futures (Roadmap)
