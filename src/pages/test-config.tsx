@@ -34,7 +34,7 @@ export default function TestConfig() {
       </div>
       <p>
         <strong>Instructions :</strong><br/>
-        1. Si une variable est marquée "MANQUANT", allez dans Vercel > Settings > Environment Variables.<br/>
+        1. Si une variable est marquée "MANQUANT", allez dans Vercel &gt; Settings &gt; Environment Variables.<br/>
         2. Assurez-vous qu'elles sont bien définies pour l'environnement "Production".<br/>
         3. Une fois le test fini, demandez-moi de supprimer cette page.
       </p>
