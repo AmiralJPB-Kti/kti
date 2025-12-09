@@ -5,7 +5,9 @@ import Header from '@/components/Header';
 import Head from 'next/head';
 import Link from 'next/link';
 
-const ADMIN_EMAILS = process.env.NEXT_PUBLIC_ADMIN_EMAILS ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(',') : [];
+const ADMIN_EMAILS = process.env.NEXT_PUBLIC_ADMIN_EMAILS 
+  ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(',').map(email => email.trim().toLowerCase()) 
+  : [];
 
 const LoginPage = () => {
   const supabase = createClient();
@@ -53,7 +55,7 @@ const LoginPage = () => {
       // We just need to redirect the user.
       const { data: { user } } = await supabase.auth.getUser(); // Fetch user after login
 
-      if (user && ADMIN_EMAILS.includes(user.email || '')) {
+      if (user && ADMIN_EMAILS.includes((user.email || '').toLowerCase())) {
         router.push('/admin');
       } else {
         const redirectPath = router.query.redirect || '/mon-compte';
