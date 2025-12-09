@@ -58,11 +58,16 @@ export async function middleware(request: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession()
 
-  const ADMIN_EMAILS = process.env.NEXT_PUBLIC_ADMIN_EMAILS 
-    ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(',').map(email => email.trim().toLowerCase()) 
+  const adminEmailsEnv = process.env.NEXT_PUBLIC_ADMIN_EMAILS;
+  const adminEmails = typeof adminEmailsEnv === 'string' 
+    ? adminEmailsEnv.split(',').map(e => e.trim().toLowerCase()) 
     : [];
 
-  const isAdmin = session?.user?.email && ADMIN_EMAILS.includes(session.user.email.toLowerCase());
+  let isAdmin = false;
+  const userEmail = session?.user?.email;
+  if (userEmail && typeof userEmail === 'string') {
+    isAdmin = adminEmails.includes(userEmail.toLowerCase());
+  }
   const isProtectedPath = request.nextUrl.pathname.startsWith('/studio') || request.nextUrl.pathname.startsWith('/admin');
 
   // If trying to access a protected path and not authenticated OR not an admin
