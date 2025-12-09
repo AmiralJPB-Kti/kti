@@ -94,6 +94,13 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 *   **Mise à jour de l'API d'envoi d'e-mails :**
     *   L'API (`src/pages/api/send-email.ts`) a été adaptée pour collecter et utiliser les informations de prénom et nom de famille dans les e-mails de notification (pour l'administrateur) et de confirmation (pour l'utilisateur).
 
+### C. Résolution du problème d'accès administrateur
+*   **Problème :** Seuls 2 administrateurs sur 3 pouvaient accéder aux zones protégées (`/admin`, `/studio`). Le problème était dû à un traitement insuffisant de la variable d'environnement `NEXT_PUBLIC_ADMIN_EMAILS` (espaces autour des virgules et sensibilité à la casse).
+*   **Solution :** Modification des fichiers `src/middleware.ts`, `src/components/layouts/AdminLayout.tsx` et `src/pages/login.tsx` pour normaliser les adresses e-mail :
+    *   `trim()` : Suppression des espaces blancs en début et fin de chaîne.
+    *   `toLowerCase()` : Conversion en minuscules pour une comparaison insensible à la casse.
+*   **Résultat :** Tous les administrateurs configurés peuvent désormais accéder aux zones protégées, quelle que soit la façon dont leur adresse e-mail est formatée dans la variable d'environnement.
+
 ---
 
 ## 7. Idées & Évolutions Futures (Roadmap)
