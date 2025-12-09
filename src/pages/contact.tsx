@@ -30,12 +30,6 @@ const ContactPage = () => {
     setStatusMessage(null);
 
     try {
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setSubmitting(true);
-    setStatusMessage(null);
-
-    try {
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
