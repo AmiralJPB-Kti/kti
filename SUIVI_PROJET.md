@@ -121,7 +121,22 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 
 ---
 
-## 7. Idées & Évolutions Futures (Roadmap)
+## 8. Accomplissements de la session du 02/01/2026
+
+### A. Sécurisation & Maintenance Supabase (Base de Données)
+*   **Correctif de sécurité RLS (Row Level Security) :**
+    *   **Problème :** Avertissement critique `rls_disabled_in_public` détecté par Supabase sur la table `invoice_sequences`. Bien que non exploitée par le frontend, la table était théoriquement accessible publiquement.
+    *   **Solution :** Activation du RLS sur `invoice_sequences` sans création de politique publique. Cela verrouille l'accès uniquement au serveur (backend) qui possède les droits "Service Role", sécurisant ainsi la numérotation des factures.
+*   **Renforcement des fonctions SQL (`search_path`) :**
+    *   **Problème :** Avertissements `function_search_path_mutable` sur les fonctions `get_next_invoice_number` et `enforce_uppercase_address_fields`.
+    *   **Solution :** Ajout de la clause `SET search_path = public` aux définitions des fonctions pour éviter les attaques potentielles par détournement de schéma.
+    *   **Mise à jour :** Modification répercutée dans le fichier de migration local `kti/supabase_migration.sql` pour assurer la cohérence.
+*   **Note sur la protection des mots de passe :**
+    *   L'avertissement `auth_leaked_password_protection` a été identifié mais nécessite un plan Supabase "Pro" pour être corrigé. Cette contrainte est notée et acceptée pour le moment.
+
+---
+
+## 9. Idées & Évolutions Futures (Roadmap)
 
 ### A. Secrétaire Virtuelle IA (Projet "Boîte Mail Intelligente")
 *   **Concept :** Le site se connecte à la boîte mail pro (OVH, Gmail, etc.) via IMAP.
