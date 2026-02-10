@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // 1. Email to Admin
       const sendAdmin = resend.emails.send({
         from: 'contact@badie.eu',
-        to: 'kti@badie.eu',
+        to: process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'kti@badie.eu',
         replyTo: email, // Allow admin to reply directly to user
         subject: `Nouveau message de contact de ${firstName} ${lastName}`,
         html: `

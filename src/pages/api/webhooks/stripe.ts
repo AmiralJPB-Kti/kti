@@ -265,7 +265,7 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
 
       const { error: adminEmailError } = await resend.emails.send({
         from: 'Kti Bot <contact@badie.eu>', // Domain verified
-        to: ['kti@badie.eu'],
+        to: [process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'kti@badie.eu'],
         subject: `🔔 Nouvelle Commande ! (#${orderData.id})`,
         html: adminNewOrderTemplate(
           orderData.id, 
@@ -278,7 +278,7 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
       });
 
       if (adminEmailError) console.error('❌ Admin Email Error:', adminEmailError);
-      else console.log('📧 Admin email sent to kti@badie.eu');
+      else console.log('📧 Admin email sent.');
 
     } catch (err) {
       console.error('❌ Exception sending admin email:', err);
