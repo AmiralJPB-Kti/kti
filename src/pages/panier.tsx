@@ -6,13 +6,35 @@ import { useCart } from '@/context/CartContext'
 import { urlFor } from '@/sanity/lib/image'
 import styles from '@/styles/Panier.module.css'
 import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 export default function PanierPage() {
   const { cartItems, removeFromCart, updateItemQuantity, cartTotal, itemCount } = useCart();
   const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
   
   const handleCheckout = async () => {
     router.push('/livraison');
+  };
+
+  const handleLoginRedirect = () => {
+    router.push('/login?redirectTo=/panier');
   };
 
   return (
@@ -74,12 +96,24 @@ export default function PanierPage() {
                 <span>Total</span>
                 <span>{cartTotal.toFixed(2)} €</span>
               </div>
-              <button 
-                className={`btn btn-primary ${styles.checkoutBtn}`}
-                onClick={handleCheckout}
-              >
-                Commander
-              </button>
+              
+              {user ? (
+                <button 
+                  className={`btn btn-primary ${styles.checkoutBtn}`}
+                  onClick={handleCheckout}
+                >
+                  Commander
+                </button>
+              ) : (
+                <button 
+                  className={`btn btn-primary ${styles.checkoutBtn}`}
+                  onClick={handleLoginRedirect}
+                  style={{ backgroundColor: '#4a5568' }} // Couleur différente pour indiquer une action secondaire (gris)
+                >
+                  Se connecter pour commander
+                </button>
+              )}
+
             </div>
           </div>
         ) : (

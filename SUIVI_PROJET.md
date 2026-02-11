@@ -146,7 +146,12 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 *   **Audit de Configuration E-mail :**
     *   Vérification complète de la propagation de la variable d'environnement `NEXT_PUBLIC_CONTACT_EMAIL` mise à jour par l'utilisateur.
     *   Confirmation que le formulaire de contact, les factures et les notifications admin utilisent bien la nouvelle adresse.
-    *   Identification que l'adresse affichée dans le **Pied de page (Footer)** est gérée via le CMS Sanity et doit être modifiée manuellement dans le Studio.
+
+### B. Sécurisation du Tunnel de Commande (Panier)
+*   **Protection contre les "Commandes Invités" :**
+    *   **Problème :** Le système de paiement (Stripe webhook) exige un compte utilisateur (`user_id`) pour enregistrer la commande. Les commandes passées par des visiteurs non connectés échouaient silencieusement (paiement OK, mais pas de commande ni d'email).
+    *   **Solution :** Modification de la page `Panier` (`src/pages/panier.tsx`) pour masquer le bouton "Commander" aux utilisateurs non connectés.
+    *   **Nouvelle UX :** Un bouton "Se connecter pour commander" apparaît à la place, redirigeant vers la connexion puis ramenant automatiquement au panier.
 
 ---
 
