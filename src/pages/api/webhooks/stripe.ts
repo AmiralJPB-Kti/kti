@@ -226,8 +226,9 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
     // 4. Send confirmation email via Resend
     if (customerEmail) {
       try {
+        console.log(`📧 Attempting to send confirmation email to ${customerEmail}...`);
         const { data: emailData, error: emailError } = await resend.emails.send({
-          from: 'Kti <contact@badie.eu>', // Domain verified, using legitimate sender
+          from: 'contact@badie.eu', // Simplified sender to match working config
           to: [customerEmail],
           subject: 'Confirmation de votre commande - Kti',
           html: orderConfirmationEmailTemplate(orderData.id, amount_total / 100, lineItems),
@@ -236,17 +237,20 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
         if (emailError) {
           console.error('❌ Error sending confirmation email:', emailError);
         } else {
-          console.log('📧 Confirmation email sent:', emailData?.id);
+          console.log('✅ Confirmation email sent successfully. ID:', emailData?.id);
         }
       } catch (emailErr) {
-        console.error('❌ Exception sending email:', emailErr);
+        console.error('❌ CRITICAL EXCEPTION sending email:', emailErr);
       }
     } else {
       console.warn('⚠️ No customer email found, skipping confirmation email.');
     }
 
-    // 5. Send Notification email to ADMIN (kti@badie.eu)
+    // 5. Send Notification email to ADMIN
     try {
+      const adminEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'kti@badie.eu';
+      console.log(`📧 Attempting to send ADMIN notification to ${adminEmail}...`);
+
       const shippingDetails = {
         mode: metadata?.delivery_mode || 'home',
         relayId: metadata?.relay_id,
@@ -265,8 +269,8 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
       };
 
       const { error: adminEmailError } = await resend.emails.send({
-        from: 'Kti Bot <contact@badie.eu>', // Domain verified
-        to: [process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'kti@badie.eu'],
+        from: 'contact@badie.eu', // Simplified sender
+        to: [adminEmail],
         subject: `🔔 Nouvelle Commande ! (#${orderData.id})`,
         html: adminNewOrderTemplate(
           orderData.id, 
@@ -279,7 +283,7 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
       });
 
       if (adminEmailError) console.error('❌ Admin Email Error:', adminEmailError);
-      else console.log('📧 Admin email sent.');
+      else console.log('✅ Admin notification email sent.');
 
     } catch (err) {
       console.error('❌ Exception sending admin email:', err);

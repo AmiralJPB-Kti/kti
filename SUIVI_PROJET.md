@@ -153,6 +153,12 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
     *   **Solution :** Modification de la page `Panier` (`src/pages/panier.tsx`) pour masquer le bouton "Commander" aux utilisateurs non connectés.
     *   **Nouvelle UX :** Un bouton "Se connecter pour commander" apparaît à la place, redirigeant vers la connexion puis ramenant automatiquement au panier.
 
+### C. Normalisation de l'Expéditeur des E-mails
+*   **Uniformisation de l'adresse "From" :**
+    *   **Problème :** Les e-mails de confirmation de commande ne partaient toujours pas malgré les correctifs précédents, alors que le formulaire de contact fonctionnait.
+    *   **Diagnostic :** Suspicion d'un rejet par le fournisseur d'e-mail (Resend) dû à un format d'adresse expéditeur trop complexe (`Kti <contact@badie.eu>`) dans le webhook Stripe, contrairement au format simple (`contact@badie.eu`) utilisé ailleurs.
+    *   **Solution :** Alignement strict de l'adresse d'expédition dans `stripe.ts` sur celle de `send-email.ts` (`contact@badie.eu`). Ajout de logs détaillés pour faciliter le débogage futur via Vercel.
+
 ---
 
 ## 11. Idées & Évolutions Futures (Roadmap)
