@@ -112,6 +112,8 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
   const billingPostalCode = metadata?.billing_postal_code;
   const billingCountry = metadata?.billing_country;
   
+  const customerEmail = customer_details?.email || session.customer_email;
+
   // Smart Billing Name Logic:
   // 1. Priority: Name entered on Stripe Payment Form (customer_details.name)
   // 2. Fallback: Name sent from Website (metadata.billing_name)
@@ -132,7 +134,6 @@ const createOrderFromSession = async (session: Stripe.Checkout.Session) => {
   }
 
   const isGift = metadata?.is_gift === 'true';
-  const customerEmail = customer_details?.email || session.customer_email;
 
   if (!userId) {
     console.error('❌ No user ID in Stripe session. Order cannot be created.');

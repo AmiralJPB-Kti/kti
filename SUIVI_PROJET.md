@@ -10,7 +10,7 @@
 
 ---
 
-**Dernière mise à jour :** 07 Décembre 2025 (Fin de session, Nuit du 7 au 8)
+**Dernière mise à jour :** 11 Février 2026
 **État :** En Production (Entièrement Fonctionnel ✅)
 
 Ce document sert de point de repère pour reprendre le développement. Il résume les accomplissements techniques et l'état actuel du projet.
@@ -97,7 +97,7 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 ### C. Résolution du problème d'accès administrateur
 *   **Problème :** Seuls 2 administrateurs sur 3 pouvaient accéder aux zones protégées (`/admin`, `/studio`). Le problème était dû à un traitement insuffisant de la variable d'environnement `NEXT_PUBLIC_ADMIN_EMAILS` (espaces autour des virgules et sensibilité à la casse).
 *   **Solution :** Modification des fichiers `src/middleware.ts`, `src/components/layouts/AdminLayout.tsx` et `src/pages/login.tsx` pour normaliser les adresses e-mail :
-    *   `trim()` : Suppression des espaces blancs en début et fin de chaîne.
+    *   `trim()` : Suppression des espaces blancs en début de chaîne.
     *   `toLowerCase()` : Conversion en minuscules pour une comparaison insensible à la casse.
 *   **Résultat :** Tous les administrateurs configurés peuvent désormais accéder aux zones protégées, quelle que soit la façon dont leur adresse e-mail est formatée dans la variable d'environnement.
 
@@ -136,7 +136,21 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 
 ---
 
-## 9. Idées & Évolutions Futures (Roadmap)
+## 10. Accomplissements de la session du 11/02/2026
+
+### A. Correction Critique : Webhook Stripe & Commandes
+*   **Bug Critique Corrigé (`ReferenceError`) :**
+    *   **Problème :** Les commandes ne s'enregistraient pas et les e-mails de confirmation ne partaient pas suite à un paiement réussi.
+    *   **Diagnostic :** Une variable (`customerEmail`) était utilisée dans le code *avant* d'être définie, provoquant un crash immédiat du script `stripe.ts` lors de la réception du paiement.
+    *   **Solution :** Réorganisation de l'ordre des déclarations dans `kti/src/pages/api/webhooks/stripe.ts` pour garantir que l'e-mail est disponible avant son utilisation.
+*   **Audit de Configuration E-mail :**
+    *   Vérification complète de la propagation de la variable d'environnement `NEXT_PUBLIC_CONTACT_EMAIL` mise à jour par l'utilisateur.
+    *   Confirmation que le formulaire de contact, les factures et les notifications admin utilisent bien la nouvelle adresse.
+    *   Identification que l'adresse affichée dans le **Pied de page (Footer)** est gérée via le CMS Sanity et doit être modifiée manuellement dans le Studio.
+
+---
+
+## 11. Idées & Évolutions Futures (Roadmap)
 
 ### A. Secrétaire Virtuelle IA (Projet "Boîte Mail Intelligente")
 *   **Concept :** Le site se connecte à la boîte mail pro (OVH, Gmail, etc.) via IMAP.
