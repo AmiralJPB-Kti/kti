@@ -30,7 +30,7 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 ## 3. Pour la prochaine fois
 
 **Priorités :**
-1.  **Tests & Recette Complète :** Valider le flux complet avec la nouvelle gestion d'adresse et les emails newsletter.
+1.  **Amélioration UX Panier (Cart Merge) :** Conserver le contenu du panier "Invité" après la connexion de l'utilisateur (actuellement le panier se vide ou change de contexte).
 2.  **Design & UX :** Le site est fonctionnel, mais le design (CSS) doit être peaufiné (Page d'accueil, Fiches produits, Panier).
 3.  **Finalisation Contenu Pages Légales :** Rédiger et publier les textes définitifs des Mentions Légales et CGV dans Sanity.
 
@@ -153,11 +153,11 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
     *   **Solution :** Modification de la page `Panier` (`src/pages/panier.tsx`) pour masquer le bouton "Commander" aux utilisateurs non connectés.
     *   **Nouvelle UX :** Un bouton "Se connecter pour commander" apparaît à la place, redirigeant vers la connexion puis ramenant automatiquement au panier.
 
-### C. Normalisation de l'Expéditeur des E-mails
-*   **Uniformisation de l'adresse "From" :**
-    *   **Problème :** Les e-mails de confirmation de commande ne partaient toujours pas malgré les correctifs précédents, alors que le formulaire de contact fonctionnait.
-    *   **Diagnostic :** Suspicion d'un rejet par le fournisseur d'e-mail (Resend) dû à un format d'adresse expéditeur trop complexe (`Kti <contact@badie.eu>`) dans le webhook Stripe, contrairement au format simple (`contact@badie.eu`) utilisé ailleurs.
-    *   **Solution :** Alignement strict de l'adresse d'expédition dans `stripe.ts` sur celle de `send-email.ts` (`contact@badie.eu`). Ajout de logs détaillés pour faciliter le débogage futur via Vercel.
+### C. Résolution du problème d'envoi d'e-mails (Webhook Secret)
+*   **Problème :** Malgré les correctifs de code, les e-mails de confirmation ne partaient toujours pas.
+*   **Diagnostic :** L'erreur `Webhook Error: No signatures found` dans les logs Vercel a révélé que la clé secrète configurée (`STRIPE_WEBHOOK_SECRET`) était incorrecte.
+*   **Solution :** Récupération de la bonne clé Webhook (commençant par `whsec_`) depuis le Dashboard Stripe et mise à jour des variables d'environnement sur Vercel.
+*   **Résultat :** Les commandes sont désormais correctement validées, enregistrées et confirmées par e-mail.
 
 ---
 
