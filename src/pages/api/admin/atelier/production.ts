@@ -46,9 +46,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(201).json(newLog);
 
       case 'DELETE':
-        const { id: deleteId } = req.query;
-        // Note: Supprimer un log ne "rend" pas les stocks (sauf si on crée un trigger inverse)
-        // Pour le moment, on permet juste le nettoyage de l'historique.
+        const { id: deleteId, restock } = req.query;
+        
+        if (restock === 'true') {
+          // 1. Récupérer les infos du log avant suppression
+          const { data: log, error: fetchError } = await supabaseAdmin
+            .from('production_logs')
+            .select('*')
+            .eq('id', deleteId)
+            .single();
+            
+          if (fetchError) throw fetchError;
+
+          // 2. Récupérer la recette (matériaux utilisés)
+          const { data: recipe, error: recipeError } = await supabaseAdmin
+            .from('creation_materials')
+            .select('material_id, quantity_used')
+            .eq('creation_template_id', log.creation_template_id);
+            
+          if (recipeError) throw recipeError;
+
+          // 3. Rendre les matériaux au stock un par un
+          for (const item of recipe) {
+            const { error: updateError } = await supabaseAdmin.rpc('increment_material_stock', {
+              row_id: item.material_id,
+              amount: item.quantity_used * log.quantity_produced
+            });
+            if (updateError) throw updateError;
+          }
+        }
+
+        // 4. Supprimer le log
         const { error: deleteError } = await supabaseAdmin
           .from('production_logs')
           .delete()

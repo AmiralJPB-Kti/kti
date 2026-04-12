@@ -17,13 +17,16 @@ Ce document récapitule nos échanges, les décisions prises et l'avancement du 
 
 ---
 
-### 🎨 Amélioration Visuelle & "Paresse Intelligente"
+### 🎨 Amélioration Visuelle & "Paresse Intelligente" (Version finale)
 *   **Design de l'accueil :**
     *   **Bannière :** Correction de l'affichage. L'image de la bannière s'affiche désormais en entier (largeur x hauteur) sans être coupée, quel que soit l'écran.
     *   **Nouveautés :** Réduction de la taille des vignettes produits pour une présentation plus élégante et aérée.
 *   **Gestion de l'Atelier (Stocks & Production) :**
     *   **Réparations :** Correction des boutons "Modifier" et "Enregistrer" qui étaient bloqués dans les menus Stocks et Modèles.
-    *   **Le Bouton "Paresseux" :** Mise en place d'un automatisme génial. Désormais, si vous supprimez une erreur de saisie dans l'historique de fabrication (menu Production), le système **rajoute automatiquement** les matériaux au stock. Plus besoin de le faire à la main !
+    *   **Le Bouton "Paresseux" Évolué :** Désormais, lors de la suppression d'une fabrication dans le menu Production, vous avez le choix :
+        *   **Option "Erreur de saisie" :** Le système rend automatiquement les matières au stock.
+        *   **Option "Perte / Don" :** Le système supprime la ligne mais ne touche pas au stock.
+    *   **Verrou de Sécurité :** Impossible de supprimer un modèle de sac (la recette) par accident s'il a déjà été fabriqué. Un message clair vous explique la procédure pour le faire en toute sécurité.
 *   **Format des images :** Définition d'un standard de 2000x800 pixels pour vos futures bannières afin qu'elles soient toujours parfaites.
 
 ---

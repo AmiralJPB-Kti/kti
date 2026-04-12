@@ -135,9 +135,22 @@ export default function AtelierModeles() {
   };
 
   const deleteTemplate = async (id: string) => {
-    if (!confirm('Supprimer ce modèle ?')) return;
-    await fetch(`/api/admin/atelier/templates?id=${id}`, { method: 'DELETE' });
-    fetchData();
+    if (!confirm('Supprimer ce modèle de création ?')) return;
+    try {
+      const res = await fetch(`/api/admin/atelier/templates?id=${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const errData = await res.json();
+        // Si erreur de clé étrangère (FK), c'est qu'il y a de la production
+        if (errData.error?.includes('foreign key constraint')) {
+          alert("Désolé, impossible de supprimer ce modèle car il possède déjà un historique de production (des sacs ont été fabriqués avec cette recette).\n\nPour le supprimer, vous devez d'abord effacer ses fabrications dans le menu 'Atelier (Production)'.");
+          return;
+        }
+        throw new Error(errData.error || "Erreur lors de la suppression");
+      }
+      fetchData();
+    } catch (err: any) {
+      alert("Une erreur est survenue : " + err.message);
+    }
   };
 
   // Logique de Calcul

@@ -165,7 +165,9 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
     *   **Grille Produits :** Réduction de la taille minimale des cartes produits (de 280px à 200px) dans `Home.module.css` pour une meilleure densité visuelle.
 *   **Fonctionnement de l'Administration :**
     *   **Correctifs :** Implémentation des fonctions `startEdit` et `PUT` manquantes dans les menus Stocks et Modèles pour permettre la modification des données existantes.
-    *   **Automatisation SQL :** Création du script `SQL/03_automatisation_retour_stock.sql` et déploiement de déclencheurs (triggers) Supabase pour la restitution automatique des matériaux au stock lors de la suppression ou modification d'un log de production.
+    *   **Sécurisation Modèles :** Ajout d'une gestion d'erreur spécifique lors de la tentative de suppression de modèles ayant un historique (violation de contrainte de clé étrangère), avec message utilisateur explicite.
+    *   **Suppression Intelligente (Production) :** Refonte du mécanisme de suppression de production. L'API `DELETE` accepte désormais un paramètre `restock=true/false` permettant à l'utilisateur de choisir entre une simple suppression (cas de perte) ou une réintégration automatique au stock (cas d'erreur de saisie).
+    *   **Outils SQL :** Déploiement de la fonction `increment_material_stock` pour sécuriser les mises à jour atomiques des quantités de matériaux.
 
 ---
 

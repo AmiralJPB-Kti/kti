@@ -71,15 +71,22 @@ export default function AtelierProduction() {
   };
 
   const deleteLog = async (id: string) => {
-    if (!confirm('Voulez-vous supprimer cette entrée ? Attention: Les stocks ne seront pas automatiquement restitués par cette action simple de nettoyage.')) return;
-    try {
-      const res = await fetch(`/api/admin/atelier/production?id=${id}`, {
-        method: 'DELETE'
-      });
-      if (!res.ok) throw new Error('Erreur lors de la suppression');
-      fetchData();
-    } catch (err: any) {
-      alert(err.message);
+    // Utilisation d'une modale de confirmation personnalisée (via confirm et alert pour simplifier pour vous)
+    const answer = window.confirm("Souhaitez-vous supprimer cet enregistrement ?\n\n- OUI : Erreur de saisie (Le stock sera remis en place).\n- ANNULER : Ne rien faire.");
+    
+    if (answer) {
+      const isLoss = !window.confirm("S'agit-il d'une erreur de saisie ?\n\n- OK : Oui, erreur (Remettre en stock).\n- ANNULER : Non, c'est une perte/don (Laisser le stock déduit).");
+      
+      try {
+        const res = await fetch(`/api/admin/atelier/production?id=${id}&restock=${!isLoss}`, {
+          method: 'DELETE'
+        });
+        if (!res.ok) throw new Error('Erreur lors de la suppression');
+        fetchData();
+        alert(isLoss ? "Enregistrement supprimé (le stock n'a pas été modifié)." : "Enregistrement supprimé (les matières ont été remises en stock).");
+      } catch (err: any) {
+        alert(err.message);
+      }
     }
   };
 
