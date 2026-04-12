@@ -217,7 +217,13 @@ export default function AtelierStocks() {
           </div>
         )}
 
-        {loading && !materials.length ? (
+        {error ? (
+          <div style={{ padding: '2rem', background: '#ffebee', color: '#c62828', borderRadius: '8px', border: '1px solid #ef9a9a' }}>
+            <strong>Erreur de chargement :</strong> {error}
+            <br />
+            Vérifiez que votre connexion Supabase est bien configurée dans Vercel.
+          </div>
+        ) : loading && !materials.length ? (
           <p>Chargement des stocks...</p>
         ) : (
           <div style={{ background: 'white', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
