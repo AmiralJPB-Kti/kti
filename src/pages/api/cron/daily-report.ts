@@ -94,7 +94,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     const { data: emailData, error: emailError } = await resend.emails.send({
       from: 'Kti Bot <contact@badie.eu>',
-      to: ['kti@badie.eu'], // Admin email
+      to: [process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'kti@badie.eu'], // Admin email
       subject: `📊 Rapport du ${dateString} (${orders?.length || 0} commandes)`,
       html: dailyReportTemplate(dateString, orders || [], totalRevenue),
     });

@@ -17,6 +17,8 @@ CREATE TABLE public.invoice_sequences (
 CREATE OR REPLACE FUNCTION public.get_next_invoice_number(current_year INTEGER)
 RETURNS TEXT
 LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = public
 AS $$
 DECLARE
     next_seq BIGINT;

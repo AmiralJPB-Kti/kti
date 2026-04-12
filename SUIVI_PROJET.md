@@ -10,7 +10,7 @@
 
 ---
 
-**Dernière mise à jour :** 07 Décembre 2025 (Fin de session, Nuit du 7 au 8)
+**Dernière mise à jour :** 11 Février 2026
 **État :** En Production (Entièrement Fonctionnel ✅)
 
 Ce document sert de point de repère pour reprendre le développement. Il résume les accomplissements techniques et l'état actuel du projet.
@@ -30,7 +30,7 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 ## 3. Pour la prochaine fois
 
 **Priorités :**
-1.  **Tests & Recette Complète :** Valider le flux complet avec la nouvelle gestion d'adresse et les emails newsletter.
+1.  **Amélioration UX Panier (Cart Merge) :** Conserver le contenu du panier "Invité" après la connexion de l'utilisateur (actuellement le panier se vide ou change de contexte).
 2.  **Design & UX :** Le site est fonctionnel, mais le design (CSS) doit être peaufiné (Page d'accueil, Fiches produits, Panier).
 3.  **Finalisation Contenu Pages Légales :** Rédiger et publier les textes définitifs des Mentions Légales et CGV dans Sanity.
 
@@ -97,7 +97,7 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 ### C. Résolution du problème d'accès administrateur
 *   **Problème :** Seuls 2 administrateurs sur 3 pouvaient accéder aux zones protégées (`/admin`, `/studio`). Le problème était dû à un traitement insuffisant de la variable d'environnement `NEXT_PUBLIC_ADMIN_EMAILS` (espaces autour des virgules et sensibilité à la casse).
 *   **Solution :** Modification des fichiers `src/middleware.ts`, `src/components/layouts/AdminLayout.tsx` et `src/pages/login.tsx` pour normaliser les adresses e-mail :
-    *   `trim()` : Suppression des espaces blancs en début et fin de chaîne.
+    *   `trim()` : Suppression des espaces blancs en début de chaîne.
     *   `toLowerCase()` : Conversion en minuscules pour une comparaison insensible à la casse.
 *   **Résultat :** Tous les administrateurs configurés peuvent désormais accéder aux zones protégées, quelle que soit la façon dont leur adresse e-mail est formatée dans la variable d'environnement.
 
@@ -121,7 +121,47 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 
 ---
 
-## 7. Idées & Évolutions Futures (Roadmap)
+## 8. Accomplissements de la session du 02/01/2026
+
+### A. Sécurisation & Maintenance Supabase (Base de Données)
+*   **Correctif de sécurité RLS (Row Level Security) :**
+    *   **Problème :** Avertissement critique `rls_disabled_in_public` détecté par Supabase sur la table `invoice_sequences`. Bien que non exploitée par le frontend, la table était théoriquement accessible publiquement.
+    *   **Solution :** Activation du RLS sur `invoice_sequences` sans création de politique publique. Cela verrouille l'accès uniquement au serveur (backend) qui possède les droits "Service Role", sécurisant ainsi la numérotation des factures.
+*   **Renforcement des fonctions SQL (`search_path`) :**
+    *   **Problème :** Avertissements `function_search_path_mutable` sur les fonctions `get_next_invoice_number` et `enforce_uppercase_address_fields`.
+    *   **Solution :** Ajout de la clause `SET search_path = public` aux définitions des fonctions pour éviter les attaques potentielles par détournement de schéma.
+    *   **Mise à jour :** Modification répercutée dans le fichier de migration local `kti/supabase_migration.sql` pour assurer la cohérence.
+*   **Note sur la protection des mots de passe :**
+    *   L'avertissement `auth_leaked_password_protection` a été identifié mais nécessite un plan Supabase "Pro" pour être corrigé. Cette contrainte est notée et acceptée pour le moment.
+
+---
+
+## 10. Accomplissements de la session du 11/02/2026
+
+### A. Correction Critique : Webhook Stripe & Commandes
+*   **Bug Critique Corrigé (`ReferenceError`) :**
+    *   **Problème :** Les commandes ne s'enregistraient pas et les e-mails de confirmation ne partaient pas suite à un paiement réussi.
+    *   **Diagnostic :** Une variable (`customerEmail`) était utilisée dans le code *avant* d'être définie, provoquant un crash immédiat du script `stripe.ts` lors de la réception du paiement.
+    *   **Solution :** Réorganisation de l'ordre des déclarations dans `kti/src/pages/api/webhooks/stripe.ts` pour garantir que l'e-mail est disponible avant son utilisation.
+*   **Audit de Configuration E-mail :**
+    *   Vérification complète de la propagation de la variable d'environnement `NEXT_PUBLIC_CONTACT_EMAIL` mise à jour par l'utilisateur.
+    *   Confirmation que le formulaire de contact, les factures et les notifications admin utilisent bien la nouvelle adresse.
+
+### B. Sécurisation du Tunnel de Commande (Panier)
+*   **Protection contre les "Commandes Invités" :**
+    *   **Problème :** Le système de paiement (Stripe webhook) exige un compte utilisateur (`user_id`) pour enregistrer la commande. Les commandes passées par des visiteurs non connectés échouaient silencieusement (paiement OK, mais pas de commande ni d'email).
+    *   **Solution :** Modification de la page `Panier` (`src/pages/panier.tsx`) pour masquer le bouton "Commander" aux utilisateurs non connectés.
+    *   **Nouvelle UX :** Un bouton "Se connecter pour commander" apparaît à la place, redirigeant vers la connexion puis ramenant automatiquement au panier.
+
+### C. Résolution du problème d'envoi d'e-mails (Webhook Secret)
+*   **Problème :** Malgré les correctifs de code, les e-mails de confirmation ne partaient toujours pas.
+*   **Diagnostic :** L'erreur `Webhook Error: No signatures found` dans les logs Vercel a révélé que la clé secrète configurée (`STRIPE_WEBHOOK_SECRET`) était incorrecte.
+*   **Solution :** Récupération de la bonne clé Webhook (commençant par `whsec_`) depuis le Dashboard Stripe et mise à jour des variables d'environnement sur Vercel.
+*   **Résultat :** Les commandes sont désormais correctement validées, enregistrées et confirmées par e-mail.
+
+---
+
+## 11. Idées & Évolutions Futures (Roadmap)
 
 ### A. Secrétaire Virtuelle IA (Projet "Boîte Mail Intelligente")
 *   **Concept :** Le site se connecte à la boîte mail pro (OVH, Gmail, etc.) via IMAP.

@@ -35,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     /* 
        SECURITY NOTE: In a real production env, verify `req.headers.authorization` 
-       with `supabase.auth.getUser(token)` and check if email == 'kti@badie.eu'.
+       with `supabase.auth.getUser(token)` and check if email is in `NEXT_PUBLIC_ADMIN_EMAILS`.
        Skipping for now to speed up prototyping as requested, assuming /admin page is protected.
     */
 

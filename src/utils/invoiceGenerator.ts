@@ -10,7 +10,7 @@ const COMPANY_ADDRESS = [
   "60 AV DE LA LIBÉRATION",       // Adresse Ligne 2
   "33138 LANTON",             // Code Postal Ville
   "SIRET: 420 058 125 00030",  // SIRET Réel (à vérifier)
-  "Email: kti@badie.eu",
+  `Email: ${process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'kti@badie.eu'}`,
   "Site: https://kti.badie.eu"
 ];
 

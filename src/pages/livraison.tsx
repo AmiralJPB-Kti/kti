@@ -239,7 +239,7 @@ export default function LivraisonPage() {
 
       window.$("#Zone_Widget").MR_ParcelShopPicker({
         Target: "#Target_Widget",
-        Brand: "BDTEST13", // Test Brand ID
+        Brand: process.env.NEXT_PUBLIC_MONDIAL_RELAY_BRAND || "BDTEST13", // Use env var or fallback to test ID
         Country: relayCountry, // Dynamic Country
         PostCode: cleanPostCode, 
         ColLivMod: "24R",

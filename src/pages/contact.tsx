@@ -12,7 +12,7 @@ const ContactPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // Pre-fill message if coming from a product page
+  // Pre-fill message if coming from a product page or has a subject
   useEffect(() => {
     if (router.query.product) {
       const productName = decodeURIComponent(router.query.product as string);
@@ -21,8 +21,11 @@ const ContactPage = () => {
       const refText = productRef ? ` (Réf: ${productRef})` : '';
       
       setMessage(`Bonjour,\n\nJe souhaiterais commander une création similaire au modèle "${productName}"${refText}.\n\nVoici mes préférences (couleurs, détails...) :\n`);
+    } else if (router.query.subject) {
+       const subject = decodeURIComponent(router.query.subject as string);
+       setMessage(`Bonjour,\n\nConcernant le sujet "${subject}" :\n`);
     }
-  }, [router.query.product, router.query.reference]);
+  }, [router.query.product, router.query.reference, router.query.subject]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

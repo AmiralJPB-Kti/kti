@@ -99,7 +99,7 @@ const Footer = () => {
               <span className="text-gray-600 select-none">|</span>
 
               <span className="px-2">
-                <Link href="/livraison" className="hover:text-white transition-colors whitespace-nowrap">
+                <Link href="/contact?subject=Livraison et Retours" className="hover:text-white transition-colors whitespace-nowrap">
                   Livraison & Retours
                 </Link>
               </span>
