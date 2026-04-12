@@ -59,6 +59,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin" style={{ color: 'white', textDecoration: 'none', padding: '0.5rem', borderRadius: '4px', backgroundColor: router.pathname === '/admin' ? '#0055A4' : 'transparent' }}>
             📊 Tableau de bord
           </Link>
+          <Link href="/admin/produits" style={{ color: 'white', textDecoration: 'none', padding: '0.5rem', borderRadius: '4px', backgroundColor: router.pathname === '/admin/produits' ? '#0055A4' : 'transparent' }}>
+            🛍️ Boutique (Produits)
+          </Link>
           <Link href="/admin/offline-order" style={{ color: 'white', textDecoration: 'none', padding: '0.5rem', borderRadius: '4px', backgroundColor: router.pathname === '/admin/offline-order' ? '#0055A4' : 'transparent' }}>
             📝 Saisie Vente (Salon)
           </Link>
@@ -67,6 +70,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
           <Link href="/admin/assistant" style={{ color: 'white', textDecoration: 'none', padding: '0.5rem', borderRadius: '4px', backgroundColor: router.pathname === '/admin/assistant' ? '#0055A4' : 'transparent' }}>
             🧠 Assistant IA
+          </Link>
+          <div style={{ height: '1px', background: '#444', margin: '0.5rem 0' }} />
+          <Link href="/admin/atelier/stocks" style={{ color: 'white', textDecoration: 'none', padding: '0.5rem', borderRadius: '4px', backgroundColor: router.pathname === '/admin/atelier/stocks' ? '#0055A4' : 'transparent' }}>
+            🧵 Atelier (Stocks)
+          </Link>
+          <Link href="/admin/atelier/modeles" style={{ color: 'white', textDecoration: 'none', padding: '0.5rem', borderRadius: '4px', backgroundColor: router.pathname === '/admin/atelier/modeles' ? '#0055A4' : 'transparent' }}>
+            📋 Atelier (Modèles)
+          </Link>
+          <Link href="/admin/atelier/production" style={{ color: 'white', textDecoration: 'none', padding: '0.5rem', borderRadius: '4px', backgroundColor: router.pathname === '/admin/atelier/production' ? '#0055A4' : 'transparent' }}>
+            🔨 Atelier (Production)
           </Link>
           <Link href="/" style={{ color: '#aaa', textDecoration: 'none', padding: '0.5rem', marginTop: '2rem' }}>
             ← Retour au site
