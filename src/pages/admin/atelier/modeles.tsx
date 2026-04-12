@@ -66,7 +66,7 @@ export default function AtelierModeles() {
   const addMaterialRow = () => {
     setFormData({
       ...formData,
-      creation_materials: [...(formData.creation_materials || []), { material_id: '', quantity_used: 1 }]
+      creation_materials: [{ material_id: '', quantity_used: 1 }, ...(formData.creation_materials || [])]
     });
   };
 

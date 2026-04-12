@@ -167,7 +167,10 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
     *   **Correctifs :** Implémentation des fonctions `startEdit` et `PUT` manquantes dans les menus Stocks et Modèles pour permettre la modification des données existantes.
     *   **Sécurisation Modèles :** Ajout d'une gestion d'erreur spécifique lors de la tentative de suppression de modèles ayant un historique (violation de contrainte de clé étrangère), avec message utilisateur explicite.
     *   **Suppression Intelligente (Production) :** Refonte du mécanisme de suppression de production. L'API `DELETE` accepte désormais un paramètre `restock=true/false` permettant à l'utilisateur de choisir entre une simple suppression (cas de perte) ou une réintégration automatique au stock (cas d'erreur de saisie).
-    *   **Outils SQL :** Déploiement de la fonction `increment_material_stock` pour sécuriser les mises à jour atomiques des quantités de matériaux.
+    *   **Gestion des Médias :** 
+    *   Correction des accès en écriture sur le bucket Supabase `product-images` via la mise en place de politiques (RLS) autorisant les opérations `ALL` pour les utilisateurs authentifiés.
+*   **Méthodologie & Qualité :**
+    *   Instauration d'une charte de gestion SQL : toutes les modifications de base de données sont désormais consignées dans le répertoire `/SQL/` avant exécution et suivies dans l'historique Git pour assurer la traçabilité et faciliter les restaurations.
 
 ---
 
