@@ -30,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json(templates);
 
       case 'POST':
-        const { name, description, labor_cost_per_unit, overhead_cost_per_unit, margin_percent, materials } = req.body;
+        const { name, description, labor_cost_per_unit, overhead_cost_per_unit, margin_percent, creation_materials } = req.body;
         
         // 1. Créer le template
         const { data: newTemplate, error: templateError } = await supabaseAdmin
@@ -49,8 +49,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (templateError) throw templateError;
 
         // 2. Lier les matériaux si présents
-        if (materials && materials.length > 0) {
-          const materialLinks = materials.map((m: any) => ({
+        if (creation_materials && creation_materials.length > 0) {
+          const materialLinks = creation_materials.map((m: any) => ({
             creation_template_id: newTemplate.id,
             material_id: m.material_id,
             quantity_used: m.quantity_used
@@ -66,8 +66,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(201).json(newTemplate);
 
       case 'PUT':
-        const { id, materials: updatedMaterials, ...updateData } = req.body;
+        const { id, creation_materials: updatedMaterials, ...updateData } = req.body;
         
+        // Supprimer 'creation_materials' du body pour l'update direct de la table principale
+        // car cette colonne n'existe pas dans 'creations_templates'
+        delete (updateData as any).creation_materials;
+
         // 1. Mettre à jour les infos de base
         const { error: putError } = await supabaseAdmin
           .from('creations_templates')

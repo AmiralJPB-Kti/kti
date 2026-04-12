@@ -20,6 +20,7 @@ export default function AtelierProduction() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     creation_template_id: '',
@@ -48,14 +49,51 @@ export default function AtelierProduction() {
     }
   };
 
+  const startEdit = (log: Log) => {
+    setEditingId(log.id);
+    setFormData({
+      creation_template_id: log.creation_template_id,
+      quantity_produced: log.quantity_produced,
+      date_produced: log.date_produced.split('T')[0]
+    });
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const resetForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setFormData({
+      creation_template_id: '',
+      quantity_produced: 1,
+      date_produced: new Date().toISOString().split('T')[0]
+    });
+  };
+
+  const deleteLog = async (id: string) => {
+    if (!confirm('Voulez-vous supprimer cette entrée ? Attention: Les stocks ne seront pas automatiquement restitués par cette action simple de nettoyage.')) return;
+    try {
+      const res = await fetch(`/api/admin/atelier/production?id=${id}`, {
+        method: 'DELETE'
+      });
+      if (!res.ok) throw new Error('Erreur lors de la suppression');
+      fetchData();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
+      const method = editingId ? 'PUT' : 'POST';
+      const body = editingId ? { ...formData, id: editingId } : formData;
+
       const res = await fetch('/api/admin/atelier/production', {
-        method: 'POST',
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(body)
       });
       
       if (!res.ok) {
@@ -64,8 +102,8 @@ export default function AtelierProduction() {
       }
       
       await fetchData();
-      setShowForm(false);
-      alert('Fabrication enregistrée ! Les stocks ont été mis à jour automatiquement.');
+      resetForm();
+      alert(editingId ? 'Modification enregistrée !' : 'Fabrication enregistrée !');
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -89,16 +127,16 @@ export default function AtelierProduction() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <h1 style={{ fontFamily: 'Kaushan Script, cursive', color: '#2C2C2C', margin: 0 }}>Suivi de Production</h1>
           <button 
-            onClick={() => setShowForm(!showForm)}
-            style={{ background: '#0055A4', color: 'white', padding: '0.6rem 1.2rem', borderRadius: '4px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}
+            onClick={() => showForm ? resetForm() : setShowForm(true)}
+            style={{ background: showForm ? '#666' : '#0055A4', color: 'white', padding: '0.6rem 1.2rem', borderRadius: '4px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}
           >
-            {showForm ? 'Fermer' : '+ Nouvelle Fabrication'}
+            {showForm ? 'Annuler' : '+ Nouvelle Fabrication'}
           </button>
         </div>
 
         {showForm && (
           <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem', border: '1px solid #ddd', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-            <h3 style={{ marginTop: 0 }}>Qu'avez-vous fabriqué aujourd'hui ?</h3>
+            <h3 style={{ marginTop: 0 }}>{editingId ? 'Modifier l\'enregistrement' : 'Qu\'avez-vous fabriqué aujourd\'hui ?'}</h3>
             <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr auto', gap: '1rem', alignItems: 'end' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 'bold' }}>Modèle de création</label>
@@ -131,7 +169,7 @@ export default function AtelierProduction() {
                 />
               </div>
               <button type="submit" disabled={loading} style={{ background: '#28a745', color: 'white', border: 'none', padding: '0.7rem 1.5rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-                {loading ? '...' : 'Valider'}
+                {loading ? '...' : (editingId ? 'Mettre à jour' : 'Valider')}
               </button>
             </form>
           </div>
@@ -145,7 +183,7 @@ export default function AtelierProduction() {
                 <th style={{ padding: '1rem', textAlign: 'left' }}>Date</th>
                 <th style={{ padding: '1rem', textAlign: 'left' }}>Modèle fabriqué</th>
                 <th style={{ padding: '1rem', textAlign: 'center' }}>Quantité</th>
-                <th style={{ padding: '1rem', textAlign: 'right' }}>Action</th>
+                <th style={{ padding: '1rem', textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -159,7 +197,11 @@ export default function AtelierProduction() {
                     </span>
                   </td>
                   <td style={{ padding: '1rem', textAlign: 'right' }}>
-                    <span style={{ fontSize: '0.8em', color: '#666' }}>Déstockage effectué ✓</span>
+                    <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'flex-end', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.8em', color: '#666' }}>Stock OK ✓</span>
+                      <button onClick={() => startEdit(log)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem' }} title="Modifier">✏️</button>
+                      <button onClick={() => deleteLog(log.id)} style={{ background: 'none', border: 'none', color: '#d32f2f', cursor: 'pointer', fontSize: '1.1rem' }} title="Supprimer">🗑️</button>
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -18,6 +18,7 @@ export default function AtelierStocks() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<Material>>({
     name: '',
     unit_cost: 0,
@@ -45,28 +46,55 @@ export default function AtelierStocks() {
     }
   };
 
+  const startEdit = (material: Material) => {
+    setEditingId(material.id);
+    setFormData({
+      name: material.name,
+      unit_cost: material.unit_cost,
+      purchase_unit: material.purchase_unit,
+      quantity_in_unit: material.quantity_in_unit,
+      current_stock: material.current_stock,
+      low_stock_threshold: material.low_stock_threshold,
+      notes: material.notes || ''
+    });
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const resetForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setFormData({
+      name: '',
+      unit_cost: 0,
+      purchase_unit: 'mètre',
+      quantity_in_unit: 1,
+      current_stock: 0,
+      low_stock_threshold: 0,
+      notes: ''
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/atelier/materials', {
-        method: 'POST',
+      const url = '/api/admin/atelier/materials';
+      const method = editingId ? 'PUT' : 'POST';
+      
+      const payload = editingId 
+        ? { ...formData, id: editingId } 
+        : formData;
+        
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error('Erreur lors de l\'enregistrement');
       
       await fetchMaterials();
-      setShowForm(false);
-      setFormData({
-        name: '',
-        unit_cost: 0,
-        purchase_unit: 'mètre',
-        quantity_in_unit: 1,
-        current_stock: 0,
-        low_stock_threshold: 0,
-        notes: ''
-      });
+      resetForm();
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -103,8 +131,8 @@ export default function AtelierStocks() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <h1 style={{ fontFamily: 'Kaushan Script, cursive', color: '#2C2C2C', margin: 0 }}>Gestion des Stocks & Matériaux</h1>
           <button 
-            onClick={() => setShowForm(!showForm)}
-            style={{ background: '#0055A4', color: 'white', padding: '0.6rem 1.2rem', borderRadius: '4px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}
+            onClick={() => showForm ? resetForm() : setShowForm(true)}
+            style={{ background: showForm ? '#666' : '#0055A4', color: 'white', padding: '0.6rem 1.2rem', borderRadius: '4px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}
           >
             {showForm ? 'Annuler' : '+ Nouveau Matériau'}
           </button>
@@ -112,7 +140,7 @@ export default function AtelierStocks() {
 
         {showForm && (
           <div style={{ background: '#f9f9f9', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem', border: '1px solid #ddd' }}>
-            <h3 style={{ marginTop: 0 }}>Ajouter une matière première</h3>
+            <h3 style={{ marginTop: 0 }}>{editingId ? 'Modifier la matière première' : 'Ajouter une matière première'}</h3>
             <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.3rem' }}>Nom du Matériau</label>

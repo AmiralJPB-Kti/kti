@@ -159,9 +159,18 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 *   **Solution :** Récupération de la bonne clé Webhook (commençant par `whsec_`) depuis le Dashboard Stripe et mise à jour des variables d'environnement sur Vercel.
 *   **Résultat :** Les commandes sont désormais correctement validées, enregistrées et confirmées par e-mail.
 
+### D. Corrections Graphiques & Automatisation de l'Atelier
+*   **Visuel de l'Accueil :**
+    *   **Bannière :** Passage de `object-fit: cover` à `contain` pour éviter le rognage des bannières importées.
+    *   **Grille Produits :** Réduction de la taille minimale des cartes produits (de 280px à 200px) dans `Home.module.css` pour une meilleure densité visuelle.
+*   **Fonctionnement de l'Administration :**
+    *   **Correctifs :** Implémentation des fonctions `startEdit` et `PUT` manquantes dans les menus Stocks et Modèles pour permettre la modification des données existantes.
+    *   **Automatisation SQL :** Création du script `SQL/03_automatisation_retour_stock.sql` et déploiement de déclencheurs (triggers) Supabase pour la restitution automatique des matériaux au stock lors de la suppression ou modification d'un log de production.
+
 ---
 
-## 11. Idées & Évolutions Futures (Roadmap)
+## 13. Idées & Évolutions Futures (Roadmap)
+
 
 ### A. Secrétaire Virtuelle IA (Projet "Boîte Mail Intelligente")
 *   **Concept :** Le site se connecte à la boîte mail pro (OVH, Gmail, etc.) via IMAP.

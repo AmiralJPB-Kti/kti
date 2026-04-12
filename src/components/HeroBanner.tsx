@@ -37,12 +37,14 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ settings }) => {
     <section style={{
       position: 'relative',
       width: '100%',
-      height: '25vh', /* Hauteur réduite */
+      minHeight: '200px', /* Hauteur minimale de sécurité */
+      aspectRatio: '21 / 9', /* Ratio par défaut (modifiable selon vos images) */
       color: 'var(--color-accent-white)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       textAlign: 'center',
+      overflow: 'hidden',
     }}>
       <style>{animationKeyframes}</style> {/* Inject the keyframes into the component */}
       
@@ -51,7 +53,7 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ settings }) => {
           src={urlFor(settings.heroImage).url()}
           alt={settings.tagline || 'Bannière'}
           fill
-          style={{ objectFit: 'cover', zIndex: -1 }}
+          style={{ objectFit: 'contain', zIndex: -1, backgroundColor: '#000' }} /* Contain pour voir toute l'image, fond noir pour combler les bords */
           priority
         />
       )}
