@@ -174,6 +174,23 @@ Ce document sert de point de repère pour reprendre le développement. Il résum
 
 ---
 
+## 11. Accomplissements de la session du 13/04/2026
+
+### A. Documentation & Accompagnement Utilisateur
+*   **Création d'un Guide Utilisateur Simplifié :** Rédaction d'un manuel complet (`kti/documentation_imprimable/Guide_Utilisateur_Atelier_Boutique.md`) destiné à faciliter la prise en main de l'administration par des profils non techniques.
+*   **Contenu du guide :** 
+    *   Gestion des stocks (matières premières).
+    *   Création de modèles (recettes de fabrication).
+    *   Suivi de production avec déstockage automatique.
+    *   Gestion de la boutique en ligne (produits, photos, prix).
+*   **Pédagogie :** Utilisation d'un vocabulaire imagé ("Recettes", "Ingrédients") pour rendre l'outil accessible.
+
+### B. Audit et Revue de Fonctionnement
+*   **Vérification de l'Atelier :** Revue des dernières évolutions (suppression intelligente, gestion des images) pour s'assurer de la cohérence avec le guide rédigé.
+*   **Synchronisation des documents :** Mise à jour du Suivi de Projet et du Journal de Bord pour assurer la continuité du suivi technique et fonctionnel.
+
+---
+
 ## 13. Idées & Évolutions Futures (Roadmap)
 
 
